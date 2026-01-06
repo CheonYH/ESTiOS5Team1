@@ -63,14 +63,22 @@ struct DummyData {
             imageName: "game7",
             platforms: [.playstation]
         ),
-        Game(id: "8", title: "Fine Me", genre: "Action Adventure", releaseYear: "2023", rating: 9.4, imageName: "game8", platforms: [.pc])
+        Game(
+            id: "8",
+            title: "Fine Me",
+            genre: "Action Adventure",
+            releaseYear: "2023",
+            rating: 9.4,
+            imageName: "game8",
+            platforms: [.pc]
+        )
     ]
     
     static let newReleases = [
         Game(
             id: "9",
-            title: "Resident Evil 4 Remake"
-            , genre: "Survival Horror",
+            title: "Resident Evil 4 Remake",
+            genre: "Survival Horror",
             releaseYear: "2024",
             rating: 9.3,
             imageName: "game9",
@@ -85,7 +93,15 @@ struct DummyData {
             imageName: "game10",
             platforms: [.pc, .playstation]
         ),
-        Game(id: "11", title: "Starfield", genre: "RPG", releaseYear: "2024", rating: 8.5, imageName: "game11", platforms: [.pc, .xbox])
+        Game(
+            id: "11",
+            title: "Starfield",
+            genre: "RPG",
+            releaseYear: "2024",
+            rating: 8.5,
+            imageName: "game11",
+            platforms: [.pc, .xbox]
+        )
     ]
     
     static let comingSoon = [
@@ -126,6 +142,7 @@ struct DummyData {
 struct SearchView: View {
     @State private var searchText = ""
     @State private var selectedPlatform: PlatformFilter = .all
+    @EnvironmentObject var favoriteManager: FavoriteManager
     
     enum PlatformFilter: String, CaseIterable {
         case all = "전체"
@@ -377,9 +394,10 @@ struct PlatformButton: View {
     }
 }
 
-// MARK: - Game Card
+// MARK: - Game Card (하트 버튼 추가)
 struct GameCard: View {
     let game: Game
+    @EnvironmentObject var favoriteManager: FavoriteManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -394,18 +412,36 @@ struct GameCard: View {
                     .frame(width: 140, height: 200)
                     .cornerRadius(12)
                 
-                // Rating Badge
-                if game.rating > 0 {
-                    Text(String(format: "%.1f", game.rating))
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.yellow)
-                        .cornerRadius(6)
-                        .padding(8)
+                // Rating Badge and Heart Button
+                HStack {
+                    // Rating Badge
+                    if game.rating > 0 {
+                        Text(String(format: "%.1f", game.rating))
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.yellow)
+                            .cornerRadius(6)
+                    }
+                    
+                    Spacer()
+                    
+                    // Heart Button
+                    Button(action: {
+                        favoriteManager.toggleFavorite(game: game)
+                    }) {
+                        Image(systemName: favoriteManager.isFavorite(gameId: game.id) ? "heart.fill" : "heart")
+                            .font(.system(size: 16))
+                            .foregroundColor(.purple)
+                            .frame(width: 28, height: 28)
+                            .background(Color.white.opacity(0.9))
+                            .clipShape(Circle())
+                    }
                 }
+                .padding(8)
+                .frame(width: 140, alignment: .leading)
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -424,9 +460,10 @@ struct GameCard: View {
     }
 }
 
-// MARK: - Large Game Card
+// MARK: - Large Game Card (하트 버튼 추가)
 struct LargeGameCard: View {
     let game: Game
+    @EnvironmentObject var favoriteManager: FavoriteManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -441,18 +478,36 @@ struct LargeGameCard: View {
                     .frame(width: 180, height: 260)
                     .cornerRadius(12)
                 
-                // Rating Badge
-                if game.rating > 0 {
-                    Text(String(format: "%.1f", game.rating))
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.yellow)
-                        .cornerRadius(6)
-                        .padding(8)
+                // Rating Badge and Heart Button
+                HStack {
+                    // Rating Badge
+                    if game.rating > 0 {
+                        Text(String(format: "%.1f", game.rating))
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.yellow)
+                            .cornerRadius(6)
+                    }
+                    
+                    Spacer()
+                    
+                    // Heart Button
+                    Button(action: {
+                        favoriteManager.toggleFavorite(game: game)
+                    }) {
+                        Image(systemName: favoriteManager.isFavorite(gameId: game.id) ? "heart.fill" : "heart")
+                            .font(.system(size: 18))
+                            .foregroundColor(.purple)
+                            .frame(width: 32, height: 32)
+                            .background(Color.white.opacity(0.9))
+                            .clipShape(Circle())
+                    }
                 }
+                .padding(8)
+                .frame(width: 180, alignment: .leading)
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -471,21 +526,37 @@ struct LargeGameCard: View {
     }
 }
 
-// MARK: - New Release Card
+// MARK: - New Release Card (하트 버튼 추가)
 struct NewReleaseCard: View {
     let game: Game
+    @EnvironmentObject var favoriteManager: FavoriteManager
     
     var body: some View {
         HStack(spacing: 16) {
             // Game Image
-            Rectangle()
-                .fill(LinearGradient(
-                    colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-                .frame(width: 100, height: 140)
-                .cornerRadius(12)
+            ZStack(alignment: .topLeading) {
+                Rectangle()
+                    .fill(LinearGradient(
+                        colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 100, height: 140)
+                    .cornerRadius(12)
+                
+                // Heart Button on Image
+                Button(action: {
+                    favoriteManager.toggleFavorite(game: game)
+                }) {
+                    Image(systemName: favoriteManager.isFavorite(gameId: game.id) ? "heart.fill" : "heart")
+                        .font(.system(size: 16))
+                        .foregroundColor(.purple)
+                        .frame(width: 28, height: 28)
+                        .background(Color.white.opacity(0.9))
+                        .clipShape(Circle())
+                }
+                .padding(8)
+            }
             
             // Game Info
             VStack(alignment: .leading, spacing: 8) {
@@ -637,5 +708,6 @@ extension View {
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView()
+            .environmentObject(FavoriteManager())
     }
 }
