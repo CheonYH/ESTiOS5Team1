@@ -44,7 +44,6 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
     let genres: [GenreDTO]?
 }
 
-
 /// IGDB API에서 제공하는 장르 정보를 표현하는 DTO입니다.
 ///
 /// 게임 하나에 여러 개의 장르가 연결될 수 있으며,

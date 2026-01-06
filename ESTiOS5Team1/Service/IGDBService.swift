@@ -48,11 +48,11 @@ final class IGDBServiceManager: IGDBService {
 
         // IGDB 인증 헤더
         request.setValue(
-            "pt876w7joclcowqr9gszlys9hkynzb",
+            IGDBConfig.clientID,
             forHTTPHeaderField: "Client-ID"
         )
         request.setValue(
-            "Bearer xf42pxmkguhxr41rgvlg4wuo0et71g",
+            "Bearer \(IGDBConfig.accessToken)",
             forHTTPHeaderField: "Authorization"
         )
 
