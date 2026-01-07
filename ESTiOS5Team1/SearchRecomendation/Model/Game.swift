@@ -17,3 +17,15 @@ struct Game: Identifiable {
     let imageName: String
     let platforms: [Platform]
 }
+
+extension Game {
+    init(dto: IGDBGameListDTO) {
+        self.id = String(dto.id)
+        self.title = dto.name
+        self.genre = dto.genres?.first?.name ?? "N/A"
+        self.releaseYear = "-"
+        self.rating = dto.rating ?? 0.0
+        self.imageName = dto.cover?.imageID ?? ""
+        self.platforms = dto.platforms?.compactMap { Platform(igdbName: $0.name) } ?? []
+    }
+}

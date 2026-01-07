@@ -11,39 +11,39 @@ struct SearchView: View {
     @State private var searchText = ""
     @State private var selectedPlatform: PlatformFilterType = .all
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         // Search Bar
                         SearchBar(searchText: $searchText)
-                        
+
                         // Platform Filter Buttons
                         PlatformFilter(selectedPlatform: $selectedPlatform)
-                        
+
                         // PC 추천 게임
                         GameSection(
                             title: "PC 추천 게임",
                             games: DummyData.pcGames
                         )
-                        
+
                         // Pinned 게임
                         GameSection(
                             title: "Pinned 게임",
                             games: DummyData.pinnedGames,
                             showLargeCard: true
                         )
-                        
+
                         // New Releases 추천
                         NewReleasesSection()
-                        
+
                         // Coming Soon
                         ComingSoonSection()
-                        
+
                         // PlayStation 추천 게임
                         GameSection(
                             title: "PlayStation 추천 게임",
@@ -55,11 +55,20 @@ struct SearchView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("작품검색")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                ToolbarItem(placement: .navigationBarLeading) {
+                    HStack {
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundColor(.white)
+
+                        HStack(spacing: 4) {
+                            Image(systemName: "gamecontroller.fill")
+                                .foregroundColor(.purple)
+                            Text("GameVault")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                    }
                 }
             }
         }
@@ -71,7 +80,7 @@ struct GameSection: View {
     let title: String
     let games: [Game]
     var showLargeCard: Bool = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -79,9 +88,9 @@ struct GameSection: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
+
                 Spacer()
-                
+
                 Button(action: {}) {
                     Text("See All")
                         .font(.subheadline)
@@ -89,7 +98,7 @@ struct GameSection: View {
                 }
             }
             .padding(.horizontal)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(games) { game in
@@ -115,9 +124,9 @@ struct NewReleasesSection: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
+
                 Spacer()
-                
+
                 Button(action: {}) {
                     Text("See All")
                         .font(.subheadline)
@@ -125,7 +134,7 @@ struct NewReleasesSection: View {
                 }
             }
             .padding(.horizontal)
-            
+
             VStack(spacing: 16) {
                 ForEach(DummyData.newReleases) { game in
                     NewReleaseCard(game: game)
@@ -145,9 +154,9 @@ struct ComingSoonSection: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
+
                 Spacer()
-                
+
                 Button(action: {}) {
                     Text("See All")
                         .font(.subheadline)
@@ -155,7 +164,7 @@ struct ComingSoonSection: View {
                 }
             }
             .padding(.horizontal)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(DummyData.comingSoon) { game in

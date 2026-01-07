@@ -13,8 +13,9 @@ import Foundation
 /// UI에서 바로 사용할 수 있도록 문자열 포맷 및 데이터 가공을 수행합니다.
 ///
 /// - Important:
-/// 이 타입은 **UI 표현 목적에만 사용**되며,
-/// 비즈니스 로직이나 네트워크 계층에서는 사용하지 않습니다.
+/// 이 타입은 화면에 표시하기 위한 데이터만을 담습니다.
+/// 앱 내부 로직이나 네트워크 처리에는 사용하지 않습니다.
+
 struct GameListItem: Identifiable, Hashable {
 
     /// 게임의 고유 식별자
@@ -48,13 +49,20 @@ struct GameListItem: Identifiable, Hashable {
     /// Entity의 데이터를 UI 친화적인 형태로 변환하며,
     /// 문자열 포맷과 Optional 처리 로직을 포함합니다.
     ///
+    ///
+
+    let platformCategories: [Platform]
+
     /// - Parameter entity: 앱 내부 도메인 모델인 `GameEntity`
     init(entity: GameEntity) {
         self.id = entity.id
         self.title = entity.title
         self.coverURL = entity.coverURL
         self.ratingText = entity.rating
-            .map { String(format: "%.1f", $0) } ?? "N/A"
+            .map { String(format: "%.1f", $0 / 20.0) } ?? "N/A"
         self.genre = entity.genre
+        self.platformCategories = Array(
+            Set( entity.platforms.compactMap { Platform(igdbName: $0.name) } )
+        )
     }
 }

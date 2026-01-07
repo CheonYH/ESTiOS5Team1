@@ -43,11 +43,14 @@ final class GameListViewModel: ObservableObject {
     /// 테스트 및 의존성 주입이 가능하도록 설계되었습니다.
     private let service: IGDBService
 
+    private let query: String
+
     /// `GameListViewModel` 초기화 메서드
     ///
     /// - Parameter service: 게임 목록을 제공하는 `IGDBService` 구현체
-    init(service: IGDBService) {
+    init(service: IGDBService, query: String) {
         self.service = service
+        self.query = query
     }
 
     /// IGDB로부터 게임 목록을 조회하고 화면 상태를 갱신합니다.
@@ -68,7 +71,7 @@ final class GameListViewModel: ObservableObject {
             defer { isLoading = false }
 
             do {
-                let dtoList = try await service.fetchGameList()
+                let dtoList = try await service.fetchGameList(query: query)
 
                 // DTO → Entity 변환
                 let entities = dtoList.map(GameEntity.init)
