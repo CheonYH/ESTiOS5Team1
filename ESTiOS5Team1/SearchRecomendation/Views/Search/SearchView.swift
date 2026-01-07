@@ -55,20 +55,11 @@ struct SearchView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    HStack {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundColor(.white)
-                        
-                        HStack(spacing: 4) {
-                            Image(systemName: "gamecontroller.fill")
-                                .foregroundColor(.purple)
-                            Text("GameVault")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                        }
-                    }
+                ToolbarItem(placement: .principal) {
+                    Text("작품검색")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
                 }
             }
         }
