@@ -48,9 +48,22 @@
 		D5DE86A1FF51BCDFFDDF6223 /* Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig"; path = "Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		25C0335D2F0CF3D700CA196B /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		25C032442F0C972400CA196B /* ESTiOS5Team1 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				25C0335D2F0CF3D700CA196B /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
+			);
 			path = ESTiOS5Team1;
 			sourceTree = "<group>";
 		};
@@ -452,6 +465,8 @@
 /* Begin XCBuildConfiguration section */
 		25C032632F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
+			baseConfigurationReferenceRelativePath = Config/IGDB.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -517,6 +532,8 @@
 		};
 		25C032642F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
+			baseConfigurationReferenceRelativePath = Config/IGDB.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -581,9 +598,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = 7RH8F785XV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -615,9 +634,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = 7RH8F785XV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
