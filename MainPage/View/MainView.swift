@@ -9,35 +9,34 @@ import SwiftUI
 
 struct MainView: View {
     @State var imageColor: Color = .white
-    
+
     @State var item: GameListItem
-    
-    
+
     @ViewBuilder
     var topbar: some View {
-        HStack() {
+        HStack {
             Button {
-                
+
             } label: {
                 Image(systemName: "line.3.horizontal")
                     .foregroundStyle(imageColor)
             }
-            
+
             Spacer()
-            
+
             Image(systemName: "book")
                 .foregroundStyle(.purple)
-            
+
             Text("GameVault")
-            
+
             Spacer()
-            
+
             Button {
             } label: {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(imageColor)
             }
-            
+
         }
         .padding(.horizontal, 30)
         Divider()
@@ -60,8 +59,7 @@ struct MainView: View {
                     }
                     .frame(height: 400)
                     .clipped()
-                    
-                    
+
                     VStack(alignment: .leading, spacing: 5) {
                         HStack {
                             Text("FEATURED")
@@ -69,27 +67,27 @@ struct MainView: View {
                                 .padding(.vertical, 5)
                                 .padding(.horizontal, 10)
                                 .background(.purple, in: Capsule())
-                            
+
                             Text(item.ratingText)// 임시
                                 .bold()
                                 .padding(.vertical, 5)
                                 .padding(.horizontal, 15)
                                 .background(.yellow, in: Capsule())
                         }
-                        
+
                         Text(item.title)
                             .font(.largeTitle)
-                        
+
                         Text("Rise, Tarnished, and be guided by grace to brandish the power of the Elden Ring.")
                             .font(.headline)
                             .multilineTextAlignment(.leading)
-                        
+
                         Text(item.genre.joined(separator: " · "))
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.7))
-                        
+
                         Button {
-                            
+
                         } label: {
                             Label("Play Now", systemImage: "play.fill")
                                 .foregroundStyle(.white)
@@ -97,14 +95,11 @@ struct MainView: View {
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 100)
                         }
-                        
-                        
-                        
+
                     }
-                    
+
                 }
-                
-                
+
             }
         }
     }

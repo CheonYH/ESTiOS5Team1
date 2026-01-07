@@ -32,4 +32,3 @@ struct IGDBImageDTO: Codable, Hashable {
         case imageID = "image_id"
     }
 }
-

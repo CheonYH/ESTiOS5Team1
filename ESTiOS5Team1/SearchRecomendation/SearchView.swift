@@ -23,7 +23,7 @@ enum Platform: String {
     case xbox = "xbox"
     case pc = "pc"
     case nintendo = "nintendo"
-    
+
     var icon: String {
         switch self {
             case .playstation: return "playstation.logo"
@@ -43,7 +43,7 @@ struct DummyData {
         Game(id: "4", title: "Demon Seuls", genre: "Action Adventure", releaseYear: "2022", rating: 9.7, imageName: "game4", platforms: [.pc]),
         Game(id: "5", title: "The Medi", genre: "Action Adventure", releaseYear: "2021", rating: 9.2, imageName: "game5", platforms: [.pc])
     ]
-    
+
     static let pinnedGames = [
         Game(
             id: "6",
@@ -73,7 +73,7 @@ struct DummyData {
             platforms: [.pc]
         )
     ]
-    
+
     static let newReleases = [
         Game(
             id: "9",
@@ -103,7 +103,7 @@ struct DummyData {
             platforms: [.pc, .xbox]
         )
     ]
-    
+
     static let comingSoon = [
         Game(
             id: "12",
@@ -115,7 +115,7 @@ struct DummyData {
             platforms: [.playstation, .xbox]
         )
     ]
-    
+
     static let playstationGames = [
         Game(
             id: "13",
@@ -143,14 +143,14 @@ struct SearchView: View {
     @State private var searchText = ""
     @State private var selectedPlatform: PlatformFilter = .all
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     enum PlatformFilter: String, CaseIterable {
         case all = "전체"
         case pc = "PC"
         case playstation = "PlayStation"
         case xbox = "Xbox"
         case nintendo = "Nintendo"
-        
+
         var iconColor: Color {
             switch self {
                 case .all: return .purple
@@ -161,39 +161,39 @@ struct SearchView: View {
             }
         }
     }
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         // Search Bar
                         searchBarSection
-                        
+
                         // Platform Filter Buttons
                         platformFilterSection
-                        
+
                         // PC 추천 게임
                         gameSectionWithHorizontalScroll(
                             title: "PC 추천 게임",
                             games: DummyData.pcGames
                         )
-                        
+
                         // Pinned 게임
                         gameSectionWithHorizontalScroll(
                             title: "Pinned 게임",
                             games: DummyData.pinnedGames,
                             showLargeCard: true
                         )
-                        
+
                         // New Releases 추천
                         newReleasesSection
-                        
+
                         // Coming Soon
                         comingSoonSection
-                        
+
                         // PlayStation 추천 게임
                         gameSectionWithHorizontalScroll(
                             title: "PlayStation 추천 게임",
@@ -209,7 +209,7 @@ struct SearchView: View {
                     HStack {
                         Image(systemName: "line.3.horizontal")
                             .foregroundColor(.white)
-                        
+
                         HStack(spacing: 4) {
                             Image(systemName: "gamecontroller.fill")
                                 .foregroundColor(.purple)
@@ -223,13 +223,13 @@ struct SearchView: View {
             }
         }
     }
-    
+
     // MARK: - Search Bar Section
     private var searchBarSection: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
-            
+
             TextField("게임 포털, 태그 검색...", text: $searchText)
                 .foregroundColor(.white)
                 .placeholder(when: searchText.isEmpty) {
@@ -242,7 +242,7 @@ struct SearchView: View {
         .cornerRadius(12)
         .padding(.horizontal)
     }
-    
+
     // MARK: - Platform Filter Section
     private var platformFilterSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -259,7 +259,7 @@ struct SearchView: View {
             .padding(.horizontal)
         }
     }
-    
+
     // MARK: - Game Section with Horizontal Scroll
     private func gameSectionWithHorizontalScroll(title: String, games: [Game], showLargeCard: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -268,9 +268,9 @@ struct SearchView: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
+
                 Spacer()
-                
+
                 Button(action: {}) {
                     Text("See All")
                         .font(.subheadline)
@@ -278,7 +278,7 @@ struct SearchView: View {
                 }
             }
             .padding(.horizontal)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(games) { game in
@@ -293,7 +293,7 @@ struct SearchView: View {
             }
         }
     }
-    
+
     // MARK: - New Releases Section
     private var newReleasesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -302,9 +302,9 @@ struct SearchView: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
+
                 Spacer()
-                
+
                 Button(action: {}) {
                     Text("See All")
                         .font(.subheadline)
@@ -312,7 +312,7 @@ struct SearchView: View {
                 }
             }
             .padding(.horizontal)
-            
+
             VStack(spacing: 16) {
                 ForEach(DummyData.newReleases) { game in
                     NewReleaseCard(game: game)
@@ -321,7 +321,7 @@ struct SearchView: View {
             .padding(.horizontal)
         }
     }
-    
+
     // MARK: - Coming Soon Section
     private var comingSoonSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -330,9 +330,9 @@ struct SearchView: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
+
                 Spacer()
-                
+
                 Button(action: {}) {
                     Text("See All")
                         .font(.subheadline)
@@ -340,7 +340,7 @@ struct SearchView: View {
                 }
             }
             .padding(.horizontal)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(DummyData.comingSoon) { game in
@@ -358,7 +358,7 @@ struct PlatformButton: View {
     let platform: SearchView.PlatformFilter
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -371,7 +371,7 @@ struct PlatformButton: View {
             .cornerRadius(12)
         }
     }
-    
+
     @ViewBuilder
     private var platformIcon: some View {
         switch platform {
@@ -398,7 +398,7 @@ struct PlatformButton: View {
 struct GameCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
@@ -411,7 +411,7 @@ struct GameCard: View {
                     ))
                     .frame(width: 140, height: 200)
                     .cornerRadius(12)
-                
+
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
@@ -425,9 +425,9 @@ struct GameCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Heart Button
                     Button(action: {
                         favoriteManager.toggleFavorite(game: game)
@@ -443,14 +443,14 @@ struct GameCard: View {
                 .padding(8)
                 .frame(width: 140, alignment: .leading)
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(game.title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .lineLimit(1)
-                
+
                 Text(game.genre)
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -464,7 +464,7 @@ struct GameCard: View {
 struct LargeGameCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
@@ -477,7 +477,7 @@ struct LargeGameCard: View {
                     ))
                     .frame(width: 180, height: 260)
                     .cornerRadius(12)
-                
+
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
@@ -491,9 +491,9 @@ struct LargeGameCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Heart Button
                     Button(action: {
                         favoriteManager.toggleFavorite(game: game)
@@ -509,14 +509,14 @@ struct LargeGameCard: View {
                 .padding(8)
                 .frame(width: 180, alignment: .leading)
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(game.title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .lineLimit(2)
-                
+
                 Text(game.genre)
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -530,7 +530,7 @@ struct LargeGameCard: View {
 struct NewReleaseCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         HStack(spacing: 16) {
             // Game Image
@@ -543,7 +543,7 @@ struct NewReleaseCard: View {
                     ))
                     .frame(width: 100, height: 140)
                     .cornerRadius(12)
-                
+
                 // Heart Button on Image
                 Button(action: {
                     favoriteManager.toggleFavorite(game: game)
@@ -557,7 +557,7 @@ struct NewReleaseCard: View {
                 }
                 .padding(8)
             }
-            
+
             // Game Info
             VStack(alignment: .leading, spacing: 8) {
                 Text(game.title)
@@ -565,11 +565,11 @@ struct NewReleaseCard: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(2)
-                
+
                 Text(game.genre + " • " + game.releaseYear)
                     .font(.subheadline)
                     .foregroundColor(.gray)
-                
+
                 // Rating and Platforms
                 HStack(spacing: 8) {
                     // Rating
@@ -583,22 +583,22 @@ struct NewReleaseCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-                    
+
                     // Platform Icons
                     HStack(spacing: 4) {
-                        ForEach(game.platforms, id: \.rawValue) { platform in
+                        ForEach(game.platforms, id: \.rawValue) { _ in
                             Image(systemName: "gamecontroller.fill")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
                     }
                 }
-                
+
                 Spacer()
             }
-            
+
             Spacer()
-            
+
             // Add Button
             Button(action: {}) {
                 Image(systemName: "plus")
@@ -618,7 +618,7 @@ struct NewReleaseCard: View {
 // MARK: - Coming Soon Card
 struct ComingSoonCard: View {
     let game: Game
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Game Image
@@ -631,7 +631,7 @@ struct ComingSoonCard: View {
                     ))
                     .frame(width: 280, height: 350)
                     .cornerRadius(12)
-                
+
                 // Coming Soon Badge
                 Text(game.releaseYear)
                     .font(.caption)
@@ -643,7 +643,7 @@ struct ComingSoonCard: View {
                     .cornerRadius(8)
                     .padding(12)
             }
-            
+
             // Game Info Overlay
             VStack(alignment: .leading, spacing: 8) {
                 Text(game.title)
@@ -651,29 +651,29 @@ struct ComingSoonCard: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(2)
-                
+
                 HStack(spacing: 8) {
                     Image(systemName: "playstation.logo")
                         .font(.caption)
                         .foregroundColor(.gray)
-                    
+
                     Text("TRA")
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
-                
+
                 // Platform Icons Row
                 HStack(spacing: 16) {
                     Button(action: {}) {
                         Image(systemName: "house.fill")
                             .foregroundColor(.purple)
                     }
-                    
+
                     Button(action: {}) {
                         Image(systemName: "questionmark.circle.fill")
                             .foregroundColor(.gray)
                     }
-                    
+
                     Button(action: {}) {
                         Image(systemName: "rectangle.stack.fill")
                             .foregroundColor(.gray)
@@ -696,7 +696,7 @@ extension View {
         when shouldShow: Bool,
         alignment: Alignment = .leading,
         @ViewBuilder placeholder: () -> Content) -> some View {
-            
+
             ZStack(alignment: alignment) {
                 placeholder().opacity(shouldShow ? 1 : 0)
                 self

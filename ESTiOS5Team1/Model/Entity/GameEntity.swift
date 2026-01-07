@@ -69,4 +69,3 @@ extension GameEntity {
         self.genre = dto.genres?.map { $0.name } ?? []
     }
 }
-

@@ -10,17 +10,17 @@ import SwiftUI
 // MARK: - Library View
 struct LibraryView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
     ]
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 ScrollView {
                     if favoriteManager.favoriteGames.isEmpty {
                         emptyStateView
@@ -48,7 +48,7 @@ struct LibraryView: View {
                             .foregroundColor(.white)
                     }
                 }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {}) {
                         Image(systemName: "magnifyingglass")
@@ -66,19 +66,19 @@ struct LibraryView: View {
             }
         }
     }
-    
+
     // MARK: - Empty State View
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Image(systemName: "heart.slash")
                 .font(.system(size: 60))
                 .foregroundColor(.gray)
-            
+
             Text("저장된 게임이 없습니다")
                 .font(.title3)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-            
+
             Text("게임 카드의 하트 아이콘을 눌러\n마음에 드는 게임을 저장하세요")
                 .font(.subheadline)
                 .foregroundColor(.gray)
@@ -93,7 +93,7 @@ struct LibraryView: View {
 struct LibraryGameCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topLeading) {
@@ -106,7 +106,7 @@ struct LibraryGameCard: View {
                     ))
                     .frame(height: 240)
                     .cornerRadius(12)
-                
+
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
@@ -120,9 +120,9 @@ struct LibraryGameCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Heart Button
                     Button(action: {
                         favoriteManager.toggleFavorite(game: game)
@@ -137,7 +137,7 @@ struct LibraryGameCard: View {
                 }
                 .padding(8)
             }
-            
+
             // Game Info
             VStack(alignment: .leading, spacing: 4) {
                 Text(game.title)
@@ -146,7 +146,7 @@ struct LibraryGameCard: View {
                     .foregroundColor(.white)
                     .lineLimit(2)
                     .frame(height: 36, alignment: .top)
-                
+
                 Text(game.genre)
                     .font(.caption)
                     .foregroundColor(.gray)
