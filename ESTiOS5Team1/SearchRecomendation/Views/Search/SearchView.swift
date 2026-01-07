@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchView: View {
     @State private var searchText = ""
     @State private var selectedPlatform: PlatformFilterType = .all
+    @State private var isSearchActive = false
     @EnvironmentObject var favoriteManager: FavoriteManager
     
     var body: some View {
@@ -17,40 +18,45 @@ struct SearchView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        // Search Bar
-                        SearchBar(searchText: $searchText)
-                        
-                        // Platform Filter Buttons
-                        PlatformFilter(selectedPlatform: $selectedPlatform)
-                        
-                        // PC 추천 게임
-                        GameSection(
-                            title: "PC 추천 게임",
-                            games: DummyData.pcGames
-                        )
-                        
-                        // Pinned 게임
-                        GameSection(
-                            title: "Pinned 게임",
-                            games: DummyData.pinnedGames,
-                            showLargeCard: true
-                        )
-                        
-                        // New Releases 추천
-                        NewReleasesSection()
-                        
-                        // Coming Soon
-                        ComingSoonSection()
-                        
-                        // PlayStation 추천 게임
-                        GameSection(
-                            title: "PlayStation 추천 게임",
-                            games: DummyData.playstationGames
-                        )
+                VStack(spacing: 0) {
+                    // 검색바 (조건부 표시)
+                    if isSearchActive {
+                        SearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                     }
-                    .padding(.bottom, 80)
+                    
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 24) {
+                            // Platform Filter Buttons
+                            PlatformFilter(selectedPlatform: $selectedPlatform)
+                            
+                            // PC 추천 게임
+                            GameSection(
+                                title: "PC 추천 게임",
+                                games: DummyData.pcGames
+                            )
+                            
+                            // Pinned 게임
+                            GameSection(
+                                title: "Pinned 게임",
+                                games: DummyData.pinnedGames,
+                                showLargeCard: true
+                            )
+                            
+                            // New Releases 추천
+                            NewReleasesSection()
+                            
+                            // Coming Soon
+                            ComingSoonSection()
+                            
+                            // PlayStation 추천 게임
+                            GameSection(
+                                title: "PlayStation 추천 게임",
+                                games: DummyData.playstationGames
+                            )
+                        }
+                        .padding(.bottom, 80)
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -61,6 +67,25 @@ struct SearchView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3)) {
+                            isSearchActive.toggle()
+                            if !isSearchActive {
+                                searchText = ""
+                            }
+                        }
+                    }) {
+                        Image(systemName: isSearchActive ? "xmark" : "magnifyingglass")
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 0.5)
             }
         }
     }
