@@ -49,7 +49,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		25C0335D2F0CF3D700CA196B /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
+		3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -62,7 +62,7 @@
 		25C032442F0C972400CA196B /* ESTiOS5Team1 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				25C0335D2F0CF3D700CA196B /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
+				3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
 			);
 			path = ESTiOS5Team1;
 			sourceTree = "<group>";
@@ -75,6 +75,11 @@
 		25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ESTiOS5Team1UITests;
+			sourceTree = "<group>";
+		};
+		3A95588C2F0CFC3E000BEDC1 /* MainPage */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MainPage;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -111,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				25C032B52F0CA5D800CA196B /* .swiftlint.yml */,
+				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
 				25C032542F0C972500CA196B /* ESTiOS5Team1Tests */,
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
@@ -173,6 +179,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
+				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 			);
 			name = ESTiOS5Team1;
 			productName = ESTiOS5Team1;
@@ -195,6 +202,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				25C032542F0C972500CA196B /* ESTiOS5Team1Tests */,
+				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 			);
 			name = ESTiOS5Team1Tests;
 			productName = ESTiOS5Team1Tests;
@@ -218,6 +226,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
+				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 			);
 			name = ESTiOS5Team1UITests;
 			productName = ESTiOS5Team1UITests;
@@ -608,7 +617,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -644,7 +653,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
