@@ -85,6 +85,11 @@ struct LibraryView: View {
                     }
                 }
             }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 0.5)
+            }
         }
     }
 }

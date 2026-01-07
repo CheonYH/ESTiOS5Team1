@@ -69,22 +69,16 @@
 		};
 		25C032542F0C972500CA196B /* ESTiOS5Team1Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = ESTiOS5Team1Tests;
 			sourceTree = "<group>";
 		};
 		25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = ESTiOS5Team1UITests;
 			sourceTree = "<group>";
 		};
 		3A95588C2F0CFC3E000BEDC1 /* MainPage */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = MainPage;
 			sourceTree = "<group>";
 		};
@@ -360,9 +354,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -377,9 +375,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
