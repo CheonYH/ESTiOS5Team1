@@ -49,7 +49,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		25C0335D2F0CF3D700CA196B /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
+		CFABF8672F0DDEFF006303B6 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -62,7 +62,7 @@
 		25C032442F0C972400CA196B /* ESTiOS5Team1 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				25C0335D2F0CF3D700CA196B /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
+				CFABF8672F0DDEFF006303B6 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
 			);
 			path = ESTiOS5Team1;
 			sourceTree = "<group>";
