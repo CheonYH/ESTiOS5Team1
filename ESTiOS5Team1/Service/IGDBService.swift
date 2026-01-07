@@ -38,11 +38,14 @@ final class IGDBServiceManager: IGDBService {
         let url = URL(string: "https://api.igdb.com/v4/games")!
         var request = URLRequest(url: url)
 
-        // IGDB 쿼리: 게임 기본 정보 + 커버 이미지 + 장르 이름
-        request.httpBody = """
-        fields id, name, cover.image_id, rating, genres.name;
-        limit 5;
-        """.data(using: .utf8)
+        /// IGDB API Query Language(APICALYPSE) 본문
+        /// - 조회 필드: id, name, cover.image_id, rating, genres.name
+        /// - 제한 개수: 5개
+        let body = """
+        fields id, name, cover.image_id, rating, genres.name; limit 5;
+        """
+
+        request.httpBody = Data(body.utf8)
 
         request.httpMethod = "POST"
 
