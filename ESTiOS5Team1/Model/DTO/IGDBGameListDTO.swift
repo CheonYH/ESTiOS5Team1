@@ -56,4 +56,3 @@ struct GenreDTO: Codable, Hashable, Identifiable {
     /// 장르의 표시 이름 (예: Action, RPG, Adventure)
     let name: String
 }
-

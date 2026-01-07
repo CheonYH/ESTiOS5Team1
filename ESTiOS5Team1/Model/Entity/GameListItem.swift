@@ -58,4 +58,3 @@ struct GameListItem: Identifiable, Hashable {
         self.genre = entity.genre
     }
 }
-
