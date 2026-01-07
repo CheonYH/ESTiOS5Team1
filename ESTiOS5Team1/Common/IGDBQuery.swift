@@ -40,7 +40,7 @@ enum IGDBQuery {
         genres.name,
         platforms.name,
         platforms.platform_logo.image_id;
-    limit 30;
+    limit 100;
     """
 
     /// Trending Now 화면용 게임 목록 쿼리
@@ -62,7 +62,7 @@ enum IGDBQuery {
         platforms.name,
         platforms.platform_logo.image_id;
     sort popularity desc;
-    limit 30;
+    limit 100;
     """
 
     /// New Releases 화면용 게임 목록 쿼리
@@ -89,6 +89,6 @@ enum IGDBQuery {
         platforms.platform_logo.image_id;
     where first_release_date > 1704067200;
     sort first_release_date desc;
-    limit 30;
+    limit 100;
     """
 }

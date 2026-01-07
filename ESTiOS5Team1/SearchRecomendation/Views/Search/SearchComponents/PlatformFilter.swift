@@ -76,13 +76,13 @@ struct PlatformButton: View {
             Image(systemName: "desktopcomputer")
                 .foregroundColor(.white)
         case .playstation:
-            Image(systemName: "gamecontroller.fill")
+            Image(systemName: "playstation.logo")
                 .foregroundColor(.white)
         case .xbox:
-            Image(systemName: "gamecontroller.fill")
+            Image(systemName: "xbox.logo")
                 .foregroundColor(.white)
         case .nintendo:
-            Image(systemName: "gamecontroller.fill")
+            Image(systemName: "switch.2")
                 .foregroundColor(.white)
         }
     }

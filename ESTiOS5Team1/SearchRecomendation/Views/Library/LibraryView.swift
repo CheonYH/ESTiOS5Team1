@@ -183,14 +183,27 @@ struct LibraryGameCard: View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topLeading) {
                 // Game Image
-                Rectangle()
-                    .fill(LinearGradient(
-                        colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                if let coverURL = game.coverURL {
+                    AsyncImage(url: coverURL) { phase in
+                        switch phase {
+                            case .empty:
+                                LibraryPlaceholder()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                LibraryPlaceholder()
+                            @unknown default:
+                                LibraryPlaceholder()
+                        }
+                    }
                     .frame(height: 240)
                     .cornerRadius(12)
+                    .clipped()
+                } else {
+                    LibraryPlaceholder()
+                }
                 
                 // Rating Badge and Heart Button
                 HStack {
@@ -240,6 +253,25 @@ struct LibraryGameCard: View {
             }
             .padding(.top, 8)
         }
+    }
+}
+
+// MARK: - Library Placeholder
+struct LibraryPlaceholder: View {
+    var body: some View {
+        Rectangle()
+            .fill(LinearGradient(
+                colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ))
+            .frame(height: 240)
+            .cornerRadius(12)
+            .overlay(
+                Image(systemName: "photo")
+                    .font(.largeTitle)
+                    .foregroundColor(.gray)
+            )
     }
 }
 
