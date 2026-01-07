@@ -23,7 +23,7 @@ struct LibraryView: View {
                 
                 ScrollView {
                     if favoriteManager.favoriteGames.isEmpty {
-                        emptyStateView
+                        EmptyLibraryView()
                     } else {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(favoriteManager.favoriteGames) { game in
@@ -66,9 +66,11 @@ struct LibraryView: View {
             }
         }
     }
-    
-    // MARK: - Empty State View
-    private var emptyStateView: some View {
+}
+
+// MARK: - Empty Library View
+struct EmptyLibraryView: View {
+    var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "heart.slash")
                 .font(.system(size: 60))

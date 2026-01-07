@@ -1,0 +1,90 @@
+//
+//  PlatformFilter.swift
+//  ESTiOS5Team1
+//
+//  Created by 이찬희 on 1/7/26.
+//
+
+
+import SwiftUI
+
+// MARK: - Platform Filter
+struct PlatformFilter: View {
+    @Binding var selectedPlatform: PlatformFilterType
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(PlatformFilterType.allCases, id: \.self) { platform in
+                    PlatformButton(
+                        platform: platform,
+                        isSelected: selectedPlatform == platform
+                    ) {
+                        selectedPlatform = platform
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+// MARK: - Platform Filter Type
+enum PlatformFilterType: String, CaseIterable {
+    case all = "전체"
+    case pc = "PC"
+    case playstation = "PlayStation"
+    case xbox = "Xbox"
+    case nintendo = "Nintendo"
+    
+    var iconColor: Color {
+        switch self {
+        case .all: return .purple
+        case .pc: return .purple
+        case .playstation: return .blue
+        case .xbox: return .green
+        case .nintendo: return .red
+        }
+    }
+}
+
+// MARK: - Platform Button
+struct PlatformButton: View {
+    let platform: PlatformFilterType
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                platformIcon
+                    .font(.system(size: 20))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(isSelected ? platform.iconColor : Color.white.opacity(0.1))
+            .cornerRadius(12)
+        }
+    }
+    
+    @ViewBuilder
+    private var platformIcon: some View {
+        switch platform {
+        case .all:
+            Image(systemName: "square.grid.2x2.fill")
+                .foregroundColor(.white)
+        case .pc:
+            Image(systemName: "desktopcomputer")
+                .foregroundColor(.white)
+        case .playstation:
+            Image(systemName: "gamecontroller.fill")
+                .foregroundColor(.white)
+        case .xbox:
+            Image(systemName: "gamecontroller.fill")
+                .foregroundColor(.white)
+        case .nintendo:
+            Image(systemName: "gamecontroller.fill")
+                .foregroundColor(.white)
+        }
+    }
+}
