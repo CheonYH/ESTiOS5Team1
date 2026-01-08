@@ -8,6 +8,7 @@ target 'ESTiOS5Team1' do
   pod 'Kingfisher', '~> 8.0'
   pod 'StreamChatSwiftUI'
   pod 'FirebaseAnalytics'
+  pod 'Firebase/Crashlytics'
 
   # Pods for ESTiOS5Team1
 

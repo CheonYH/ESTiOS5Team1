@@ -59,29 +59,30 @@ final class GameListViewModel: ObservableObject {
     /// 요청이 완료되면 결과에 따라 `items` 또는 `error`를 업데이트합니다.
     ///
     /// - Note:
-    /// 이 메서드는 Swift Concurrency(`Task`)를 사용하여
-    /// 비동기 네트워크 요청을 수행합니다.
-    func loadGames() {
+    /// 이 메서드는 `async` 함수로 정의되어 있으며,
+    /// 호출하는 쪽(View)에서 `await`를 통해 실행되어야 합니다.
+    /// UI 상태 변경은 `@MainActor`를 통해 메인 스레드에서 안전하게 처리됩니다.
+    @MainActor
+    func loadGames() async {
         isLoading = true
         error = nil
 
-        Task {
+        // 메서드 종료 시 항상 로딩 상태를 해제
+        defer { isLoading = false }
 
-            // 메서드 종료 시 항상 로딩 상태를 해제
-            defer { isLoading = false }
+        do {
+            let dtoList = try await service.fetchGameList(query: query)
 
-            do {
-                let dtoList = try await service.fetchGameList(query: query)
+            // DTO → Entity 변환
+            let entities = dtoList.map(GameEntity.init)
 
-                // DTO → Entity 변환
-                let entities = dtoList.map(GameEntity.init)
+            // Entity → View 전용 모델 변환
+            self.items = entities.map(GameListItem.init)
 
-                // Entity → View 전용 모델 변환
-                self.items = entities.map(GameListItem.init)
-
-            } catch {
-                self.error = error
-            }
+        } catch {
+            self.error = error
         }
+
     }
+
 }

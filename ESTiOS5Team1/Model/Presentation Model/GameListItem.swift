@@ -44,15 +44,18 @@ struct GameListItem: Identifiable, Hashable {
     /// UI에서는 `"Action · RPG"`와 같은 형태로 가공하여 표시할 수 있습니다.
     let genre: [String]
 
-    /// `GameEntity`를 기반으로 `GameListItem`을 생성합니다.
+    /// 플랫폼 카테고리 목록입니다.
     ///
-    /// Entity의 데이터를 UI 친화적인 형태로 변환하며,
-    /// 문자열 포맷과 Optional 처리 로직을 포함합니다.
-    ///
-    ///
-
+    /// IGDB에서 내려오는 다양한 플랫폼 이름을
+    /// 앱에서 사용하는 `Platform` enum으로 매핑한 결과이며,
+    /// 중복은 제거되어 저장됩니다.
     let platformCategories: [Platform]
 
+    /// `GameEntity`를 기반으로 `GameListItem`을 생성합니다.
+    ///
+    /// Entity 데이터를 UI에서 쓰기 좋은 형태로 바꾸며,
+    /// 평점 문자열 포맷(`ratingText`)과 같은 가공 로직이 포함됩니다.
+    ///
     /// - Parameter entity: 앱 내부 도메인 모델인 `GameEntity`
     init(entity: GameEntity) {
         self.id = entity.id

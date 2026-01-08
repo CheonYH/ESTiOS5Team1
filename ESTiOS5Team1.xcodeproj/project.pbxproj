@@ -49,17 +49,23 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3A85C05E2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */ = {
+		257B73C42F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				MainPage/View/MainView.swift,
+				"GoogleService-Info.plist",
+				Model/DTO/IGDBGenreDTO.swift,
+				Model/ViewModel/GenreListViewModel.swift,
+				TestView/GenreListTestView.swift,
 			);
 			target = 25C032502F0C972500CA196B /* ESTiOS5Team1Tests */;
 		};
-		3A85C05F2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */ = {
+		257B73C52F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				MainPage/View/MainView.swift,
+				"GoogleService-Info.plist",
+				Model/DTO/IGDBGenreDTO.swift,
+				Model/ViewModel/GenreListViewModel.swift,
+				TestView/GenreListTestView.swift,
 			);
 			target = 25C0325A2F0C972500CA196B /* ESTiOS5Team1UITests */;
 		};
@@ -77,8 +83,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
-				3A85C05E2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */,
-				3A85C05F2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */,
+				257B73C42F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */,
+				257B73C52F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */,
 			);
 			path = ESTiOS5Team1;
 			sourceTree = "<group>";
@@ -182,6 +188,7 @@
 				25C032402F0C972400CA196B /* Resources */,
 				929AF602F76B1B73E30F980A /* [CP] Embed Pods Frameworks */,
 				25C032A62F0CA48A00CA196B /* Run Script */,
+				25232B012F0F64E600BB37B6 /* Run Script(Crashlytics) */,
 			);
 			buildRules = (
 			);
@@ -312,6 +319,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		25232B012F0F64E600BB37B6 /* Run Script(Crashlytics) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)\n",
+			);
+			name = "Run Script(Crashlytics)";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
+		};
 		25C032A62F0CA48A00CA196B /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -515,7 +542,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -614,7 +641,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -649,7 +676,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
