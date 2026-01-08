@@ -23,10 +23,10 @@ struct KingfisherTestView: View {
 
     /// 게임 목록 상태를 관리하는 ViewModel
     @StateObject private var viewModel =
-        GameListViewModel(
-            service: IGDBServiceManager(),
-            query: IGDBQuery.discover
-        )
+    GameListViewModel(
+        service: IGDBServiceManager(),
+        query: IGDBQuery.discover
+    )
 
     var body: some View {
         NavigationStack {
@@ -39,8 +39,8 @@ struct KingfisherTestView: View {
                 }
             }
             .navigationTitle("Discover")
-            .onAppear {
-                viewModel.loadGames()
+            .task {
+                await viewModel.loadGames()
             }
         }
     }

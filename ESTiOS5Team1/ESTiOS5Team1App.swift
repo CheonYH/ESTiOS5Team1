@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Firebase
 
 @main
 struct ESTiOS5Team1App: App {
@@ -23,9 +24,13 @@ struct ESTiOS5Team1App: App {
         }
     }()
 
+    init() {
+        FirebaseApp.configure()
+    }
+
     var body: some Scene {
         WindowGroup {
-            KingfisherTestView()
+            ContentView()
         }
         .modelContainer(sharedModelContainer)
     }

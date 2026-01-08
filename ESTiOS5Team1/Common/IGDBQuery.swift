@@ -7,30 +7,21 @@
 
 import Foundation
 
-/// IGDB API 요청에 사용되는 APICALYPSE 쿼리를 정의한 타입입니다.
+/// IGDB 게임 목록 조회에 사용되는 APICALYPSE 쿼리 모음입니다.
 ///
-/// 각 쿼리는 화면 목적(Discover, Trending, New Releases)에 맞춰
-/// 필요한 필드, 정렬 기준, 필터 조건을 포함합니다.
-///
-/// - Important:
-/// 이 쿼리들은 `/v4/games` 엔드포인트에서 사용되며,
-/// 문자열 자체가 API 요청의 본문(body)으로 전달됩니다.
+/// `/v4/games` 엔드포인트에서 사용되며,
+/// 화면마다 필요한 조건에 맞는 쿼리를 미리 정의해두었습니다.
 ///
 /// - Note:
-/// 공통 필드 구조를 유지하여
-/// 동일한 DTO / Entity / ViewModel 파이프라인을 재사용할 수 있도록 설계되었습니다.
+/// 새로운 화면이나 조건이 추가되면
+/// ViewModel이나 Service를 수정하지 않고
+/// 이 파일에 쿼리만 추가하면 됩니다.
 enum IGDBQuery {
 
-    /// Discover 화면용 게임 목록 쿼리
+    /// Discover 화면에서 사용하는 기본 게임 목록 쿼리
     ///
-    /// - 특징:
-    ///   - 기본적인 게임 탐색용
-    ///   - 정렬 조건 없이 IGDB 기본 정렬 사용
-    ///   - 커버 이미지, 평점, 장르, 플랫폼 정보 포함
-    ///
-    /// - 사용 예:
-    ///   - 홈 화면
-    ///   - Discover 탭
+    /// - Note:
+    /// 정렬이나 필터 없이 기본 게임 목록을 가져옵니다.
     static let discover = """
     fields
         id,
@@ -43,15 +34,11 @@ enum IGDBQuery {
     limit 30;
     """
 
-    /// Trending Now 화면용 게임 목록 쿼리
+    /// 현재 인기 있는 게임(Trending) 목록 쿼리
     ///
-    /// - 특징:
-    ///   - IGDB 내부 인기 지표(`popularity`) 기준 내림차순 정렬
-    ///   - 현재 화제성이 높은 게임 목록 표시 목적
-    ///
-    /// - 사용 예:
-    ///   - Trending 섹션
-    ///   - 실시간 인기 게임 리스트
+    /// - Note:
+    /// IGDB의 popularity 값을 기준으로
+    /// 인기 순서대로 게임을 가져옵니다.
     static let trendingNow = """
     fields
         id,
@@ -65,19 +52,11 @@ enum IGDBQuery {
     limit 30;
     """
 
-    /// New Releases 화면용 게임 목록 쿼리
-    ///
-    /// - 특징:
-    ///   - 특정 시점 이후 출시된 게임만 필터링
-    ///   - 최신 출시일 기준 내림차순 정렬
+    /// 최근 출시된 게임 목록 쿼리
     ///
     /// - Note:
-    ///   `first_release_date`는 UNIX timestamp(초 단위)이며,
-    ///   현재 값은 2024-01-01 기준입니다.
-    ///
-    /// - 사용 예:
-    ///   - 신작 게임 목록
-    ///   - 출시 예정/최근 출시 섹션
+    /// 2024년 이후 출시된 게임만 조회하며,
+    /// 출시일 기준으로 최신순 정렬합니다.
     static let newReleases = """
     fields
         id,
@@ -91,4 +70,27 @@ enum IGDBQuery {
     sort first_release_date desc;
     limit 30;
     """
+
+    /// 특정 장르에 해당하는 게임 목록 쿼리
+    ///
+    /// - Parameter genreId:
+    ///   IGDB에서 제공하는 장르 ID 값
+    ///
+    /// - Note:
+    /// 장르별 화면이나 섹션을 구성할 때 사용합니다.
+    static func genre(_ genreId: Int) -> String {
+        """
+        fields
+            id,
+            name,
+            cover.image_id,
+            rating,
+            genres.name,
+            platforms.name,
+            platforms.platform_logo.image_id;
+        where genres = (\(genreId));
+        sort popularity desc;
+        limit 30;
+        """
+    }
 }

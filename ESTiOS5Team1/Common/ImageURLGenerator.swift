@@ -49,4 +49,3 @@ func makeIGDBImageURL(
         string: "https://images.igdb.com/igdb/image/upload/\(size.rawValue)/\(imageID).jpg"
     )
 }
-
