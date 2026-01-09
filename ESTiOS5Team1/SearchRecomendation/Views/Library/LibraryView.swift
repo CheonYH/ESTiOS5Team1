@@ -12,12 +12,12 @@ struct LibraryView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
     @State private var isSearchActive = false
     @State private var searchText = ""
-    
+
     let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
     ]
-    
+
     // 검색 필터링된 게임 목록
     var filteredGames: [Game] {
         if searchText.isEmpty {
@@ -29,19 +29,19 @@ struct LibraryView: View {
             }
         }
     }
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 VStack(spacing: 0) {
                     // 검색바 (조건부 표시)
                     if isSearchActive {
                         LibrarySearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
-                    
+
                     // 게임 목록
                     ScrollView {
                         if favoriteManager.favoriteGames.isEmpty {
@@ -70,7 +70,7 @@ struct LibraryView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         withAnimation(.spring(response: 0.3)) {
@@ -98,19 +98,19 @@ struct LibraryView: View {
 struct LibrarySearchBar: View {
     @Binding var searchText: String
     @Binding var isSearchActive: Bool
-    
+
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
-            
+
             TextField("게임 제목 또는 장르로 검색...", text: $searchText)
                 .foregroundColor(.white)
                 .placeholder(when: searchText.isEmpty) {
                     Text("게임 제목 또는 장르로 검색...")
                         .foregroundColor(.gray)
                 }
-            
+
             if !searchText.isEmpty {
                 Button(action: {
                     searchText = ""
@@ -135,12 +135,12 @@ struct EmptyLibraryView: View {
             Image(systemName: "heart.slash")
                 .font(.system(size: 60))
                 .foregroundColor(.gray)
-            
+
             Text("저장된 게임이 없습니다")
                 .font(.title3)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-            
+
             Text("게임 카드의 하트 아이콘을 눌러\n마음에 드는 게임을 저장하세요")
                 .font(.subheadline)
                 .foregroundColor(.gray)
@@ -158,12 +158,12 @@ struct EmptySearchResultView: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 60))
                 .foregroundColor(.gray)
-            
+
             Text("검색 결과가 없습니다")
                 .font(.title3)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-            
+
             Text("다른 검색어로 시도해보세요")
                 .font(.subheadline)
                 .foregroundColor(.gray)
@@ -178,7 +178,7 @@ struct EmptySearchResultView: View {
 struct LibraryGameCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topLeading) {
@@ -218,9 +218,9 @@ struct LibraryGameCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Heart Button
                     Button(action: {
                         withAnimation(.spring(response: 0.3)) {
@@ -237,7 +237,7 @@ struct LibraryGameCard: View {
                 }
                 .padding(8)
             }
-            
+
             // Game Info
             VStack(alignment: .leading, spacing: 4) {
                 Text(game.title)
@@ -246,7 +246,7 @@ struct LibraryGameCard: View {
                     .foregroundColor(.white)
                     .lineLimit(2)
                     .frame(height: 36, alignment: .top)
-                
+
                 Text(game.genre)
                     .font(.caption)
                     .foregroundColor(.gray)

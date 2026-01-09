@@ -21,4 +21,3 @@ struct GamePlatform: Hashable {
     /// - "PC (Microsoft Windows)"
     let name: String
 }
-
