@@ -93,4 +93,9 @@ enum IGDBQuery {
         limit 30;
         """
     }
+
+    static let allPlatforms = """
+    fields id, name, abbreviation;
+    limit 500;
+    """
 }
