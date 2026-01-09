@@ -18,7 +18,7 @@ struct Game: Identifiable, Hashable {
     let rating: Double
     let coverURL: URL?
     let platforms: [Platform]
-    
+
     /// GameListItem으로부터 Game 생성
     init(from item: GameListItem) {
         self.id = String(item.id)
@@ -30,7 +30,7 @@ struct Game: Identifiable, Hashable {
         self.coverURL = item.coverURL
         self.platforms = item.platformCategories
     }
-    
+
     /// 테스트/프리뷰용 직접 초기화
     init(
         id: String,

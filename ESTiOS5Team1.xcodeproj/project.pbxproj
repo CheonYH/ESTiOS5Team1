@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		25C032B62F0CA5D800CA196B /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 25C032B52F0CA5D800CA196B /* .swiftlint.yml */; };
-		25C032B72F0CA5D800CA196B /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 25C032B52F0CA5D800CA196B /* .swiftlint.yml */; };
-		25C032B82F0CA5D800CA196B /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 25C032B52F0CA5D800CA196B /* .swiftlint.yml */; };
-		81C597B1400A41C072371B10 /* Pods_ESTiOS5Team1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D572A9C3B2508700F6FCB51 /* Pods_ESTiOS5Team1.framework */; };
-		914F6A07FBF86FEA0CCB8DEC /* Pods_ESTiOS5Team1_ESTiOS5Team1UITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BA05120559926B6E3094874 /* Pods_ESTiOS5Team1_ESTiOS5Team1UITests.framework */; };
-		953071FA9B9FEABCC94849DA /* Pods_ESTiOS5Team1Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033A77E8FC5DDD74415FB2BE /* Pods_ESTiOS5Team1Tests.framework */; };
+		25E2319D2F10854D00C0B57B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 25E2319C2F10854D00C0B57B /* Kingfisher */; };
+		25E231A12F10886400C0B57B /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A02F10886400C0B57B /* FirebaseCrashlytics */; };
+		25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A52F108F9200C0B57B /* FirebaseAnalytics */; };
+		25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A72F1090EF00C0B57B /* FirebaseCore */; };
+		25E231AA2F1090EF00C0B57B /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A92F1090EF00C0B57B /* FirebaseInstallations */; };
+		25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 25E236622F10EADF00C0B57B /* StreamChatSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,33 +33,31 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		033A77E8FC5DDD74415FB2BE /* Pods_ESTiOS5Team1Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ESTiOS5Team1Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C032422F0C972400CA196B /* ESTiOS5Team1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESTiOS5Team1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C032512F0C972500CA196B /* ESTiOS5Team1Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C0325B2F0C972500CA196B /* ESTiOS5Team1UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		25C032B52F0CA5D800CA196B /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
-		2EDF40E1C49EF5BD94B8C084 /* Pods-ESTiOS5Team1.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ESTiOS5Team1.debug.xcconfig"; path = "Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1.debug.xcconfig"; sourceTree = "<group>"; };
-		3D572A9C3B2508700F6FCB51 /* Pods_ESTiOS5Team1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ESTiOS5Team1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		625583888641C904DC712DAE /* Pods-ESTiOS5Team1Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ESTiOS5Team1Tests.release.xcconfig"; path = "Target Support Files/Pods-ESTiOS5Team1Tests/Pods-ESTiOS5Team1Tests.release.xcconfig"; sourceTree = "<group>"; };
-		6BA05120559926B6E3094874 /* Pods_ESTiOS5Team1_ESTiOS5Team1UITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ESTiOS5Team1_ESTiOS5Team1UITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		8836F5D8ED6FFEBD616F9889 /* Pods-ESTiOS5Team1-ESTiOS5Team1UITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ESTiOS5Team1-ESTiOS5Team1UITests.release.xcconfig"; path = "Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests.release.xcconfig"; sourceTree = "<group>"; };
-		9EFA6D3996CE9A69529C3C72 /* Pods-ESTiOS5Team1.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ESTiOS5Team1.release.xcconfig"; path = "Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1.release.xcconfig"; sourceTree = "<group>"; };
-		D183C7F226A3E2402E34D674 /* Pods-ESTiOS5Team1Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ESTiOS5Team1Tests.debug.xcconfig"; path = "Target Support Files/Pods-ESTiOS5Team1Tests/Pods-ESTiOS5Team1Tests.debug.xcconfig"; sourceTree = "<group>"; };
-		D5DE86A1FF51BCDFFDDF6223 /* Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig"; path = "Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3A85C05E2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */ = {
+		257B73C42F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				MainPage/View/MainView.swift,
+				.swiftlint.yml,
+				"GoogleService-Info.plist",
+				Model/DTO/IGDBGenreDTO.swift,
+				Model/ViewModel/GenreListViewModel.swift,
+				TestView/GenreListTestView.swift,
 			);
 			target = 25C032502F0C972500CA196B /* ESTiOS5Team1Tests */;
 		};
-		3A85C05F2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */ = {
+		257B73C52F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				MainPage/View/MainView.swift,
+				.swiftlint.yml,
+				"GoogleService-Info.plist",
+				Model/DTO/IGDBGenreDTO.swift,
+				Model/ViewModel/GenreListViewModel.swift,
+				TestView/GenreListTestView.swift,
 			);
 			target = 25C0325A2F0C972500CA196B /* ESTiOS5Team1UITests */;
 		};
@@ -77,8 +75,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
-				3A85C05E2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */,
-				3A85C05F2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */,
+				257B73C42F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */,
+				257B73C52F0F39F0006CD5EC /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */,
 			);
 			path = ESTiOS5Team1;
 			sourceTree = "<group>";
@@ -100,7 +98,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81C597B1400A41C072371B10 /* Pods_ESTiOS5Team1.framework in Frameworks */,
+				25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */,
+				25E2319D2F10854D00C0B57B /* Kingfisher in Frameworks */,
+				25E231A12F10886400C0B57B /* FirebaseCrashlytics in Frameworks */,
+				25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */,
+				25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */,
+				25E231AA2F1090EF00C0B57B /* FirebaseInstallations in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,7 +111,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				953071FA9B9FEABCC94849DA /* Pods_ESTiOS5Team1Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,7 +118,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				914F6A07FBF86FEA0CCB8DEC /* Pods_ESTiOS5Team1_ESTiOS5Team1UITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,13 +127,11 @@
 		25C032392F0C972400CA196B = {
 			isa = PBXGroup;
 			children = (
-				25C032B52F0CA5D800CA196B /* .swiftlint.yml */,
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
 				25C032542F0C972500CA196B /* ESTiOS5Team1Tests */,
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
+				25E231A42F108F9200C0B57B /* Frameworks */,
 				25C032432F0C972400CA196B /* Products */,
-				880DBE697D9FFC769BDA6EF4 /* Pods */,
-				DFE68EC86468B24EECC1346F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -146,25 +145,9 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		880DBE697D9FFC769BDA6EF4 /* Pods */ = {
+		25E231A42F108F9200C0B57B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2EDF40E1C49EF5BD94B8C084 /* Pods-ESTiOS5Team1.debug.xcconfig */,
-				9EFA6D3996CE9A69529C3C72 /* Pods-ESTiOS5Team1.release.xcconfig */,
-				D5DE86A1FF51BCDFFDDF6223 /* Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig */,
-				8836F5D8ED6FFEBD616F9889 /* Pods-ESTiOS5Team1-ESTiOS5Team1UITests.release.xcconfig */,
-				D183C7F226A3E2402E34D674 /* Pods-ESTiOS5Team1Tests.debug.xcconfig */,
-				625583888641C904DC712DAE /* Pods-ESTiOS5Team1Tests.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
-		DFE68EC86468B24EECC1346F /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				3D572A9C3B2508700F6FCB51 /* Pods_ESTiOS5Team1.framework */,
-				6BA05120559926B6E3094874 /* Pods_ESTiOS5Team1_ESTiOS5Team1UITests.framework */,
-				033A77E8FC5DDD74415FB2BE /* Pods_ESTiOS5Team1Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -176,16 +159,15 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 25C032652F0C972500CA196B /* Build configuration list for PBXNativeTarget "ESTiOS5Team1" */;
 			buildPhases = (
-				7C1907DF3DED436B449AAF7D /* [CP] Check Pods Manifest.lock */,
 				25C0323E2F0C972400CA196B /* Sources */,
 				25C0323F2F0C972400CA196B /* Frameworks */,
 				25C032402F0C972400CA196B /* Resources */,
-				929AF602F76B1B73E30F980A /* [CP] Embed Pods Frameworks */,
-				25C032A62F0CA48A00CA196B /* Run Script */,
+				25E231A32F108EE100C0B57B /* Run Script(Crashlytics) */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				25E231AC2F1092F000C0B57B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
@@ -199,7 +181,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 25C032682F0C972500CA196B /* Build configuration list for PBXNativeTarget "ESTiOS5Team1Tests" */;
 			buildPhases = (
-				B413D038D3A242717895D031 /* [CP] Check Pods Manifest.lock */,
 				25C0324D2F0C972500CA196B /* Sources */,
 				25C0324E2F0C972500CA196B /* Frameworks */,
 				25C0324F2F0C972500CA196B /* Resources */,
@@ -221,11 +202,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 25C0326B2F0C972500CA196B /* Build configuration list for PBXNativeTarget "ESTiOS5Team1UITests" */;
 			buildPhases = (
-				9E5919DD6267028FC5824D5D /* [CP] Check Pods Manifest.lock */,
 				25C032572F0C972500CA196B /* Sources */,
 				25C032582F0C972500CA196B /* Frameworks */,
 				25C032592F0C972500CA196B /* Resources */,
-				997D78C539341E9FFCB43158 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -272,6 +251,12 @@
 			);
 			mainGroup = 25C032392F0C972400CA196B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+				25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 25C032432F0C972400CA196B /* Products */;
 			projectDirPath = "";
@@ -289,7 +274,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25C032B82F0CA5D800CA196B /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,7 +281,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25C032B62F0CA5D800CA196B /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,14 +288,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25C032B72F0CA5D800CA196B /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		25C032A62F0CA48A00CA196B /* Run Script */ = {
+		25E231A32F108EE100C0B57B /* Run Script(Crashlytics) */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -322,122 +304,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Run Script";
+			name = "Run Script(Crashlytics)";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/SwiftLint/swiftlint\"\n";
-		};
-		7C1907DF3DED436B449AAF7D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ESTiOS5Team1-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		929AF602F76B1B73E30F980A /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		997D78C539341E9FFCB43158 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		9E5919DD6267028FC5824D5D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B413D038D3A242717895D031 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ESTiOS5Team1Tests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -475,6 +349,10 @@
 			isa = PBXTargetDependency;
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
 			targetProxy = 25C0325C2F0C972500CA196B /* PBXContainerItemProxy */;
+		};
+		25E231AC2F1092F000C0B57B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 25E231AB2F1092F000C0B57B /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -515,7 +393,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -608,13 +486,12 @@
 		};
 		25C032662F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2EDF40E1C49EF5BD94B8C084 /* Pods-ESTiOS5Team1.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -643,13 +520,12 @@
 		};
 		25C032672F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9EFA6D3996CE9A69529C3C72 /* Pods-ESTiOS5Team1.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -678,7 +554,6 @@
 		};
 		25C032692F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D183C7F226A3E2402E34D674 /* Pods-ESTiOS5Team1Tests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -701,7 +576,6 @@
 		};
 		25C0326A2F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 625583888641C904DC712DAE /* Pods-ESTiOS5Team1Tests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -724,7 +598,6 @@
 		};
 		25C0326C2F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D5DE86A1FF51BCDFFDDF6223 /* Pods-ESTiOS5Team1-ESTiOS5Team1UITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -746,7 +619,6 @@
 		};
 		25C0326D2F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8836F5D8ED6FFEBD616F9889 /* Pods-ESTiOS5Team1-ESTiOS5Team1UITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -806,6 +678,79 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.63.0;
+			};
+		};
+		25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+		25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.7.0;
+			};
+		};
+		25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getstream/stream-chat-swiftui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.95.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		25E2319C2F10854D00C0B57B /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		25E231A02F10886400C0B57B /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		25E231A52F108F9200C0B57B /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		25E231A72F1090EF00C0B57B /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		25E231A92F1090EF00C0B57B /* FirebaseInstallations */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseInstallations;
+		};
+		25E231AB2F1092F000C0B57B /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		25E236622F10EADF00C0B57B /* StreamChatSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */;
+			productName = StreamChatSwiftUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 25C0323A2F0C972400CA196B /* Project object */;
 }

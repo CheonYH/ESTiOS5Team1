@@ -30,20 +30,20 @@ enum Platform: String {
     /// UI에서 플랫폼 아이콘을 표시할 때 사용됩니다.
     var iconName: String {
         switch self {
-        case .playstation:
-            return "playstation.logo"
-        case .xbox:
-            return "xbox.logo"
-        case .nintendo:
-            return "gamecontroller"
-        case .pc:
-            return "desktopcomputer"
-        case .mobile:
-            return "iphone"
-        case .web:
-            return "globe"
-        case .unknown:
-            return "questionmark"
+            case .playstation:
+                return "playstation.logo"
+            case .xbox:
+                return "xbox.logo"
+            case .nintendo:
+                return "gamecontroller"
+            case .pc:
+                return "desktopcomputer"
+            case .mobile:
+                return "iphone"
+            case .web:
+                return "globe"
+            case .unknown:
+                return "questionmark"
         }
     }
 }
@@ -84,7 +84,7 @@ extension Platform {
     /// 매핑 규칙에 해당하지 않는 경우 `.unknown`으로 처리합니다.
     ///
     /// - Parameter igdbName: IGDB API에서 전달된 플랫폼 이름
-    init(igdbName: String) {
+    nonisolated init(igdbName: String) {
         let name = igdbName.lowercased()
 
         for mapping in Self.mappings

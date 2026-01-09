@@ -9,14 +9,14 @@ import SwiftUI
 
 struct TrendingNowGameView: View {
     let item: GameListItem
-    
+
     @StateObject private var viewModel =
-    GameListViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+    GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
+
     var body: some View {
         VStack(alignment: .leading) {
             TitleBox(title: "Trending Now")
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     if viewModel.isLoading {
@@ -39,30 +39,30 @@ struct TrendingNowGameView: View {
                                                   )
                                     .opacity(0)
                                 )
-                            
+
                         }
                     }
                 }
             }
         }
-        .onAppear {
-            viewModel.loadGames()
+        .task {
+            await viewModel.load()
         }
     }
 }
 
 struct TitleBox: View {
-    
+
     var title: String
-    
+
     var body: some View {
         HStack {
             Text(title)
                 .font(.title2.bold())
                 .foregroundStyle(.white)
-            
+
             Spacer()
-            
+
             Button {
                 // See All 버튼 이동
                 // trending now와 new Releases에서 사용하니 분류할 것
