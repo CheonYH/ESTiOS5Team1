@@ -6,13 +6,13 @@
 //
 
 import SwiftUI
-import FirebaseCrashlytics
+import Firebase
 
 struct ContentView: View {
 
     var body: some View {
         Button("Crash Test") {
-            Crashlytics.crashlytics().log("Test crash button tapped")
+            Crashlytics.crashlytics().log("SPM으로 설치후 두번째 테스트 중입니다.")
             fatalError("🔥 Crashlytics SwiftUI Test Crash")
         }
         .padding()
