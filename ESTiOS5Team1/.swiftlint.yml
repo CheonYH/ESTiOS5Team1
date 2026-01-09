@@ -1,5 +1,4 @@
 excluded:
-  - Pods
   - DerivedData
 
 line_length:
@@ -7,3 +6,9 @@ line_length:
   error: 300
   ignores_comments: true
   ignores_urls: true
+
+disabled_rules:
+  - multiple_closures_with_trailing_closure
+
+force_cast:
+  severity: error
