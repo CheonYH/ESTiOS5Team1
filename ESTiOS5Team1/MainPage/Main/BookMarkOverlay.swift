@@ -10,7 +10,7 @@ import SwiftUI
 struct BookMarkOverlay: View {
     let item: GameListItem
     @State var isBookMark: Bool = false
-    
+
     var body: some View {
         HStack {
             RatingText(item: item)
@@ -18,7 +18,7 @@ struct BookMarkOverlay: View {
             Spacer()
 
             // 여기 버튼 터치가 막혀있음 원인을 찾을 것
-            Button() {
+            Button {
                 print("북마크 완료!")
                 isBookMark = !isBookMark
             } label: {
@@ -34,7 +34,7 @@ struct BookMarkOverlay: View {
 
 struct RatingText: View {
     let item: GameListItem
-    
+
     var body: some View {
         Text(item.ratingText)
             .font(.subheadline.bold())

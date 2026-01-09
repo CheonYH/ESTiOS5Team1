@@ -99,31 +99,4 @@ enum IGDBQuery {
     limit 500;
     """
 
-    /// 특정 장르에 해당하는 게임 목록 쿼리
-    ///
-    /// - Parameter genreId:
-    ///   IGDB에서 제공하는 장르 ID 값
-    ///
-    /// - Note:
-    /// 장르별 화면이나 섹션을 구성할 때 사용합니다.
-    static func genre(_ genreId: Int) -> String {
-        """
-        fields
-            id,
-            name,
-            cover.image_id,
-            rating,
-            genres.name,
-            platforms.name,
-            platforms.platform_logo.image_id;
-        where genres = (\(genreId));
-        sort popularity desc;
-        limit 30;
-        """
-    }
-
-    static let allPlatforms = """
-    fields id, name, abbreviation;
-    limit 500;
-    """
 }

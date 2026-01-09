@@ -12,6 +12,6 @@ struct GameDetailView: View {
 
     var body: some View {
         // 디테일 뷰
-        
+
     }
 }

@@ -11,7 +11,7 @@ import SwiftUI
 struct LargeGameCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
@@ -37,7 +37,7 @@ struct LargeGameCard: View {
                 } else {
                     LargePlaceholderImage()
                 }
-                
+
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
@@ -51,9 +51,9 @@ struct LargeGameCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Heart Button
                     Button(action: {
                         favoriteManager.toggleFavorite(game: game)
@@ -69,14 +69,14 @@ struct LargeGameCard: View {
                 .padding(8)
                 .frame(width: 180, alignment: .leading)
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(game.title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .lineLimit(2)
-                
+
                 Text(game.genre)
                     .font(.caption)
                     .foregroundColor(.gray)

@@ -22,11 +22,11 @@ struct MainView: View {
                     MainPoster(imageColor: .white, textColor: .white, item: item)
 
                     TrendingNowGameView(item: item)
-                    
+
                     BrowseByGenreGridView()
-                    
+
                     TitleBox(title: "New Releases")
-                    
+
                     NewReleasesView(item: item)
                 }
             }

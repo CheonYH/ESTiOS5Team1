@@ -11,7 +11,7 @@ import SwiftUI
 struct NewReleaseCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         HStack(spacing: 16) {
             // Game Image
@@ -37,7 +37,7 @@ struct NewReleaseCard: View {
                 } else {
                     NewReleasePlaceholder()
                 }
-                
+
                 // Heart Button on Image
                 Button(action: {
                     favoriteManager.toggleFavorite(game: game)
@@ -51,7 +51,7 @@ struct NewReleaseCard: View {
                 }
                 .padding(8)
             }
-            
+
             // Game Info
             VStack(alignment: .leading, spacing: 8) {
                 Text(game.title)
@@ -59,11 +59,11 @@ struct NewReleaseCard: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(2)
-                
+
                 Text(game.genre + " • " + game.releaseYear)
                     .font(.subheadline)
                     .foregroundColor(.gray)
-                
+
                 // Rating and Platforms
                 HStack(spacing: 8) {
                     // Rating
@@ -77,7 +77,7 @@ struct NewReleaseCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-                    
+
                     // Platform Icons
                     HStack(spacing: 4) {
                         ForEach(game.platforms.prefix(3), id: \.rawValue) { platform in
@@ -87,12 +87,12 @@ struct NewReleaseCard: View {
                         }
                     }
                 }
-                
+
                 Spacer()
             }
-            
+
             Spacer()
-            
+
             // Add Button
             Button(action: {
                 favoriteManager.toggleFavorite(game: game)

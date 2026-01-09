@@ -204,7 +204,7 @@ struct LibraryGameCard: View {
                 } else {
                     LibraryPlaceholder()
                 }
-                
+
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
