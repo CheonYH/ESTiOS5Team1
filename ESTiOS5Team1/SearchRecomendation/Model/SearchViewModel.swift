@@ -12,57 +12,57 @@ import Combine
 /// 여러 카테고리의 게임 데이터를 관리
 @MainActor
 final class SearchViewModel: ObservableObject {
-    
+
     // MARK: - Published Properties
     @Published var discoverGames: [Game] = []
     @Published var trendingGames: [Game] = []
     @Published var newReleaseGames: [Game] = []
-    
+
     @Published var isLoading: Bool = false
     @Published var error: Error?
-    
+
     // MARK: - Private Properties
     private let service: IGDBService
     private let favoriteManager: FavoriteManager
-    
+
     // 각 카테고리별 ViewModel
-    private var discoverViewModel: GameListViewModel?
-    private var trendingViewModel: GameListViewModel?
-    private var newReleasesViewModel: GameListViewModel?
-    
+    private var discoverViewModel: GameListSingleQueryViewModel?
+    private var trendingViewModel: GameListSingleQueryViewModel?
+    private var newReleasesViewModel: GameListSingleQueryViewModel?
+
     private var cancellables = Set<AnyCancellable>()
-    
+
     // MARK: - Initialization
     init(service: IGDBService = IGDBServiceManager(), favoriteManager: FavoriteManager) {
         self.service = service
         self.favoriteManager = favoriteManager
         setupViewModels()
     }
-    
+
     // MARK: - Setup
     private func setupViewModels() {
         // Discover용 ViewModel
-        discoverViewModel = GameListViewModel(
+        discoverViewModel = GameListSingleQueryViewModel(
             service: service,
             query: IGDBQuery.discover
         )
-        
+
         // Trending용 ViewModel
-        trendingViewModel = GameListViewModel(
+        trendingViewModel = GameListSingleQueryViewModel(
             service: service,
             query: IGDBQuery.trendingNow
         )
-        
+
         // New Releases용 ViewModel
-        newReleasesViewModel = GameListViewModel(
+        newReleasesViewModel = GameListSingleQueryViewModel(
             service: service,
             query: IGDBQuery.newReleases
         )
-        
+
         // ViewModel의 변화를 구독
         observeViewModels()
     }
-    
+
     private func observeViewModels() {
         // Discover 데이터 변화 감지
         discoverViewModel?.$items
@@ -111,26 +111,26 @@ final class SearchViewModel: ObservableObject {
         }
         .store(in: &cancellables)
     }
-    
+
     // MARK: - Public Methods
-    
+
     /// 모든 카테고리 데이터 로드
-    func loadAllGames() {
-        discoverViewModel?.loadGames()
-        trendingViewModel?.loadGames()
-        newReleasesViewModel?.loadGames()
+    func loadAllGames() async {
+        await discoverViewModel?.load()
+        await trendingViewModel?.load()
+        await newReleasesViewModel?.load()
     }
-    
+
     /// 특정 카테고리만 새로고침
-    func refreshDiscover() {
-        discoverViewModel?.loadGames()
+    func refreshDiscover() async {
+        await discoverViewModel?.load()
     }
-    
-    func refreshTrending() {
-        trendingViewModel?.loadGames()
+
+    func refreshTrending() async {
+        await trendingViewModel?.load()
     }
-    
-    func refreshNewReleases() {
-        newReleasesViewModel?.loadGames()
+
+    func refreshNewReleases() async {
+        await newReleasesViewModel?.load()
     }
 }

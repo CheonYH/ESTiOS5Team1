@@ -10,18 +10,17 @@ import SwiftUI
 struct NewReleasesView: View {
     let item: GameListItem
     @StateObject private var viewModel =
-    GameListViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
-    
+    GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
+
     var body: some View {
         VStack {
             ForEach(viewModel.items.prefix(3)) { item in
                 NewReleasesGameCard(item: item)
             }
         }
-        .onAppear {
-            viewModel.loadGames()
+        .task {
+            await viewModel.load()
         }
-        
+
     }
 }
-

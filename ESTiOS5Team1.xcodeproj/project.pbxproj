@@ -12,6 +12,7 @@
 		25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A52F108F9200C0B57B /* FirebaseAnalytics */; };
 		25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A72F1090EF00C0B57B /* FirebaseCore */; };
 		25E231AA2F1090EF00C0B57B /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A92F1090EF00C0B57B /* FirebaseInstallations */; };
+		25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 25E236622F10EADF00C0B57B /* StreamChatSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +98,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */,
 				25E2319D2F10854D00C0B57B /* Kingfisher in Frameworks */,
 				25E231A12F10886400C0B57B /* FirebaseCrashlytics in Frameworks */,
 				25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */,
@@ -125,7 +127,6 @@
 		25C032392F0C972400CA196B = {
 			isa = PBXGroup;
 			children = (
-				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
 				25C032542F0C972500CA196B /* ESTiOS5Team1Tests */,
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
@@ -254,6 +255,7 @@
 				25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 25C032432F0C972400CA196B /* Products */;
@@ -702,6 +704,14 @@
 				minimumVersion = 12.7.0;
 			};
 		};
+		25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getstream/stream-chat-swiftui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.95.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -734,6 +744,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		25E236622F10EADF00C0B57B /* StreamChatSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */;
+			productName = StreamChatSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -81,7 +81,7 @@ struct SearchView: View {
                                 LoadingView()
                             } else if let error = viewModel.error, viewModel.discoverGames.isEmpty {
                                 ErrorView(error: error) {
-                                    viewModel.loadAllGames()
+                                    Task { await viewModel.loadAllGames() }
                                 }
                             } else {
                                 // 결과 헤더
@@ -105,7 +105,7 @@ struct SearchView: View {
                         .padding(.bottom, 100)
                     }
                     .refreshable {
-                        viewModel.loadAllGames()
+                        await viewModel.loadAllGames()
                     }
                 }
             }
@@ -141,7 +141,7 @@ struct SearchView: View {
         }
         .onAppear {
             if viewModel.discoverGames.isEmpty {
-                viewModel.loadAllGames()
+                Task { await viewModel.loadAllGames() }
             }
         }
     }
