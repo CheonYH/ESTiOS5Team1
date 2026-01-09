@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Firebase
 
 @main
 struct ESTiOS5Team1App: App {
@@ -22,6 +23,10 @@ struct ESTiOS5Team1App: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+
+    init() {
+        FirebaseApp.configure()
+    }
 
     var body: some Scene {
         WindowGroup {
