@@ -62,7 +62,7 @@ struct GameListItem: Identifiable, Hashable {
             .map { String(format: "%.1f", $0 / 20.0) } ?? "N/A"
         self.genre = entity.genre
         self.platformCategories = Array(
-            Set( entity.platforms.compactMap { Platform(igdbName: $0.name) } )
+            Set( entity.platforms.compactMap { Platform(igdbName: $0.name) })
         )
     }
 }
