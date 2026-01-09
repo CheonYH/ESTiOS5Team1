@@ -71,7 +71,7 @@ final class SearchViewModel: ObservableObject {
                 self?.favoriteManager.updateGames(self?.discoverGames ?? [])
             }
             .store(in: &cancellables)
-        
+
         // Trending 데이터 변화 감지
         trendingViewModel?.$items
             .sink { [weak self] items in
@@ -79,7 +79,7 @@ final class SearchViewModel: ObservableObject {
                 self?.favoriteManager.updateGames(self?.trendingGames ?? [])
             }
             .store(in: &cancellables)
-        
+
         // New Releases 데이터 변화 감지
         newReleasesViewModel?.$items
             .sink { [weak self] items in
@@ -87,22 +87,20 @@ final class SearchViewModel: ObservableObject {
                 self?.favoriteManager.updateGames(self?.newReleaseGames ?? [])
             }
             .store(in: &cancellables)
-        
-        // 로딩 상태 통합 (수정됨)
-        Publishers.Merge3(
-            discoverViewModel?.$error.compactMap { $0 }.eraseToAnyPublisher()
-            ?? Empty().eraseToAnyPublisher(),
-            trendingViewModel?.$error.compactMap { $0 }.eraseToAnyPublisher()
-            ?? Empty().eraseToAnyPublisher(),
-            newReleasesViewModel?.$error.compactMap { $0 }.eraseToAnyPublisher()
-            ?? Empty().eraseToAnyPublisher()
+
+        // 로딩 상태 통합
+        Publishers.CombineLatest3(
+            discoverViewModel?.$isLoading.eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher(),
+            trendingViewModel?.$isLoading.eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher(),
+            newReleasesViewModel?.$isLoading.eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher()
         )
-        .sink { [weak self] error in
-            self?.error = error
+        .map { $0 || $1 || $2 }
+        .sink { [weak self] isLoading in
+            self?.isLoading = isLoading
         }
         .store(in: &cancellables)
-        
-        // 에러 처리 (수정됨)
+
+        // 에러 처리
         Publishers.Merge3(
             discoverViewModel?.$error.compactMap { $0 }.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher(),
             trendingViewModel?.$error.compactMap { $0 }.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher(),
