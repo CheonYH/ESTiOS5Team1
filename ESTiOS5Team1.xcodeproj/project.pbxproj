@@ -64,6 +64,7 @@
 		3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				.swiftlint.yml,
 				Info.plist,
 			);
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
@@ -167,7 +168,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				25E231AC2F1092F000C0B57B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
@@ -350,10 +350,6 @@
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
 			targetProxy = 25C0325C2F0C972500CA196B /* PBXContainerItemProxy */;
 		};
-		25E231AC2F1092F000C0B57B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 25E231AB2F1092F000C0B57B /* SwiftLintBuildToolPlugin */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -491,7 +487,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -525,7 +521,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -739,11 +735,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseInstallations;
-		};
-		25E231AB2F1092F000C0B57B /* SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 		25E236622F10EADF00C0B57B /* StreamChatSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
