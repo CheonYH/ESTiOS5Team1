@@ -5,13 +5,12 @@
 //  Created by 이찬희 on 1/7/26.
 //
 
-
 import SwiftUI
 
 // MARK: - Platform Filter
 struct PlatformFilter: View {
     @Binding var selectedPlatform: PlatformFilterType
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
@@ -36,7 +35,7 @@ enum PlatformFilterType: String, CaseIterable {
     case playstation = "PlayStation"
     case xbox = "Xbox"
     case nintendo = "Nintendo"
-    
+
     var iconColor: Color {
         switch self {
         case .all: return .purple
@@ -53,7 +52,7 @@ struct PlatformButton: View {
     let platform: PlatformFilterType
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -66,7 +65,7 @@ struct PlatformButton: View {
             .cornerRadius(12)
         }
     }
-    
+
     @ViewBuilder
     private var platformIcon: some View {
         switch platform {
@@ -77,13 +76,13 @@ struct PlatformButton: View {
             Image(systemName: "desktopcomputer")
                 .foregroundColor(.white)
         case .playstation:
-            Image(systemName: "gamecontroller.fill")
+            Image(systemName: "playstation.logo")
                 .foregroundColor(.white)
         case .xbox:
-            Image(systemName: "gamecontroller.fill")
+            Image(systemName: "xbox.logo")
                 .foregroundColor(.white)
         case .nintendo:
-            Image(systemName: "gamecontroller.fill")
+            Image(systemName: "switch.2")
                 .foregroundColor(.white)
         }
     }

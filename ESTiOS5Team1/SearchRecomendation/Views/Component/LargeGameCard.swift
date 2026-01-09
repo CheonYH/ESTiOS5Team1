@@ -5,7 +5,6 @@
 //  Created by 이찬희 on 1/7/26.
 //
 
-
 import SwiftUI
 
 // MARK: - Large Game Card
@@ -17,14 +16,27 @@ struct LargeGameCard: View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
                 // Game Image
-                Rectangle()
-                    .fill(LinearGradient(
-                        colors: [Color.purple.opacity(0.4), Color.blue.opacity(0.4)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                if let coverURL = game.coverURL {
+                    AsyncImage(url: coverURL) { phase in
+                        switch phase {
+                            case .empty:
+                                LargePlaceholderImage()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                LargePlaceholderImage()
+                            @unknown default:
+                                LargePlaceholderImage()
+                        }
+                    }
                     .frame(width: 180, height: 260)
                     .cornerRadius(12)
+                    .clipped()
+                } else {
+                    LargePlaceholderImage()
+                }
                 
                 // Rating Badge and Heart Button
                 HStack {
@@ -71,5 +83,24 @@ struct LargeGameCard: View {
             }
             .frame(width: 180)
         }
+    }
+}
+
+// MARK: - Large Placeholder Image
+struct LargePlaceholderImage: View {
+    var body: some View {
+        Rectangle()
+            .fill(LinearGradient(
+                colors: [Color.purple.opacity(0.4), Color.blue.opacity(0.4)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ))
+            .frame(width: 180, height: 260)
+            .cornerRadius(12)
+            .overlay(
+                Image(systemName: "photo")
+                    .font(.largeTitle)
+                    .foregroundColor(.gray)
+            )
     }
 }
