@@ -49,6 +49,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3A85C05E2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				MainPage/View/MainView.swift,
+			);
+			target = 25C032502F0C972500CA196B /* ESTiOS5Team1Tests */;
+		};
+		3A85C05F2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				MainPage/View/MainView.swift,
+			);
+			target = 25C0325A2F0C972500CA196B /* ESTiOS5Team1UITests */;
+		};
 		3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -63,29 +77,20 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */,
+				3A85C05E2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1Tests" target */,
+				3A85C05F2F0DE9C00042E79A /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1UITests" target */,
 			);
 			path = ESTiOS5Team1;
 			sourceTree = "<group>";
 		};
 		25C032542F0C972500CA196B /* ESTiOS5Team1Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = ESTiOS5Team1Tests;
 			sourceTree = "<group>";
 		};
 		25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = ESTiOS5Team1UITests;
-			sourceTree = "<group>";
-		};
-		3A95588C2F0CFC3E000BEDC1 /* MainPage */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = MainPage;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -122,7 +127,6 @@
 			isa = PBXGroup;
 			children = (
 				25C032B52F0CA5D800CA196B /* .swiftlint.yml */,
-				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
 				25C032542F0C972500CA196B /* ESTiOS5Team1Tests */,
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
@@ -185,7 +189,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
-				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 			);
 			name = ESTiOS5Team1;
 			productName = ESTiOS5Team1;
@@ -208,7 +211,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				25C032542F0C972500CA196B /* ESTiOS5Team1Tests */,
-				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 			);
 			name = ESTiOS5Team1Tests;
 			productName = ESTiOS5Team1Tests;
@@ -232,7 +234,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
-				3A95588C2F0CFC3E000BEDC1 /* MainPage */,
 			);
 			name = ESTiOS5Team1UITests;
 			productName = ESTiOS5Team1UITests;
@@ -360,9 +361,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1/Pods-ESTiOS5Team1-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -377,9 +382,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ESTiOS5Team1-ESTiOS5Team1UITests/Pods-ESTiOS5Team1-ESTiOS5Team1UITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -605,11 +614,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7RH8F785XV;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -641,11 +649,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7RH8F785XV;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
