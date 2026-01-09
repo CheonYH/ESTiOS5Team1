@@ -11,20 +11,33 @@ import SwiftUI
 struct GameCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
                 // Game Image
-                Rectangle()
-                    .fill(LinearGradient(
-                        colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                if let coverURL = game.coverURL {
+                    AsyncImage(url: coverURL) { phase in
+                        switch phase {
+                            case .empty:
+                                PlaceholderImage()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                PlaceholderImage()
+                            @unknown default:
+                                PlaceholderImage()
+                        }
+                    }
                     .frame(width: 140, height: 200)
                     .cornerRadius(12)
-
+                    .clipped()
+                } else {
+                    PlaceholderImage()
+                }
+                
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
@@ -38,9 +51,9 @@ struct GameCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-
+                    
                     Spacer()
-
+                    
                     // Heart Button
                     Button(action: {
                         favoriteManager.toggleFavorite(game: game)
@@ -56,19 +69,38 @@ struct GameCard: View {
                 .padding(8)
                 .frame(width: 140, alignment: .leading)
             }
-
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(game.title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .lineLimit(1)
-
+                
                 Text(game.genre)
                     .font(.caption)
                     .foregroundColor(.gray)
             }
             .frame(width: 140)
         }
+    }
+}
+
+// MARK: - Placeholder Image
+struct PlaceholderImage: View {
+    var body: some View {
+        Rectangle()
+            .fill(LinearGradient(
+                colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ))
+            .frame(width: 140, height: 200)
+            .cornerRadius(12)
+            .overlay(
+                Image(systemName: "photo")
+                    .font(.largeTitle)
+                    .foregroundColor(.gray)
+            )
     }
 }

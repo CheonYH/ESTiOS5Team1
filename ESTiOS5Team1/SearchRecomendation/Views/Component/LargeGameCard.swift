@@ -11,20 +11,33 @@ import SwiftUI
 struct LargeGameCard: View {
     let game: Game
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
                 // Game Image
-                Rectangle()
-                    .fill(LinearGradient(
-                        colors: [Color.purple.opacity(0.4), Color.blue.opacity(0.4)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                if let coverURL = game.coverURL {
+                    AsyncImage(url: coverURL) { phase in
+                        switch phase {
+                            case .empty:
+                                LargePlaceholderImage()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                LargePlaceholderImage()
+                            @unknown default:
+                                LargePlaceholderImage()
+                        }
+                    }
                     .frame(width: 180, height: 260)
                     .cornerRadius(12)
-
+                    .clipped()
+                } else {
+                    LargePlaceholderImage()
+                }
+                
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
@@ -38,9 +51,9 @@ struct LargeGameCard: View {
                             .background(Color.yellow)
                             .cornerRadius(6)
                     }
-
+                    
                     Spacer()
-
+                    
                     // Heart Button
                     Button(action: {
                         favoriteManager.toggleFavorite(game: game)
@@ -56,19 +69,38 @@ struct LargeGameCard: View {
                 .padding(8)
                 .frame(width: 180, alignment: .leading)
             }
-
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(game.title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .lineLimit(2)
-
+                
                 Text(game.genre)
                     .font(.caption)
                     .foregroundColor(.gray)
             }
             .frame(width: 180)
         }
+    }
+}
+
+// MARK: - Large Placeholder Image
+struct LargePlaceholderImage: View {
+    var body: some View {
+        Rectangle()
+            .fill(LinearGradient(
+                colors: [Color.purple.opacity(0.4), Color.blue.opacity(0.4)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ))
+            .frame(width: 180, height: 260)
+            .cornerRadius(12)
+            .overlay(
+                Image(systemName: "photo")
+                    .font(.largeTitle)
+                    .foregroundColor(.gray)
+            )
     }
 }
