@@ -58,7 +58,7 @@ extension Platform {
     /// - Note:
     /// 키워드 순서는 매핑 우선순위에 영향을 주므로,
     /// 더 구체적인 키워드를 위에 두는 것이 좋습니다.
-    private static let mappings: [(keywords: [String], platform: Platform)] = [
+    nonisolated private static let mappings: [(keywords: [String], platform: Platform)] = [
 
         // PlayStation 계열
         (["playstation"], .playstation),
