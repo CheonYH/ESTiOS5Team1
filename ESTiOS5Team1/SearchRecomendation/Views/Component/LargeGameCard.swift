@@ -24,7 +24,9 @@ struct LargeGameCard: View {
                             case .success(let image):
                                 image
                                     .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                                    .scaledToFit()
+                                    .frame(width: 180, height: 260)
+                                    .clipped()
                             case .failure:
                                 LargePlaceholderImage()
                             @unknown default:
@@ -32,6 +34,7 @@ struct LargeGameCard: View {
                         }
                     }
                     .frame(width: 180, height: 260)
+                    .background(Color.black.opacity(0.3))
                     .cornerRadius(12)
                     .clipped()
                 } else {

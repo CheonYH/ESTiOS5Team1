@@ -60,19 +60,20 @@ struct SearchView: View {
                                 .transition(.move(edge: .top).combined(with: .opacity))
                         }
 
+                        // Platform Filter (고정)
+                        PlatformFilter(selectedPlatform: $selectedPlatform)
+                            .padding(.top, 8)
+
+                        // Genre Filter (고정, 하단 구분선 포함)
+                        GenreFilter(selectedGenre: $selectedGenre, games: allGames)
+
+                        // 게임 카드만 스크롤
                         ScrollView {
                             VStack(alignment: .leading, spacing: 12) {
                                 // 스크롤 상단 앵커
                                 Color.clear
                                     .frame(height: 1)
                                     .id("top")
-
-                                // Platform Filter
-                                PlatformFilter(selectedPlatform: $selectedPlatform)
-                                    .padding(.top, 8)
-
-                                // Genre Filter (텍스트 스타일, 가로 스크롤 + 하단 구분선 통합)
-                                GenreFilter(selectedGenre: $selectedGenre, games: allGames)
 
                                 // 로딩 또는 에러 상태
                                 if viewModel.isLoading && viewModel.discoverGames.isEmpty {
@@ -157,11 +158,6 @@ struct SearchView: View {
                             .font(.title3)
                     }
                 }
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 0.5)
             }
         }
         .onAppear {
@@ -313,36 +309,33 @@ struct CompactGameCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // 게임 이미지
-            ZStack(alignment: .topLeading) {
-                if let coverURL = game.coverURL {
-                    AsyncImage(url: coverURL) { phase in
-                        switch phase {
-                        case .empty:
-                            CardPlaceholder()
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure:
-                            CardPlaceholder()
-                        @unknown default:
-                            CardPlaceholder()
+            GeometryReader { geometry in
+                ZStack(alignment: .topLeading) {
+                    if let coverURL = game.coverURL {
+                        AsyncImage(url: coverURL) { phase in
+                            switch phase {
+                            case .empty:
+                                CardPlaceholder()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: geometry.size.width, height: 225)
+                            case .failure:
+                                CardPlaceholder()
+                            @unknown default:
+                                CardPlaceholder()
+                            }
                         }
+                    } else {
+                        CardPlaceholder()
                     }
-                    .frame(height: 225)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                    .cornerRadius(12)
-                } else {
-                    CardPlaceholder()
-                }
 
-                // 평점 배지
-                if game.rating > 0 {
+                    // 평점 배지
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 10))
-                        Text(String(format: "%.1f", game.rating))
+                        Text(game.rating > 0 ? String(format: "%.1f", game.rating) : "N/A")
                             .font(.caption2)
                             .fontWeight(.bold)
                     }
@@ -352,27 +345,31 @@ struct CompactGameCard: View {
                     .background(Color.yellow)
                     .cornerRadius(8)
                     .padding(8)
-                }
 
-                // 즐겨찾기 버튼
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button(action: onToggleFavorite) {
-                            Image(systemName: isFavorite ? "heart.fill" : "heart")
-                                .font(.system(size: 14))
-                                .foregroundColor(isFavorite ? .red : .white)
-                                .frame(width: 32, height: 32)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
+                    // 즐겨찾기 버튼 (오른쪽 상단)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button(action: onToggleFavorite) {
+                                Image(systemName: isFavorite ? "heart.fill" : "heart")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(isFavorite ? .red : .white)
+                                    .frame(width: 32, height: 32)
+                                    .background(Color.black.opacity(0.6))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(8)
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(8)
+                        Spacer()
                     }
                 }
-                .frame(height: 225)
+                .frame(width: geometry.size.width, height: 225)
+                .clipped()
             }
+            .frame(height: 225)
+            .cornerRadius(12)
+            .clipped()
 
             // 게임 정보
             VStack(alignment: .leading, spacing: 4) {
