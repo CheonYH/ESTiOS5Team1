@@ -277,7 +277,7 @@ struct CompactGameCard: View {
                             CardPlaceholder()
                         }
                     }
-                    .frame(height: 200)
+                    .frame(height: 225)
                     .frame(maxWidth: .infinity)
                     .clipped()
                     .cornerRadius(12)
@@ -322,7 +322,7 @@ struct CompactGameCard: View {
                         .padding(8)
                     }
                 }
-                .frame(height: 200)
+                .frame(height: 225)
             }
 
             // 게임 정보
@@ -366,7 +366,7 @@ struct CardPlaceholder: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             ))
-            .frame(height: 200)
+            .frame(height: 225)
             .frame(maxWidth: .infinity)
             .cornerRadius(12)
             .overlay(
