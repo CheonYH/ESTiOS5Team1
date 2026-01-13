@@ -301,7 +301,7 @@ struct CompactGameCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 10))
-                        Text(game.rating > 0 ? String(format: "%.1f", game.rating) : "N/A")
+                        Text(game.ratingText)
                             .font(.caption2)
                             .fontWeight(.bold)
                     }
