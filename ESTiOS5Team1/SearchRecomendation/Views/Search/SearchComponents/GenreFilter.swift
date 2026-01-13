@@ -8,54 +8,82 @@
 import SwiftUI
 
 // MARK: - Genre Filter
-/// 캡슐 스타일의 가로 스크롤 장르 필터
+/// 텍스트 스타일의 가로 스크롤 장르 필터 + 하단 구분선 통합
 struct GenreFilter: View {
     @Binding var selectedGenre: GenreFilterType
+    var games: [Game] = []
+
+    // 게임 수에 따라 정렬된 장르 목록 ("전체"는 항상 첫 번째)
+    private var sortedGenres: [GenreFilterType] {
+        let otherGenres = GenreFilterType.allCases.filter { $0 != .all }
+
+        // 각 장르별 게임 수 계산
+        let sorted = otherGenres.sorted { genre1, genre2 in
+            let count1 = games.filter { genre1.matches(genre: $0.genre) }.count
+            let count2 = games.filter { genre2.matches(genre: $0.genre) }.count
+            return count1 > count2
+        }
+
+        return [.all] + sorted
+    }
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(GenreFilterType.allCases) { genre in
-                    GenreCapsuleButton(
-                        genre: genre,
-                        isSelected: selectedGenre == genre
-                    ) {
-                        withAnimation(.spring(response: 0.3)) {
-                            selectedGenre = genre
+        VStack(spacing: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(sortedGenres) { genre in
+                        GenreTextButton(
+                            genre: genre,
+                            isSelected: selectedGenre == genre
+                        ) {
+                            withAnimation(.spring(response: 0.3)) {
+                                selectedGenre = genre
+                            }
                         }
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+
+            // 하단 구분선 (회색)
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 1)
+                .padding(.horizontal)
         }
     }
 }
 
-// MARK: - Genre Capsule Button
-struct GenreCapsuleButton: View {
+// MARK: - Genre Text Button
+struct GenreTextButton: View {
     let genre: GenreFilterType
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                Image(systemName: genre.iconName)
-                    .font(.system(size: 14))
-
+            VStack(spacing: 2) {
                 Text(genre.displayName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.headline)
+                    .fontWeight(isSelected ? .bold : .medium)
+                    .foregroundColor(isSelected ? .white : .gray)
+                    .padding(.horizontal, 4)
+                    .padding(.top, 8)
+                    .padding(.bottom, 6)
+
+                // 선택된 장르 아래 흰색 밑줄 (구분선 위에 겹침)
+                Rectangle()
+                    .fill(isSelected ? Color.white : Color.clear)
+                    .frame(height: 2)
+                    .offset(y: 1)
             }
-            .foregroundColor(isSelected ? .white : .gray)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(isSelected ? genre.themeColor : Color.white.opacity(0.1))
-            .clipShape(Capsule())
         }
         .buttonStyle(PlainButtonStyle())
     }
 }
+
+// 이전 이름 호환성 유지
+typealias GenreCapsuleButton = GenreTextButton
 
 // MARK: - Preview
 #Preview("GenreFilter") {

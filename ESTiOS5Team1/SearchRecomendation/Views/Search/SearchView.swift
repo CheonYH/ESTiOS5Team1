@@ -12,6 +12,7 @@ struct SearchView: View {
     @State private var selectedPlatform: PlatformFilterType
     @State private var selectedGenre: GenreFilterType
     @State private var isSearchActive = false
+    @State private var showScrollButton = false
 
     @StateObject private var viewModel: SearchViewModel
     @EnvironmentObject var favoriteManager: FavoriteManager
@@ -51,61 +52,85 @@ struct SearchView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    // 검색바 (조건부 표시)
-                    if isSearchActive {
-                        SearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                    }
+                ScrollViewReader { proxy in
+                    VStack(spacing: 0) {
+                        // 검색바 (조건부 표시)
+                        if isSearchActive {
+                            SearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
 
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 12) {
-                            // Platform Filter
-                            PlatformFilter(selectedPlatform: $selectedPlatform)
-                                .padding(.top, 8)
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 12) {
+                                // 스크롤 상단 앵커
+                                Color.clear
+                                    .frame(height: 1)
+                                    .id("top")
 
-                            // Genre Filter (캡슐 스타일, 가로 스크롤)
-                            GenreFilter(selectedGenre: $selectedGenre)
+                                // Platform Filter
+                                PlatformFilter(selectedPlatform: $selectedPlatform)
+                                    .padding(.top, 8)
 
-                            // 활성 필터 표시
-                            if hasActiveFilters {
-                                ActiveFiltersBar(
-                                    selectedPlatform: $selectedPlatform,
-                                    selectedGenre: $selectedGenre,
-                                    searchText: $searchText
-                                )
-                            }
+                                // Genre Filter (텍스트 스타일, 가로 스크롤 + 하단 구분선 통합)
+                                GenreFilter(selectedGenre: $selectedGenre, games: allGames)
 
-                            // 로딩 또는 에러 상태
-                            if viewModel.isLoading && viewModel.discoverGames.isEmpty {
-                                LoadingView()
-                            } else if let error = viewModel.error, viewModel.discoverGames.isEmpty {
-                                ErrorView(error: error) {
-                                    Task { await viewModel.loadAllGames() }
-                                }
-                            } else {
-                                // 결과 헤더
-                                ResultHeader(
-                                    title: headerTitle,
-                                    count: filteredGames.count
-                                )
-                                .padding(.top, 8)
-
-                                // 2열 그리드 게임 카드
-                                if filteredGames.isEmpty {
-                                    EmptyFilterResultView(
-                                        platform: selectedPlatform,
-                                        genre: selectedGenre
-                                    )
+                                // 로딩 또는 에러 상태
+                                if viewModel.isLoading && viewModel.discoverGames.isEmpty {
+                                    LoadingView()
+                                } else if let error = viewModel.error, viewModel.discoverGames.isEmpty {
+                                    ErrorView(error: error) {
+                                        Task { await viewModel.loadAllGames() }
+                                    }
                                 } else {
-                                    GameGridView(games: filteredGames)
+                                    // 결과 헤더
+                                    ResultHeader(
+                                        title: headerTitle,
+                                        count: filteredGames.count
+                                    )
+                                    .padding(.top, 8)
+
+                                    // 2열 그리드 게임 카드
+                                    if filteredGames.isEmpty {
+                                        EmptyFilterResultView(
+                                            platform: selectedPlatform,
+                                            genre: selectedGenre
+                                        )
+                                    } else {
+                                        GameGridView(
+                                            games: filteredGames,
+                                            onScrolled: { isScrolled in
+                                                withAnimation(.easeInOut(duration: 0.2)) {
+                                                    showScrollButton = isScrolled
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
+                            }
+                            .padding(.bottom, 100)
+                        }
+                        .refreshable {
+                            await viewModel.loadAllGames()
+                        }
+                        // 상단으로 이동 버튼 (스크롤 시에만 표시)
+                        .overlay(alignment: .bottom) {
+                            if showScrollButton {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.4)) {
+                                        proxy.scrollTo("top", anchor: .top)
+                                    }
+                                }) {
+                                    Image(systemName: "arrow.up")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 40, height: 40)
+                                        .background(Color.purple.opacity(0.7))
+                                        .clipShape(Circle())
+                                }
+                                .padding(.bottom, 20)
+                                .transition(.scale.combined(with: .opacity))
                             }
                         }
-                        .padding(.bottom, 100)
-                    }
-                    .refreshable {
-                        await viewModel.loadAllGames()
                     }
                 }
             }
@@ -170,13 +195,19 @@ struct SearchView: View {
         return components.joined(separator: " · ") + " 게임"
     }
 
+    // 모든 게임 (중복 제거, 순서 유지)
+    private var allGames: [Game] {
+        let games = viewModel.discoverGames + viewModel.trendingGames + viewModel.newReleaseGames
+        var seen = Set<String>()
+        return games.filter { game in
+            if seen.contains(game.id) { return false }
+            seen.insert(game.id)
+            return true
+        }
+    }
+
     private var filteredGames: [Game] {
-        let allGames = viewModel.discoverGames + viewModel.trendingGames + viewModel.newReleaseGames
-
-        // 중복 제거
-        let uniqueGames = Array(Set(allGames))
-
-        return uniqueGames.filter { game in
+        allGames.filter { game in
             let matchesPlatform = filterByPlatform(game: game, platform: selectedPlatform)
             let matchesGenre = filterByGenre(game: game, genre: selectedGenre)
             let matchesSearch = searchText.isEmpty ||
@@ -237,6 +268,8 @@ struct ResultHeader: View {
 // MARK: - Game Grid View (2열 세로 스크롤)
 struct GameGridView: View {
     let games: [Game]
+    var onScrolled: ((Bool) -> Void)?
+    @EnvironmentObject var favoriteManager: FavoriteManager
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -245,8 +278,26 @@ struct GameGridView: View {
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(games) { game in
-                CompactGameCard(game: game)
+            ForEach(Array(games.enumerated()), id: \.element.id) { index, game in
+                CompactGameCard(
+                    game: game,
+                    isFavorite: favoriteManager.isFavorite(gameId: game.id),
+                    onToggleFavorite: {
+                        favoriteManager.toggleFavorite(game: game)
+                    }
+                )
+                .onAppear {
+                    // 첫 번째 게임이 보이면 (상단에 있음) 버튼 숨김
+                    if index == 0 {
+                        onScrolled?(false)
+                    }
+                }
+                .onDisappear {
+                    // 첫 번째 게임이 사라지면 (스크롤 내림) 버튼 표시
+                    if index == 0 {
+                        onScrolled?(true)
+                    }
+                }
             }
         }
         .padding(.horizontal)
@@ -256,7 +307,8 @@ struct GameGridView: View {
 // MARK: - Compact Game Card (그리드용 컴팩트 카드)
 struct CompactGameCard: View {
     let game: Game
-    @EnvironmentObject var favoriteManager: FavoriteManager
+    let isFavorite: Bool
+    let onToggleFavorite: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -307,18 +359,15 @@ struct CompactGameCard: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3)) {
-                                favoriteManager.toggleFavorite(game: game)
-                            }
-                        }) {
-                            Image(systemName: favoriteManager.isFavorite(gameId: game.id) ? "heart.fill" : "heart")
+                        Button(action: onToggleFavorite) {
+                            Image(systemName: isFavorite ? "heart.fill" : "heart")
                                 .font(.system(size: 14))
-                                .foregroundColor(favoriteManager.isFavorite(gameId: game.id) ? .red : .white)
+                                .foregroundColor(isFavorite ? .red : .white)
                                 .frame(width: 32, height: 32)
                                 .background(Color.black.opacity(0.6))
                                 .clipShape(Circle())
                         }
+                        .buttonStyle(PlainButtonStyle())
                         .padding(8)
                     }
                 }
