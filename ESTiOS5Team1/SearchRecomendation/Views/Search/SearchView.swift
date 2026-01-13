@@ -12,7 +12,6 @@ struct SearchView: View {
     @State private var selectedPlatform: PlatformFilterType
     @State private var selectedGenre: GenreFilterType
     @State private var isSearchActive = false
-    @State private var showScrollButton = false
 
     @StateObject private var viewModel: SearchViewModel
     @EnvironmentObject var favoriteManager: FavoriteManager
@@ -97,14 +96,7 @@ struct SearchView: View {
                                             genre: selectedGenre
                                         )
                                     } else {
-                                        GameGridView(
-                                            games: filteredGames,
-                                            onScrolled: { isScrolled in
-                                                withAnimation(.easeInOut(duration: 0.2)) {
-                                                    showScrollButton = isScrolled
-                                                }
-                                            }
-                                        )
+                                        GameGridView(games: filteredGames)
                                     }
                                 }
                             }
@@ -113,23 +105,10 @@ struct SearchView: View {
                         .refreshable {
                             await viewModel.loadAllGames()
                         }
-                        // 상단으로 이동 버튼 (스크롤 시에만 표시)
-                        .overlay(alignment: .bottom) {
-                            if showScrollButton {
-                                Button(action: {
-                                    withAnimation(.spring(response: 0.4)) {
-                                        proxy.scrollTo("top", anchor: .top)
-                                    }
-                                }) {
-                                    Image(systemName: "arrow.up")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .frame(width: 40, height: 40)
-                                        .background(Color.purple.opacity(0.7))
-                                        .clipShape(Circle())
-                                }
-                                .padding(.bottom, 20)
-                                .transition(.scale.combined(with: .opacity))
+                        // 장르 변경 시 상단으로 스크롤
+                        .onChange(of: selectedGenre) { _ in
+                            withAnimation(.spring(response: 0.4)) {
+                                proxy.scrollTo("top", anchor: .top)
                             }
                         }
                     }
@@ -264,7 +243,6 @@ struct ResultHeader: View {
 // MARK: - Game Grid View (2열 세로 스크롤)
 struct GameGridView: View {
     let games: [Game]
-    var onScrolled: ((Bool) -> Void)?
     @EnvironmentObject var favoriteManager: FavoriteManager
 
     private let columns = [
@@ -274,7 +252,7 @@ struct GameGridView: View {
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(Array(games.enumerated()), id: \.element.id) { index, game in
+            ForEach(games, id: \.id) { game in
                 CompactGameCard(
                     game: game,
                     isFavorite: favoriteManager.isFavorite(gameId: game.id),
@@ -282,18 +260,6 @@ struct GameGridView: View {
                         favoriteManager.toggleFavorite(game: game)
                     }
                 )
-                .onAppear {
-                    // 첫 번째 게임이 보이면 (상단에 있음) 버튼 숨김
-                    if index == 0 {
-                        onScrolled?(false)
-                    }
-                }
-                .onDisappear {
-                    // 첫 번째 게임이 사라지면 (스크롤 내림) 버튼 표시
-                    if index == 0 {
-                        onScrolled?(true)
-                    }
-                }
             }
         }
         .padding(.horizontal)
@@ -416,9 +382,14 @@ struct CardPlaceholder: View {
             .frame(maxWidth: .infinity)
             .cornerRadius(12)
             .overlay(
-                Image(systemName: "photo")
-                    .font(.title2)
-                    .foregroundColor(.gray)
+                VStack(spacing: 8) {
+                    Image(systemName: "photo")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                    Text("이미지 준비중입니다")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
             )
     }
 }
