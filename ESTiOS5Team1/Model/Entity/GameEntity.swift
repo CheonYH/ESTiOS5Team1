@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// 앱 내부에서 사용하는 게임 모델입니다.
 ///

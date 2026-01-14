@@ -61,9 +61,9 @@ final class DiscoverViewModel: ObservableObject {
         do {
             // multi-query 구성
             // 각 요소는 화면의 "섹션"에 대응합니다.
-            let batch = [
-                (name: "trending", endpoint: IGDBEndpoint.games, query: IGDBQuery.trendingNow),
-                (name: "discover", endpoint: IGDBEndpoint.games, query: IGDBQuery.discover)
+            let batch: [IGDBBatchItem] = [
+                .init(name: "trending", endpoint: IGDBEndpoint.games, query: IGDBQuery.trendingNow),
+                .init(name: "discover", endpoint: IGDBEndpoint.games, query: IGDBQuery.discover)
             ]
 
             // IGDB API 요청
@@ -71,29 +71,28 @@ final class DiscoverViewModel: ObservableObject {
 
             // MARK: - 디코딩 및 매핑 (백그라운드 처리)
 
-            let (trending, discover) = try await Task.detached(priority: .userInitiated) {
+            let (trendingEntities, discoverEntities) = try await Task(priority: .userInitiated) {
 
-                // JSON → DTO → Entity → GameListItem 순으로 변환
-                func decodeItems(_ raw: [[String: Any]]?) throws -> [GameListItem] {
+                func decodeEntities(_ raw: [[String: Any]]?) throws -> [GameEntity] {
                     guard let raw else { return [] }
-
-                    // JSONSerialization을 사용하는 이유:
-                    // multi-query 응답은 Codable과 바로 매칭되지 않기 때문
                     let data = try JSONSerialization.data(withJSONObject: raw)
                     let dto = try JSONDecoder().decode([IGDBGameListDTO].self, from: data)
-                    let entities = dto.map(GameEntity.init)
-                    return entities.map(GameListItem.init)
+                    return dto.map(GameEntity.init)
                 }
 
-                let trending = try decodeItems(sections["trending"])
-                let discover = try decodeItems(sections["discover"])
-                return (trending, discover)
+                let trendingEntities = try decodeEntities(sections["trending"])
+                let discoverEntities = try decodeEntities(sections["discover"])
+
+                return (trendingEntities, discoverEntities)
 
             }.value
 
             // MARK: - UI 업데이트 (메인스레드)
-            trendingItems = trending
-            discoverItems = discover
+
+            await MainActor.run {
+                self.trendingItems = trendingEntities.map(GameListItem.init)
+                self.discoverItems = discoverEntities.map(GameListItem.init)
+            }
 
         } catch {
             self.error = error

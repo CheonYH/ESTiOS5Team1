@@ -41,7 +41,8 @@ enum IGDBImageSize: String {
 /// let url = makeIGDBImageURL(imageID: "co4jni")
 /// // https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg
 /// ```
-func makeIGDBImageURL(
+///
+nonisolated func makeIGDBImageURL(
     imageID: String,
     size: IGDBImageSize = .coverBig
 ) -> URL? {

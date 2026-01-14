@@ -33,6 +33,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		258BFAB52F15C24C00A9A063 /* IGDB.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = IGDB.xcconfig; path = /Users/cheon/Documents/ESTiOS5Team1/ESTiOS5Team1/Config/IGDB.xcconfig; sourceTree = "<absolute>"; };
 		25C032422F0C972400CA196B /* ESTiOS5Team1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESTiOS5Team1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C032512F0C972500CA196B /* ESTiOS5Team1Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C0325B2F0C972500CA196B /* ESTiOS5Team1UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,6 +126,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		25B121532F1713D8003499DA /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				258BFAB52F15C24C00A9A063 /* IGDB.xcconfig */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		25C032392F0C972400CA196B = {
 			isa = PBXGroup;
 			children = (
@@ -133,6 +142,7 @@
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
 				25E231A42F108F9200C0B57B /* Frameworks */,
 				25C032432F0C972400CA196B /* Products */,
+				25B121532F1713D8003499DA /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -355,8 +365,6 @@
 /* Begin XCBuildConfiguration section */
 		25C032632F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
-			baseConfigurationReferenceRelativePath = Config/IGDB.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -422,8 +430,6 @@
 		};
 		25C032642F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
-			baseConfigurationReferenceRelativePath = Config/IGDB.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -576,7 +582,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
@@ -618,7 +624,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
