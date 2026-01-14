@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// IGDB API에서 전달되는 플랫폼 정보를 표현하는 DTO입니다.
 ///
