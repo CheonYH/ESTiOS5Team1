@@ -53,8 +53,8 @@ final class GenreListViewModel: ObservableObject {
 
         do {
             // IGDB multiquery 요청 구성
-            let batch = [
-                (
+            let batch: [IGDBBatchItem] = [
+                IGDBBatchItem(
                     name: "genres",
                     endpoint: IGDBEndpoint.genres,
                     query: "fields id, name; limit 100;"

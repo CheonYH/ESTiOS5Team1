@@ -56,8 +56,8 @@ final class PlatformTestViewModel: ObservableObject {
 
         do {
             // IGDB multiquery 요청 블록 정의
-            let batch = [
-                (
+            let batch: [IGDBBatchItem] = [
+                IGDBBatchItem(
                     name: "platforms",
                     endpoint: IGDBEndpoint.platforms,
                     query: IGDBQuery.allPlatforms

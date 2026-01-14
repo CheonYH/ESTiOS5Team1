@@ -8,6 +8,14 @@ enum IGDBEndpoint: String {
     case releaseDates = "release_dates"
 }
 
+struct IGDBBatchItem: Sendable {
+    let name: String
+    let endpoint: IGDBEndpoint
+    let query: String
+}
+
+typealias IGDBRawResponse = [String: [[String: Any]]]
+
 /// IGDB API와 통신하기 위한 서비스 프로토콜입니다.
 ///
 /// ViewModel은 이 프로토콜에만 의존하며,
@@ -17,7 +25,7 @@ enum IGDBEndpoint: String {
 /// 테스트(Mock Service)나 구현 변경 시
 /// ViewModel 코드를 수정하지 않기 위해 사용됩니다.
 protocol IGDBService {
-    func fetch(_ batch: [(name: String, endpoint: IGDBEndpoint, query: String)]) async throws -> [String: [[String: Any]]]
+    func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse
 }
 
 /// IGDB API와 실제로 통신하는 서비스 구현체입니다.
@@ -30,7 +38,7 @@ protocol IGDBService {
 /// DTO → Entity 변환은 ViewModel 또는 Entity 단계에서 수행합니다.
 final class IGDBServiceManager: IGDBService {
 
-    func fetch(_ batch: [(name: String, endpoint: IGDBEndpoint, query: String)]) async throws -> [String: [[String: Any]]] {
+    func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse {
 
         let body = batch.map { block in
             """
