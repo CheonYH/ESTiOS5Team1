@@ -22,16 +22,12 @@ final class AuthViewModel: ObservableObject {
         self.service = service
     }
 
-    func login() {
-        Task {
-            isLoading = true
-            defer { isLoading = false }
-            do {
-                let response = try await service.login(email: self.email, password: self.password)
-                result = "로그인 성공: \(response.accessToken)"
-            } catch {
-                result = "로그인 실패: \(error)"
-            }
-        }
-    }
+    func login(appViewModel: AppViewModel) async {
+           do {
+               _ = try await service.login(email: email, password: password)
+               appViewModel.state = .signedIn
+           } catch {
+               print("로그인 실패: \(error)")
+           }
+       }
 }
