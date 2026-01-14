@@ -1,0 +1,11 @@
+//
+//  Config.xcconfig
+//  ESTiOS5Team1
+//
+//  Created by cheon on 1/14/26.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+#include "/Users/cheon/Documents/Secret/IGDB.xcconfig"
