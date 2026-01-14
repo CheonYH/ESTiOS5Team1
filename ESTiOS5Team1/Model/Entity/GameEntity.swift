@@ -51,7 +51,7 @@ extension GameEntity {
     /// - 플랫폼 DTO → 앱 내부 플랫폼 모델 변환
     ///
     /// - Parameter dto: IGDB에서 받아온 게임 데이터
-      nonisolated init(dto: IGDBGameListDTO) {
+    nonisolated init(dto: IGDBGameListDTO) {
         self.id = dto.id
         self.title = dto.name
 
