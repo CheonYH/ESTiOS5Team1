@@ -21,3 +21,9 @@ struct LoginResponse: Codable, Hashable {
         case refreshToken = "refresh"
     }
 }
+
+struct RefreshRequest: Codable {
+    let refreshToken: String
+}
+
+typealias TokenPair = LoginResponse

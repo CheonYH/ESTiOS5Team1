@@ -11,7 +11,8 @@ import Firebase
 
 @main
 struct ESTiOS5Team1App: App {
-   
+
+    @StateObject private var appViewModel = AppViewModel(authService: AuthServiceImpl())
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self
@@ -30,9 +31,22 @@ struct ESTiOS5Team1App: App {
     }
 
     var body: some Scene {
-        
-        WindowGroup {
+
+        /* WindowGroup {
             MainTabView()
+        } */
+
+        WindowGroup {
+            switch appViewModel.state {
+                case .launching:
+                    SplashView()
+                case .signedOut:
+                    LoginTestView()
+                        .environmentObject(appViewModel)
+                case .signedIn:
+                    MainView()
+                        .environmentObject(appViewModel)
+            }
         }
         .modelContainer(sharedModelContainer)
     }
