@@ -51,61 +51,68 @@ struct SearchView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    // 검색바 (조건부 표시)
-                    if isSearchActive {
-                        SearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                    }
+                ScrollViewReader { proxy in
+                    VStack(spacing: 0) {
+                        // 검색바 (조건부 표시)
+                        if isSearchActive {
+                            SearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
 
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 12) {
-                            // Platform Filter
-                            PlatformFilter(selectedPlatform: $selectedPlatform)
-                                .padding(.top, 8)
+                        // Platform Filter (고정)
+                        PlatformFilter(selectedPlatform: $selectedPlatform)
+                            .padding(.top, 10)
 
-                            // Genre Filter (캡슐 스타일, 가로 스크롤)
-                            GenreFilter(selectedGenre: $selectedGenre)
+                        // Genre Filter (고정, 하단 구분선 포함)
+                        GenreFilter(selectedGenre: $selectedGenre, games: allGames)
+                            .padding(.top, 10)
 
-                            // 활성 필터 표시
-                            if hasActiveFilters {
-                                ActiveFiltersBar(
-                                    selectedPlatform: $selectedPlatform,
-                                    selectedGenre: $selectedGenre,
-                                    searchText: $searchText
-                                )
-                            }
+                        // 게임 카드만 스크롤
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 12) {
+                                // 스크롤 상단 앵커
+                                Color.clear
+                                    .frame(height: 1)
+                                    .id("top")
 
-                            // 로딩 또는 에러 상태
-                            if viewModel.isLoading && viewModel.discoverGames.isEmpty {
-                                LoadingView()
-                            } else if let error = viewModel.error, viewModel.discoverGames.isEmpty {
-                                ErrorView(error: error) {
-                                    Task { await viewModel.loadAllGames() }
-                                }
-                            } else {
-                                // 결과 헤더
-                                ResultHeader(
-                                    title: headerTitle,
-                                    count: filteredGames.count
-                                )
-                                .padding(.top, 8)
-
-                                // 2열 그리드 게임 카드
-                                if filteredGames.isEmpty {
-                                    EmptyFilterResultView(
-                                        platform: selectedPlatform,
-                                        genre: selectedGenre
-                                    )
+                                // 로딩 또는 에러 상태
+                                if viewModel.isLoading && viewModel.discoverGames.isEmpty {
+                                    LoadingView()
+                                } else if let error = viewModel.error, viewModel.discoverGames.isEmpty {
+                                    ErrorView(error: error) {
+                                        Task { await viewModel.loadAllGames() }
+                                    }
                                 } else {
-                                    GameGridView(games: filteredGames)
+                                    // 결과 헤더
+                                    ResultHeader(
+                                        title: headerTitle,
+                                        count: filteredGames.count
+                                    )
+                                    .padding(.top, 10)
+
+                                    // 2열 그리드 게임 카드
+                                    if filteredGames.isEmpty {
+                                        EmptyFilterResultView(
+                                            platform: selectedPlatform,
+                                            genre: selectedGenre
+                                        )
+                                    } else {
+                                        GameGridView(games: filteredGames)
+                                    }
                                 }
+                            }
+                            
+                            .padding(.bottom, 10)
+                        }
+                        .refreshable {
+                            await viewModel.loadAllGames()
+                        }
+                        // 장르 변경 시 상단으로 스크롤
+                        .onChange(of: selectedGenre) { _ in
+                            withAnimation(.spring(response: 0.4)) {
+                                proxy.scrollTo("top", anchor: .top)
                             }
                         }
-                        .padding(.bottom, 100)
-                    }
-                    .refreshable {
-                        await viewModel.loadAllGames()
                     }
                 }
             }
@@ -132,11 +139,6 @@ struct SearchView: View {
                             .font(.title3)
                     }
                 }
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 0.5)
             }
         }
         .onAppear {
@@ -170,13 +172,19 @@ struct SearchView: View {
         return components.joined(separator: " · ") + " 게임"
     }
 
+    // 모든 게임 (중복 제거, 순서 유지)
+    private var allGames: [Game] {
+        let games = viewModel.discoverGames + viewModel.trendingGames + viewModel.newReleaseGames
+        var seen = Set<String>()
+        return games.filter { game in
+            if seen.contains(game.id) { return false }
+            seen.insert(game.id)
+            return true
+        }
+    }
+
     private var filteredGames: [Game] {
-        let allGames = viewModel.discoverGames + viewModel.trendingGames + viewModel.newReleaseGames
-
-        // 중복 제거
-        let uniqueGames = Array(Set(allGames))
-
-        return uniqueGames.filter { game in
+        allGames.filter { game in
             let matchesPlatform = filterByPlatform(game: game, platform: selectedPlatform)
             let matchesGenre = filterByGenre(game: game, genre: selectedGenre)
             let matchesSearch = searchText.isEmpty ||
@@ -237,6 +245,7 @@ struct ResultHeader: View {
 // MARK: - Game Grid View (2열 세로 스크롤)
 struct GameGridView: View {
     let games: [Game]
+    @EnvironmentObject var favoriteManager: FavoriteManager
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -245,8 +254,14 @@ struct GameGridView: View {
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(games) { game in
-                CompactGameCard(game: game)
+            ForEach(games, id: \.id) { game in
+                CompactGameCard(
+                    game: game,
+                    isFavorite: favoriteManager.isFavorite(gameId: game.id),
+                    onToggleFavorite: {
+                        favoriteManager.toggleFavorite(game: game)
+                    }
+                )
             }
         }
         .padding(.horizontal)
@@ -256,41 +271,39 @@ struct GameGridView: View {
 // MARK: - Compact Game Card (그리드용 컴팩트 카드)
 struct CompactGameCard: View {
     let game: Game
-    @EnvironmentObject var favoriteManager: FavoriteManager
+    let isFavorite: Bool
+    let onToggleFavorite: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // 게임 이미지
-            ZStack(alignment: .topLeading) {
-                if let coverURL = game.coverURL {
-                    AsyncImage(url: coverURL) { phase in
-                        switch phase {
-                        case .empty:
-                            CardPlaceholder()
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure:
-                            CardPlaceholder()
-                        @unknown default:
-                            CardPlaceholder()
+            GeometryReader { geometry in
+                ZStack(alignment: .topLeading) {
+                    if let coverURL = game.coverURL {
+                        AsyncImage(url: coverURL) { phase in
+                            switch phase {
+                            case .empty:
+                                CardPlaceholder()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: geometry.size.width, height: 225)
+                            case .failure:
+                                CardPlaceholder()
+                            @unknown default:
+                                CardPlaceholder()
+                            }
                         }
+                    } else {
+                        CardPlaceholder()
                     }
-                    .frame(height: 200)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                    .cornerRadius(12)
-                } else {
-                    CardPlaceholder()
-                }
 
-                // 평점 배지
-                if game.rating > 0 {
+                    // 평점 배지
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 10))
-                        Text(String(format: "%.1f", game.rating))
+                        Text(game.ratingText)
                             .font(.caption2)
                             .fontWeight(.bold)
                     }
@@ -300,30 +313,31 @@ struct CompactGameCard: View {
                     .background(Color.yellow)
                     .cornerRadius(8)
                     .padding(8)
-                }
 
-                // 즐겨찾기 버튼
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3)) {
-                                favoriteManager.toggleFavorite(game: game)
+                    // 즐겨찾기 버튼 (오른쪽 상단)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button(action: onToggleFavorite) {
+                                Image(systemName: isFavorite ? "heart.fill" : "heart")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(isFavorite ? .red : .white)
+                                    .frame(width: 32, height: 32)
+                                    .background(Color.black.opacity(0.6))
+                                    .clipShape(Circle())
                             }
-                        }) {
-                            Image(systemName: favoriteManager.isFavorite(gameId: game.id) ? "heart.fill" : "heart")
-                                .font(.system(size: 14))
-                                .foregroundColor(favoriteManager.isFavorite(gameId: game.id) ? .red : .white)
-                                .frame(width: 32, height: 32)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(8)
                         }
-                        .padding(8)
+                        Spacer()
                     }
                 }
-                .frame(height: 200)
+                .frame(width: geometry.size.width, height: 225)
+                .clipped()
             }
+            .frame(height: 225)
+            .cornerRadius(12)
+            .clipped()
 
             // 게임 정보
             VStack(alignment: .leading, spacing: 4) {
@@ -366,13 +380,18 @@ struct CardPlaceholder: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             ))
-            .frame(height: 200)
+            .frame(height: 225)
             .frame(maxWidth: .infinity)
             .cornerRadius(12)
             .overlay(
-                Image(systemName: "photo")
-                    .font(.title2)
-                    .foregroundColor(.gray)
+                VStack(spacing: 8) {
+                    Image(systemName: "photo")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                    Text("이미지 준비중입니다")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
             )
     }
 }

@@ -67,16 +67,18 @@ struct NewReleaseCard: View {
                 // Rating and Platforms
                 HStack(spacing: 8) {
                     // Rating
-                    if game.rating > 0 {
-                        Text(String(format: "%.1f", game.rating))
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 10))
+                        Text(game.ratingText)
                             .font(.caption)
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.yellow)
-                            .cornerRadius(6)
                     }
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.yellow)
+                    .cornerRadius(6)
 
                     // Platform Icons
                     HStack(spacing: 4) {

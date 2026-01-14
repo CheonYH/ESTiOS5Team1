@@ -15,7 +15,7 @@ struct Game: Identifiable, Hashable {
     let title: String
     let genre: String
     let releaseYear: String
-    let rating: Double
+    let ratingText: String
     let coverURL: URL?
     let platforms: [Platform]
 
@@ -25,8 +25,7 @@ struct Game: Identifiable, Hashable {
         self.title = item.title
         self.genre = item.genre.first ?? "Unknown"
         self.releaseYear = "-" // API에서 제공하지 않음
-        // ratingText는 "8.5" 같은 형태의 문자열
-        self.rating = Double(item.ratingText) ?? 0.0
+        self.ratingText = item.ratingText
         self.coverURL = item.coverURL
         self.platforms = item.platformCategories
     }
@@ -37,7 +36,7 @@ struct Game: Identifiable, Hashable {
         title: String,
         genre: String,
         releaseYear: String,
-        rating: Double,
+        ratingText: String = "N/A",
         coverURL: URL? = nil,
         platforms: [Platform]
     ) {
@@ -45,7 +44,7 @@ struct Game: Identifiable, Hashable {
         self.title = title
         self.genre = genre
         self.releaseYear = releaseYear
-        self.rating = rating
+        self.ratingText = ratingText
         self.coverURL = coverURL
         self.platforms = platforms
     }

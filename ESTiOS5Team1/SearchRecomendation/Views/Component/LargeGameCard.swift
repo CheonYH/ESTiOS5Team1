@@ -24,7 +24,9 @@ struct LargeGameCard: View {
                             case .success(let image):
                                 image
                                     .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                                    .scaledToFit()
+                                    .frame(width: 180, height: 260)
+                                    .clipped()
                             case .failure:
                                 LargePlaceholderImage()
                             @unknown default:
@@ -32,6 +34,7 @@ struct LargeGameCard: View {
                         }
                     }
                     .frame(width: 180, height: 260)
+                    .background(Color.black.opacity(0.3))
                     .cornerRadius(12)
                     .clipped()
                 } else {
@@ -41,16 +44,18 @@ struct LargeGameCard: View {
                 // Rating Badge and Heart Button
                 HStack {
                     // Rating Badge
-                    if game.rating > 0 {
-                        Text(String(format: "%.1f", game.rating))
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 10))
+                        Text(game.ratingText)
                             .font(.caption)
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.yellow)
-                            .cornerRadius(6)
                     }
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.yellow)
+                    .cornerRadius(6)
 
                     Spacer()
 
