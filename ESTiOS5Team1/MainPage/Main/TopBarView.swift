@@ -37,7 +37,7 @@ struct TopBarView: View {
                 }
 
             }
-            .padding(.horizontal, 30)
+            .padding(.horizontal, 10)
 
             Divider()
                 .frame(height: 1)

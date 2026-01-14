@@ -12,11 +12,6 @@ struct NewReleasesGameCard: View {
     let item: GameListItem
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 15)
-                .frame(width: .infinity, height: 150)
-                .foregroundStyle(.gray.opacity(0.15))
-
             HStack {
                 KFImage(item.coverURL)
                     .placeholder {
@@ -24,7 +19,7 @@ struct NewReleasesGameCard: View {
                     }
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 130)
+                    .frame(width: 100, height: 100)
                     .clipped()
                     .cornerRadius(8)
 
@@ -54,6 +49,9 @@ struct NewReleasesGameCard: View {
                 .foregroundStyle(.white)
             }
             .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white.opacity(0.06))
+            )
         }
-    }
 }

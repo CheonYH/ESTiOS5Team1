@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct TrendingNowGameView: View {
-    let item: GameListItem
-
+    
     @StateObject private var viewModel =
     GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
 
@@ -31,15 +30,10 @@ struct TrendingNowGameView: View {
                         }
                     } else {
                         ForEach(viewModel.items) { item in
-                            TrendingNowGameCard(item: item)
-                                .background(
-                                    NavigationLink(destination: GameDetailView(item: item), label: {
-                                        EmptyView()
-                                    }
-                                                  )
-                                    .opacity(0)
-                                )
-
+                            NavigationLink(destination: DetailView(item: item)) {
+                                TrendingNowGameCard(item: item)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -51,25 +45,4 @@ struct TrendingNowGameView: View {
     }
 }
 
-struct TitleBox: View {
 
-    var title: String
-
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.title2.bold())
-                .foregroundStyle(.white)
-
-            Spacer()
-
-            Button {
-                // See All 버튼 이동
-                // trending now와 new Releases에서 사용하니 분류할 것
-            } label: {
-                Text("See All")
-                    .font(.title3.bold())
-            }
-        }
-    }
-}

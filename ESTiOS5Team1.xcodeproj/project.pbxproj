@@ -33,7 +33,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		258BFAB52F15C24C00A9A063 /* IGDB.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = IGDB.xcconfig; path = /Users/cheon/Documents/ESTiOS5Team1/ESTiOS5Team1/Config/IGDB.xcconfig; sourceTree = "<absolute>"; };
 		25C032422F0C972400CA196B /* ESTiOS5Team1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESTiOS5Team1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C032512F0C972500CA196B /* ESTiOS5Team1Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C0325B2F0C972500CA196B /* ESTiOS5Team1UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,7 +128,6 @@
 		25B121532F1713D8003499DA /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				258BFAB52F15C24C00A9A063 /* IGDB.xcconfig */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -365,6 +363,8 @@
 /* Begin XCBuildConfiguration section */
 		25C032632F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -430,6 +430,8 @@
 		};
 		25C032642F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
