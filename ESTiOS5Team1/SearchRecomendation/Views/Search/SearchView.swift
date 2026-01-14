@@ -61,10 +61,11 @@ struct SearchView: View {
 
                         // Platform Filter (고정)
                         PlatformFilter(selectedPlatform: $selectedPlatform)
-                            .padding(.top, 8)
+                            .padding(.top, 10)
 
                         // Genre Filter (고정, 하단 구분선 포함)
                         GenreFilter(selectedGenre: $selectedGenre, games: allGames)
+                            .padding(.top, 10)
 
                         // 게임 카드만 스크롤
                         ScrollView {
@@ -87,7 +88,7 @@ struct SearchView: View {
                                         title: headerTitle,
                                         count: filteredGames.count
                                     )
-                                    .padding(.top, 8)
+                                    .padding(.top, 10)
 
                                     // 2열 그리드 게임 카드
                                     if filteredGames.isEmpty {
@@ -100,7 +101,8 @@ struct SearchView: View {
                                     }
                                 }
                             }
-                            .padding(.bottom, 100)
+                            
+                            .padding(.bottom, 10)
                         }
                         .refreshable {
                             await viewModel.loadAllGames()
