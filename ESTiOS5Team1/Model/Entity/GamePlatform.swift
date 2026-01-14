@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 /// IGDB에서 받아온 플랫폼 이름을 담는 간단한 모델입니다.
 ///

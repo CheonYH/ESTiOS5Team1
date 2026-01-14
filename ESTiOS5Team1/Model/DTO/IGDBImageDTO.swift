@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// IGDB API에서 제공하는 이미지 정보를 담는 DTO입니다.
 ///
