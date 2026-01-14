@@ -28,18 +28,7 @@ struct BookMarkOverlay: View {
                     .background(.black.opacity(0.8), in: Circle())
             }
         }
-        .padding(8)
+        .padding(4)
     }
 }
 
-struct RatingText: View {
-    let item: GameListItem
-
-    var body: some View {
-        Text(item.ratingText)
-            .font(.subheadline.bold())
-            .foregroundStyle(.black)
-            .padding(5)
-            .background(.yellow, in: RoundedRectangle(cornerRadius: 10))
-    }
-}
