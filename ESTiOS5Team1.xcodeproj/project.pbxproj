@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2592D7C72F17187600703296 /* IGDB.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2592D7C62F17187600703296 /* IGDB.xcconfig */; };
+		25B121EB2F1716DD003499DA /* IGDB.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */; };
 		25E2319D2F10854D00C0B57B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 25E2319C2F10854D00C0B57B /* Kingfisher */; };
 		25E231A12F10886400C0B57B /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A02F10886400C0B57B /* FirebaseCrashlytics */; };
 		25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A52F108F9200C0B57B /* FirebaseAnalytics */; };
@@ -33,6 +35,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		258BFAB52F15C24C00A9A063 /* IGDB.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = IGDB.xcconfig; path = /Users/cheon/Documents/ESTiOS5Team1/ESTiOS5Team1/Config/IGDB.xcconfig; sourceTree = "<absolute>"; };
+		2592D7C62F17187600703296 /* IGDB.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IGDB.xcconfig; sourceTree = "<group>"; };
+		25B121EA2F1716DD003499DA /* IGDB.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IGDB.xcconfig; sourceTree = "<group>"; };
 		25C032422F0C972400CA196B /* ESTiOS5Team1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESTiOS5Team1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C032512F0C972500CA196B /* ESTiOS5Team1Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C0325B2F0C972500CA196B /* ESTiOS5Team1UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ESTiOS5Team1UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -124,6 +129,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		25B121532F1713D8003499DA /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				258BFAB52F15C24C00A9A063 /* IGDB.xcconfig */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		25C032392F0C972400CA196B = {
 			isa = PBXGroup;
 			children = (
@@ -132,6 +145,9 @@
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
 				25E231A42F108F9200C0B57B /* Frameworks */,
 				25C032432F0C972400CA196B /* Products */,
+				25B121532F1713D8003499DA /* Recovered References */,
+				25B121EA2F1716DD003499DA /* IGDB.xcconfig */,
+				2592D7C62F17187600703296 /* IGDB.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -274,6 +290,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2592D7C72F17187600703296 /* IGDB.xcconfig in Resources */,
+				25B121EB2F1716DD003499DA /* IGDB.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,8 +377,7 @@
 /* Begin XCBuildConfiguration section */
 		25C032632F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
-			baseConfigurationReferenceRelativePath = Config/IGDB.xcconfig;
+			baseConfigurationReference = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -426,8 +443,7 @@
 		};
 		25C032642F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
-			baseConfigurationReferenceRelativePath = Config/IGDB.xcconfig;
+			baseConfigurationReference = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -486,12 +502,13 @@
 		};
 		25C032662F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -520,12 +537,13 @@
 		};
 		25C032672F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -554,6 +572,7 @@
 		};
 		25C032692F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -576,11 +595,12 @@
 		};
 		25C0326A2F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
@@ -598,6 +618,7 @@
 		};
 		25C0326C2F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2592D7C62F17187600703296 /* IGDB.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -619,10 +640,11 @@
 		};
 		25C0326D2F0C972500CA196B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 25B121EA2F1716DD003499DA /* IGDB.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
