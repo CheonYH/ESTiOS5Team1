@@ -41,6 +41,9 @@ struct GameListItem: Identifiable, Hashable {
     /// 중복은 제거됩니다.
     let platformCategories: [Platform]
 
+    let releaseYearText: String
+    let summary: String?
+
     /// GameEntity -> ViewModel 변환 초기화
     ///
     /// - Parameter entity: Domain Layer 모델
@@ -58,5 +61,13 @@ struct GameListItem: Identifiable, Hashable {
         self.platformCategories = Array(
             Set(entity.platforms.compactMap { Platform(igdbName: $0.name) })
         )
+        // 메타 점수 (0~100)
+
+        // 출시년도
+        self.releaseYearText = entity.releaseYear
+            .map { "\($0)" } ?? "–"
+
+        // Summary 우선 (storyline은 상세에서 쓰므로 제외)
+        self.summary = entity.summary
     }
 }

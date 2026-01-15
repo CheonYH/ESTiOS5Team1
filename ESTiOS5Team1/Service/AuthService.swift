@@ -35,12 +35,14 @@ enum APIEnvironment {
 enum AuthEndpoint {
     case login
     case refresh
+    case register
 
     /// API Path
     var path: String {
         switch self {
-        case .login: return "/auth/login"
-        case .refresh: return "/auth/refresh"
+            case .login: return "/auth/login"
+            case .refresh: return "/auth/refresh"
+            case .register: return "/auth/register"
         }
     }
 
@@ -97,6 +99,8 @@ protocol AuthService: Sendable {
     ///     UI가 반환값을 사용하지 않는 경우가 있어 discardable 처리
     @discardableResult
     func refresh() async throws -> TokenPair
+
+    func register(email: String, password: String, nickname: String) async throws -> RegisterResponse
 }
 
 // MARK: - Auth Service Implementation
@@ -191,5 +195,29 @@ final class AuthServiceImpl: AuthService {
         TokenStore.shared.updateTokens(response: tokenPair)
 
         return tokenPair
+    }
+
+    func register(email: String, password: String, nickname: String) async throws -> RegisterResponse {
+        let url = AuthEndpoint.register.url
+        let requestBody = RegisterRequest(email: email, password: password, nickname: nickname)
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(requestBody)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard http.statusCode == 200 else {
+            throw URLError(.userAuthenticationRequired)
+        }
+
+        let decoded = try JSONDecoder().decode(RegisterResponse.self, from: data)
+
+        return decoded
     }
 }

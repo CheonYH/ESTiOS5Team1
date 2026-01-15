@@ -30,7 +30,7 @@ struct TrendingNowGameView: View {
                         }
                     } else {
                         ForEach(viewModel.items) { item in
-                            NavigationLink(destination: DetailView(item: item)) {
+                            NavigationLink(destination: DetailView(gameId: item.id)) {
                                 TrendingNowGameCard(item: item)
                             }
                             .buttonStyle(.plain)

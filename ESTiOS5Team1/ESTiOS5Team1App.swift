@@ -32,11 +32,11 @@ struct ESTiOS5Team1App: App {
 
     var body: some Scene {
 
-        /* WindowGroup {
-            MainTabView()
-        } */
-
         WindowGroup {
+            MainTabView()
+        }
+
+       /* WindowGroup {
             switch appViewModel.state {
                 case .launching:
                     SplashView()
@@ -44,10 +44,10 @@ struct ESTiOS5Team1App: App {
                     LoginTestView()
                         .environmentObject(appViewModel)
                 case .signedIn:
-                    MainView()
+                    LogoutTestView()
                         .environmentObject(appViewModel)
             }
-        }
+        } */
         .modelContainer(sharedModelContainer)
     }
 
