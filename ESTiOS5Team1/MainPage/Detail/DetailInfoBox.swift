@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 struct DetailInfoBox: View {
-    let item: GameListItem
+    let item: GameDetailItem
     var body: some View {
         
         AsyncImage(url: item.coverURL) { image in

@@ -81,4 +81,10 @@ final class AuthViewModel: ObservableObject {
             result = "로그인 실패: \(error)"
         }
     }
+
+    func logout(appViewModel: AppViewModel) {
+        TokenStore.shared.clear()
+
+        appViewModel.state = .signedOut
+    }
 }

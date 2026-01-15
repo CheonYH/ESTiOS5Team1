@@ -92,3 +92,13 @@ struct RefreshRequest: Codable {
 /// let tokens: TokenPair = try await authService.refresh()
 /// ```
 typealias TokenPair = LoginResponse
+
+struct RegisterRequest: Codable, Hashable {
+    let email: String
+    let password: String
+    let nickname: String
+}
+
+struct RegisterResponse: Codable, Hashable {
+    let success: Bool
+}
