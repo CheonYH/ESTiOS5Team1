@@ -31,7 +31,9 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        NavigationView {
+        // [수정] NavigationView → NavigationStack으로 변경
+        // 탭 전환 후 돌아올 때 navigation bar가 사라지는 문제 해결 (iOS 16+)
+        NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
 
