@@ -17,14 +17,14 @@ struct GenreCard: View {
                 .scaledToFill()
                 .frame(width: 220, height: 140)
                 .clipped()
-                .cornerRadius(16)
+                .cornerRadius(Radius.cr16)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(genre.displayName)
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundStyle(Color("TextPrimary"))
             }
-            .padding(12)
+            .padding(10)
         }
     }
 }

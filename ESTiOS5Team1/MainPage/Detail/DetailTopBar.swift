@@ -1,5 +1,5 @@
 //
-//  DetailViewTopBar.swift
+//  DetailTopBar.swift
 //  ESTiOS5Team1
 //
 //  Created by JaeYeongMAC on 1/13/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DetailViewTopBar: View {
+struct DetailTopBar: View {
     @State var isHeart: Bool = false
     
     @Environment(\.dismiss) private var dismiss
@@ -18,7 +18,7 @@ struct DetailViewTopBar: View {
                 dismiss()
             } label: {
                 Image(systemName: "chevron.backward")
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.textPrimary)
             }
             
             Spacer()
@@ -27,7 +27,7 @@ struct DetailViewTopBar: View {
                 isHeart = !isHeart
             } label: {
                 Image(systemName: isHeart ? "heart.fill" : "heart")
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.textPrimary)
             }
             .padding(.horizontal)
             
@@ -35,18 +35,19 @@ struct DetailViewTopBar: View {
                 
             } label: {
                 Image(systemName: "square.and.arrow.up")
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.textPrimary)
             }
         }
         .navigationBarBackButtonHidden()
-        .padding(.horizontal, 30)
+        .padding(.horizontal, Spacing.pv10)
         
         Divider()
             .frame(height: 1)
-            .background(Color.white.opacity(0.2))
+            .background(.textPrimary.opacity(0.2))
     }
 }
 
 #Preview {
-    DetailViewTopBar()
+    DetailTopBar()
+        .background(.BG)
 }

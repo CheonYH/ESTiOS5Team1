@@ -14,7 +14,7 @@ struct TrendingNowGameView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            TitleBox(title: "Trending Now")
+            TitleBox(title: "Trending Now", showsSeeAll: true, onSeeAllTap: { print("트렌딩 나우 이동")})
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
@@ -38,6 +38,8 @@ struct TrendingNowGameView: View {
                     }
                 }
             }
+            .ignoresSafeArea(edges: .horizontal)
+
         }
         .task {
             await viewModel.load()
@@ -45,4 +47,7 @@ struct TrendingNowGameView: View {
     }
 }
 
+#Preview {
+    TrendingNowGameView()
+}
 

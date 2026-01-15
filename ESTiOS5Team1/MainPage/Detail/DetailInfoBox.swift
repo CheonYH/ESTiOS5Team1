@@ -10,8 +10,8 @@ import Kingfisher
 
 struct DetailInfoBox: View {
     let item: GameListItem
+    
     var body: some View {
-        
         AsyncImage(url: item.coverURL) { image in
             image
                 .resizable()
@@ -21,6 +21,7 @@ struct DetailInfoBox: View {
         }
         .frame(height: 500)
         .clipped()
+        
         VStack(alignment: .leading) {
             HStack() {
                 KFImage(item.coverURL)
@@ -31,7 +32,7 @@ struct DetailInfoBox: View {
                     .scaledToFit()
                     .frame(height: 100)
                     .clipped()
-                    .cornerRadius(8)
+                    .cornerRadius(Radius.cr8)
                 
                 VStack(alignment: .leading) {
                     Text(item.title)
@@ -48,17 +49,17 @@ struct DetailInfoBox: View {
                         .background(.purple.opacity(0.2), in: Capsule())
                 }
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(.textPrimary)
             Divider()
                 .frame(height: 1)
-                .background(Color.white.opacity(0.2))
+                .background(.textPrimary.opacity(0.2))
             HStack {
                 
                 StatView(value: item.ratingText, title: "User Score", color: .mint)
                     .frame(maxWidth: .infinity)
                 Divider()
                     .frame(height: 40)
-                    .background(Color.white.opacity(0.2))
+                    .background(.textPrimary.opacity(0.2))
                 
                 StatView(value: "Me", title: "Metacritic", color: .mint)
                     .frame(maxWidth: .infinity)
@@ -66,8 +67,8 @@ struct DetailInfoBox: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.06))
+            RoundedRectangle(cornerRadius: Radius.card)
+                .fill(.textPrimary.opacity(0.06))
         )
         
     }

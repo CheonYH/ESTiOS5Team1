@@ -8,16 +8,14 @@
 import SwiftUI
 
 struct TopBarView: View {
-    @State var imageColor: Color = .white
-    @State var textColor: Color = .white
-
+    
     var body: some View {
             HStack {
                 Button {
 
                 } label: {
                     Image(systemName: "line.3.horizontal")
-                        .foregroundStyle(imageColor)
+                        .foregroundStyle(.symbolPrimary)
                 }
 
                 Spacer()
@@ -26,22 +24,22 @@ struct TopBarView: View {
                     .foregroundStyle(.purple)
 
                 Text("GameVault")
-                    .foregroundStyle(textColor)
+                    .foregroundStyle(.textPrimary)
 
                 Spacer()
 
                 Button {
                 } label: {
                     Image(systemName: "magnifyingglass")
-                        .foregroundStyle(imageColor)
+                        .foregroundStyle(.symbolPrimary)
                 }
 
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, Spacing.pv10)
 
             Divider()
                 .frame(height: 1)
-                .background(Color.white.opacity(0.2))
+                .background(.textPrimary.opacity(0.2))
     }
 }
 

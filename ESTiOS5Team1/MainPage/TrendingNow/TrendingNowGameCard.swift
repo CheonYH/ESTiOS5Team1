@@ -22,16 +22,16 @@ struct TrendingNowGameCard: View {
                     .scaledToFill()
                     .frame(width: 150, height: 200)
                     .clipped()
-                    .cornerRadius(8)
+                    .cornerRadius(Radius.cr8)
 
                 Text(item.title)
                     .font(.headline)
                     .lineLimit(2)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.textPrimary)
 
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.textPrimary.opacity(0.7))
             }
             .frame(width: 150, height: 250)
 

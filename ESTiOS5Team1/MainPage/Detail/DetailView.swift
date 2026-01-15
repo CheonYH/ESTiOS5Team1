@@ -15,26 +15,17 @@ struct DetailView: View {
             Color.black
                 .ignoresSafeArea()
             VStack() {
-                DetailViewTopBar()
+                DetailTopBar()
                 
                 ScrollView {
                     DetailInfoBox(item: item)
                     
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("About")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                        
-                        Text("descriptionssdwdqrqgrgegerggergergregergergergregegergergergegeg")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.8))
-                    }
+                    GameDetailBox()
                     
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.06))
-                    )
+                    TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
+                        .padding(.vertical, 15)
+                    
+                    StarRatingView(rating: 4.5)
                 }
             }
         }
