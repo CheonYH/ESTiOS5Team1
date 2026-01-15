@@ -38,7 +38,7 @@ struct MainPoster: View {
                         .foregroundStyle(textColor)
                         .bold()
                         .padding(.vertical, 5)
-                        .padding(.horizontal, 15)
+                        .padding(.horizontal, 10)
                         .background(.yellow, in: Capsule())
                 }
 

@@ -19,8 +19,8 @@ struct TrendingNowGameCard: View {
                         ProgressView()
                     }
                     .resizable()
-                    .scaledToFit()
-                    .frame(height: 200)
+                    .scaledToFill()
+                    .frame(width: 150, height: 200)
                     .clipped()
                     .cornerRadius(8)
 

@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct NewReleasesView: View {
-    let item: GameListItem
     @StateObject private var viewModel =
     GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
 
