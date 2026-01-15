@@ -8,43 +8,66 @@
 import SwiftUI
 
 struct DetailView: View {
-    let item: GameListItem
-    
+
+    let gameId: Int
+
+    @StateObject private var viewModel: GameDetailViewModel
+
+    init(gameId: Int) {
+        self.gameId = gameId
+        self._viewModel = StateObject(wrappedValue: GameDetailViewModel(gameId: gameId))
+    }
+
     var body: some View {
         ZStack {
             Color.black
                 .ignoresSafeArea()
-            VStack() {
-                DetailTopBar()
-                
+            VStack {
+                DetailViewTopBar()
+
                 ScrollView {
-                    DetailInfoBox(item: item)
-                    
-                    GameDetailBox()
-                    
-                    TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
-                        .padding(.vertical, 15)
-                    
-                    StarRatingView(rating: 4.5)
+                    if let item = viewModel.item {
+                        DetailInfoBox(item: item)
+
+                        VStack(alignment: .leading) {
+                            Text("Additional Info")
+                        }
+
+                    } else if viewModel.isLoading {
+                        ProgressView("Loading...")
+                            .padding()
+                    } else if let error = viewModel.error {
+                        Text("오류 발생: \(error.localizedDescription)")
+                            .foregroundColor(.red)
+                    }
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("About")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+
+                        Text("descriptionssdwdqrqgrgegerggergergregergergergregegergergergegeg")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.white.opacity(0.06))
+                    )
                 }
             }
         }
+        .task {
+            await viewModel.load()
+        }
     }
+
 }
+
+
 #Preview {
-    DetailView(item: GameListItem(
-        entity: GameEntity(
-            id: 1,
-            title: "Elden Ring",
-            coverURL: URL(string: "https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg"),
-            rating: 9.7,
-            genre: ["Action RPG", "Fantasy"], platforms: [
-                GamePlatform(name: "PlayStation 5"),
-                GamePlatform(name: "PC")
-            ]
-        )
-    )
-    )
-    .padding()
-    .background(Color.black)
+    DetailView(gameId: 119133)
 }
+
+
