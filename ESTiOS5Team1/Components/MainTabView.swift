@@ -15,28 +15,25 @@ struct MainTabView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            
-            
             ZStack {
                 switch selectedTab {
                     case .home:
                         MainView()
                     case .discover:
-                        //SearchView(favoriteManager: favoriteManager)
-                        EmptyView()
+                        SearchView(favoriteManager: favoriteManager)
                     case .library:
-                        EmptyView()
+                        LibraryView()
                     case .profile:
-                        EmptyView()
+                        MainView()
                 }
             }
             
             TabBarView(selectedTab: $selectedTab)
         }
+        .environmentObject(favoriteManager)
         .background(Color.black)
         .ignoresSafeArea()
     }
-    
 }
 
 #Preview {

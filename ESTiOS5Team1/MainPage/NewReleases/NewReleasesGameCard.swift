@@ -21,13 +21,15 @@ struct NewReleasesGameCard: View {
                     .scaledToFit()
                     .frame(width: 100, height: 100)
                     .clipped()
-                    .cornerRadius(8)
+                    .cornerRadius(Radius.card)
 
                 VStack(alignment: .leading) {
                     Text(item.title)
+                        .font(.title3)
 
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)
+                        .foregroundColor(.textPrimary.opacity(0.7))
 
                     HStack {
                         RatingText(item: item)
@@ -41,17 +43,17 @@ struct NewReleasesGameCard: View {
                         } label: {
                             Image(systemName: "plus")
                                 .padding(10)
-                                .background(.purple, in: RoundedRectangle(cornerRadius: 8))
+                                .background(Color("PurplePrimary"), in: RoundedRectangle(cornerRadius: Radius.cr8))
                         }
 
                     }
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(.textPrimary)
             }
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.06))
+                RoundedRectangle(cornerRadius: Radius.card)
+                    .fill(.textPrimary.opacity(0.12))
             )
         }
 }

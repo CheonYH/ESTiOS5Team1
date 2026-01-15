@@ -7,23 +7,26 @@
 import SwiftUI
 
 struct TitleBox: View {
-
     var title: String
-
+    var showsSeeAll: Bool = false
+    let onSeeAllTap: (() -> Void)?
+    
     var body: some View {
         HStack {
             Text(title)
                 .font(.title2.bold())
                 .foregroundStyle(.white)
-
+            
             Spacer()
-
-            Button {
-                // See All 버튼 이동
-                // trending now와 new Releases에서 사용하니 분류할 것
-            } label: {
-                Text("See All")
-                    .font(.title3.bold())
+            
+            if showsSeeAll {
+                Button("See All") {
+                    onSeeAllTap?()
+                    // See All 버튼 이동
+                    // trending now와 new Releases에서 사용하니 분류할 것
+                }
+                .font(.title3.bold())
+                .foregroundStyle(.purplePrimary)
             }
         }
     }
