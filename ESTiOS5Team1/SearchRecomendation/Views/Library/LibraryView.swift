@@ -4,6 +4,7 @@
 //
 //  Created by 이찬희 on 1/6/26.
 //
+//  [수정] Game → GameListItem 통일
 
 import SwiftUI
 
@@ -18,20 +19,20 @@ struct LibraryView: View {
         GridItem(.flexible(), spacing: 16)
     ]
 
-    // 검색 필터링된 게임 목록
-    var filteredGames: [Game] {
+    // [수정] 검색 필터링된 게임 목록 - Game → GameListItem
+    var filteredItems: [GameListItem] {
         if searchText.isEmpty {
-            return favoriteManager.favoriteGames
+            return favoriteManager.favoriteItems
         } else {
-            return favoriteManager.favoriteGames.filter { game in
-                game.title.localizedCaseInsensitiveContains(searchText) ||
-                game.genre.localizedCaseInsensitiveContains(searchText)
+            return favoriteManager.favoriteItems.filter { item in
+                item.title.localizedCaseInsensitiveContains(searchText) ||
+                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(searchText)
             }
         }
     }
 
     var body: some View {
-        // [수정] NavigationView → NavigationStack으로 변경
+        // NavigationView → NavigationStack으로 변경
         // 탭 전환 후 돌아올 때 navigation bar가 사라지는 문제 해결 (iOS 16+)
         NavigationStack {
             ZStack {
@@ -46,20 +47,21 @@ struct LibraryView: View {
 
                     // 게임 목록
                     ScrollView {
-                        if favoriteManager.favoriteGames.isEmpty {
+                        // [수정] favoriteGames → favoriteItems
+                        if favoriteManager.favoriteItems.isEmpty {
                             EmptyLibraryView()
-                        } else if filteredGames.isEmpty {
+                        } else if filteredItems.isEmpty {
                             // 검색 결과 없음
                             EmptySearchResultView()
                         } else {
                             LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(filteredGames) { game in
-                                    // [수정] LibraryGameCard → GameListCard (통일된 카드 사용)
+                                // [수정] game → item
+                                ForEach(filteredItems) { item in
                                     GameListCard(
-                                        game: game,
-                                        isFavorite: favoriteManager.isFavorite(gameId: game.id),
+                                        item: item,
+                                        isFavorite: favoriteManager.isFavorite(itemId: item.id),
                                         onToggleFavorite: {
-                                            favoriteManager.toggleFavorite(game: game)
+                                            favoriteManager.toggleFavorite(item: item)
                                         }
                                     )
                                 }

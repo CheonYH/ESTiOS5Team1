@@ -4,6 +4,8 @@
 //
 //  Created by 이찬희 on 1/6/26.
 //
+//  [수정] Game → GameListItem 통일
+
 import SwiftUI
 
 // MARK: - Search View
@@ -66,7 +68,8 @@ struct SearchView: View {
                             .padding(.top, 10)
 
                         // Genre Filter (고정, 하단 구분선 포함)
-                        GenreFilter(selectedGenre: $selectedGenre, games: allGames)
+                        // [수정] games → items
+                        GenreFilter(selectedGenre: $selectedGenre, items: allItems)
                             .padding(.top, 10)
 
                         // 게임 카드만 스크롤
@@ -77,10 +80,10 @@ struct SearchView: View {
                                     .frame(height: 1)
                                     .id("top")
 
-                                // 로딩 또는 에러 상태
-                                if viewModel.isLoading && viewModel.discoverGames.isEmpty {
+                                // [수정] 로딩 또는 에러 상태 - discoverGames → discoverItems
+                                if viewModel.isLoading && viewModel.discoverItems.isEmpty {
                                     LoadingView()
-                                } else if let error = viewModel.error, viewModel.discoverGames.isEmpty {
+                                } else if let error = viewModel.error, viewModel.discoverItems.isEmpty {
                                     ErrorView(error: error) {
                                         Task { await viewModel.loadAllGames() }
                                     }
@@ -88,18 +91,19 @@ struct SearchView: View {
                                     // 결과 헤더
                                     ResultHeader(
                                         title: headerTitle,
-                                        count: filteredGames.count
+                                        count: filteredItems.count
                                     )
                                     .padding(.top, 10)
 
                                     // 2열 그리드 게임 카드
-                                    if filteredGames.isEmpty {
+                                    // [수정] filteredGames → filteredItems
+                                    if filteredItems.isEmpty {
                                         EmptyFilterResultView(
                                             platform: selectedPlatform,
                                             genre: selectedGenre
                                         )
                                     } else {
-                                        GameGridView(games: filteredGames)
+                                        GameGridView(items: filteredItems)
                                     }
                                 }
                             }
@@ -143,8 +147,9 @@ struct SearchView: View {
                 }
             }
         }
+        // [수정] discoverGames → discoverItems
         .onAppear {
-            if viewModel.discoverGames.isEmpty {
+            if viewModel.discoverItems.isEmpty {
                 Task { await viewModel.loadAllGames() }
             }
         }
@@ -174,24 +179,25 @@ struct SearchView: View {
         return components.joined(separator: " · ") + " 게임"
     }
 
-    // 모든 게임 (중복 제거, 순서 유지)
-    private var allGames: [Game] {
-        let games = viewModel.discoverGames + viewModel.trendingGames + viewModel.newReleaseGames
-        var seen = Set<String>()
-        return games.filter { game in
-            if seen.contains(game.id) { return false }
-            seen.insert(game.id)
+    // [수정] 모든 게임 (중복 제거, 순서 유지) - Game → GameListItem
+    private var allItems: [GameListItem] {
+        let items = viewModel.discoverItems + viewModel.trendingItems + viewModel.newReleaseItems
+        var seen = Set<Int>()
+        return items.filter { item in
+            if seen.contains(item.id) { return false }
+            seen.insert(item.id)
             return true
         }
     }
 
-    private var filteredGames: [Game] {
-        allGames.filter { game in
-            let matchesPlatform = filterByPlatform(game: game, platform: selectedPlatform)
-            let matchesGenre = filterByGenre(game: game, genre: selectedGenre)
+    // [수정] filteredGames → filteredItems
+    private var filteredItems: [GameListItem] {
+        allItems.filter { item in
+            let matchesPlatform = filterByPlatform(item: item, platform: selectedPlatform)
+            let matchesGenre = filterByGenre(item: item, genre: selectedGenre)
             let matchesSearch = searchText.isEmpty ||
-                game.title.localizedCaseInsensitiveContains(searchText) ||
-                game.genre.localizedCaseInsensitiveContains(searchText)
+                item.title.localizedCaseInsensitiveContains(searchText) ||
+                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(searchText)
 
             return matchesPlatform && matchesGenre && matchesSearch
         }
@@ -199,23 +205,27 @@ struct SearchView: View {
 
     // MARK: - Helper Methods
 
-    private func filterByPlatform(game: Game, platform: PlatformFilterType) -> Bool {
+    // [수정] game → item, platforms → platformCategories
+    private func filterByPlatform(item: GameListItem, platform: PlatformFilterType) -> Bool {
         guard platform != .all else { return true }
 
-        return game.platforms.contains { gamePlatform in
+        return item.platformCategories.contains { itemPlatform in
             switch platform {
             case .all: return true
-            case .pc: return gamePlatform == .pc
-            case .playstation: return gamePlatform == .playstation
-            case .xbox: return gamePlatform == .xbox
-            case .nintendo: return gamePlatform == .nintendo
+            case .pc: return itemPlatform == .pc
+            case .playstation: return itemPlatform == .playstation
+            case .xbox: return itemPlatform == .xbox
+            case .nintendo: return itemPlatform == .nintendo
             }
         }
     }
 
-    private func filterByGenre(game: Game, genre: GenreFilterType) -> Bool {
+    // [수정] game → item, genre가 배열이므로 any로 매칭
+    private func filterByGenre(item: GameListItem, genre: GenreFilterType) -> Bool {
         guard genre != .all else { return true }
-        return genre.matches(genre: game.genre)
+        return item.genre.contains { genreString in
+            genre.matches(genre: genreString)
+        }
     }
 }
 
@@ -245,8 +255,9 @@ struct ResultHeader: View {
 }
 
 // MARK: - Game Grid View (2열 세로 스크롤)
+// [수정] games → items, Game → GameListItem
 struct GameGridView: View {
-    let games: [Game]
+    let items: [GameListItem]
     @EnvironmentObject var favoriteManager: FavoriteManager
 
     private let columns = [
@@ -256,13 +267,12 @@ struct GameGridView: View {
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(games, id: \.id) { game in
-                // [수정] CompactGameCard → GameListCard (통일된 카드 사용)
+            ForEach(items, id: \.id) { item in
                 GameListCard(
-                    game: game,
-                    isFavorite: favoriteManager.isFavorite(gameId: game.id),
+                    item: item,
+                    isFavorite: favoriteManager.isFavorite(itemId: item.id),
                     onToggleFavorite: {
-                        favoriteManager.toggleFavorite(game: game)
+                        favoriteManager.toggleFavorite(item: item)
                     }
                 )
             }
