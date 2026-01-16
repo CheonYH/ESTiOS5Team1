@@ -10,6 +10,7 @@ import Kingfisher
 
 struct DetailInfoBox: View {
     let item: GameDetailItem
+    
     var body: some View {
         AsyncImage(url: item.coverURL) { image in
             image
@@ -41,7 +42,7 @@ struct DetailInfoBox: View {
                         .foregroundStyle(.gray.opacity(0.8))
                     
                     Text(item.genre.joined(separator: " · "))
-                        .font(.callout)
+                        .font(.caption)
                         .foregroundStyle(.pink.opacity(0.75))
                         .bold()
                         .padding(.horizontal, 5)
