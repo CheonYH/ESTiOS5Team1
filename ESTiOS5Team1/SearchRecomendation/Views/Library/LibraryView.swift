@@ -31,7 +31,9 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        NavigationView {
+        // [수정] NavigationView → NavigationStack으로 변경
+        // 탭 전환 후 돌아올 때 navigation bar가 사라지는 문제 해결 (iOS 16+)
+        NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
 
@@ -52,7 +54,14 @@ struct LibraryView: View {
                         } else {
                             LazyVGrid(columns: columns, spacing: 16) {
                                 ForEach(filteredGames) { game in
-                                    LibraryGameCard(game: game)
+                                    // [수정] LibraryGameCard → GameListCard (통일된 카드 사용)
+                                    GameListCard(
+                                        game: game,
+                                        isFavorite: favoriteManager.isFavorite(gameId: game.id),
+                                        onToggleFavorite: {
+                                            favoriteManager.toggleFavorite(game: game)
+                                        }
+                                    )
                                 }
                             }
                             .padding(.horizontal)
@@ -171,109 +180,6 @@ struct EmptySearchResultView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.top, 100)
-    }
-}
-
-// MARK: - Library Game Card
-struct LibraryGameCard: View {
-    let game: Game
-    @EnvironmentObject var favoriteManager: FavoriteManager
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .topLeading) {
-                // Game Image
-                if let coverURL = game.coverURL {
-                    AsyncImage(url: coverURL) { phase in
-                        switch phase {
-                            case .empty:
-                                LibraryPlaceholder()
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                            case .failure:
-                                LibraryPlaceholder()
-                            @unknown default:
-                                LibraryPlaceholder()
-                        }
-                    }
-                    .frame(height: 240)
-                    .cornerRadius(12)
-                    .clipped()
-                } else {
-                    LibraryPlaceholder()
-                }
-
-                // Rating Badge and Heart Button
-                HStack {
-                    // Rating Badge
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 10))
-                        Text(game.ratingText)
-                            .font(.caption)
-                            .fontWeight(.bold)
-                    }
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.yellow)
-                    .cornerRadius(6)
-
-                    Spacer()
-
-                    // Heart Button
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3)) {
-                            favoriteManager.toggleFavorite(game: game)
-                        }
-                    }) {
-                        Image(systemName: favoriteManager.isFavorite(gameId: game.id) ? "heart.fill" : "heart")
-                            .font(.system(size: 20))
-                            .foregroundColor(.purple)
-                            .frame(width: 36, height: 36)
-                            .background(Color.white.opacity(0.9))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(8)
-            }
-
-            // Game Info
-            VStack(alignment: .leading, spacing: 4) {
-                Text(game.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-                    .frame(height: 36, alignment: .top)
-
-                Text(game.genre)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            .padding(.top, 8)
-        }
-    }
-}
-
-// MARK: - Library Placeholder
-struct LibraryPlaceholder: View {
-    var body: some View {
-        Rectangle()
-            .fill(LinearGradient(
-                colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ))
-            .frame(height: 240)
-            .cornerRadius(12)
-            .overlay(
-                Image(systemName: "photo")
-                    .font(.largeTitle)
-                    .foregroundColor(.gray)
-            )
     }
 }
 
