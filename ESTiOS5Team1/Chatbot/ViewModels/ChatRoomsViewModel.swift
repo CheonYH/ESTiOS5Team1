@@ -22,7 +22,7 @@ final class ChatRoomsViewModel: ObservableObject {
     func load() async {
         let loadedRooms = await store.loadRooms()
 
-        // 최신 업데이트 순 정렬 (기본방이 있어도 정상 동작)
+        // 최신 업데이트 순 정렬
         rooms = loadedRooms.sorted { $0.updatedAt > $1.updatedAt }
 
         // 선택된 방이 없거나, 선택된 방이 사라졌다면 기본방 → 첫 방 순으로 재선택

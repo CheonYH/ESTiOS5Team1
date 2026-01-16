@@ -7,101 +7,127 @@
 
 import Foundation
 
-enum AlanAPIError: Error {
-    case invalidEndpoint
-    case invalidUrl
-    case badStatusCode(Int)
-    case emptyResponse
-}
+struct AlanAPIClient {
+    struct Configuration: Sendable {
+        /// e.g. https://kdt-api-function.azurewebsites.net
+        let baseUrl: URL
 
-struct AlanResetRequest: Encodable {
-    let clientIdentifier: String
-    enum CodingKeys: String, CodingKey { case clientIdentifier = "client_id" }
-}
-
-final class AlanAPIClient {
-    func ask(
-        apiKey: String,
-        endpoint: String,
-        authHeaderField: String?,
-        authHeaderPrefix: String?,
-        clientIdentifier: String,
-        content: String
-    ) async throws -> String {
-        guard var urlComponents = URLComponents(string: endpoint) else {
-            throw AlanAPIError.invalidEndpoint
+        init(baseUrl: URL) {
+            self.baseUrl = baseUrl
         }
-
-        urlComponents.path = "/api/v1/question"
-        urlComponents.queryItems = [
-            URLQueryItem(name: "content", value: content),
-            URLQueryItem(name: "client_id", value: clientIdentifier)
-        ]
-
-        guard let requestUrl = urlComponents.url else { throw AlanAPIError.invalidUrl }
-
-        var urlRequest = URLRequest(url: requestUrl)
-        urlRequest.httpMethod = "GET"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
-
-        if let authHeaderField, !authHeaderField.isEmpty, !apiKey.isEmpty {
-            let prefixValue = authHeaderPrefix ?? ""
-            urlRequest.setValue(prefixValue + apiKey, forHTTPHeaderField: authHeaderField)
-        }
-
-        let (dataValue, responseValue) = try await URLSession.shared.data(for: urlRequest)
-
-        if let httpResponse = responseValue as? HTTPURLResponse,
-           !(200...299).contains(httpResponse.statusCode) {
-            throw AlanAPIError.badStatusCode(httpResponse.statusCode)
-        }
-
-        if let textValue = String(data: dataValue, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines),
-           !textValue.isEmpty {
-            return textValue
-        }
-
-        throw AlanAPIError.emptyResponse
     }
 
-    func reset(
-        apiKey: String,
-        endpoint: String,
-        authHeaderField: String?,
-        authHeaderPrefix: String?,
-        clientIdentifier: String
-    ) async throws -> String {
-        guard let baseUrl = URL(string: endpoint) else { throw AlanAPIError.invalidEndpoint }
-        let requestUrl = baseUrl.appendingPathComponent("/api/v1/reset-state")
+    enum AlanAPIError: LocalizedError {
+        case invalidUrl
+        case badStatus(Int, String)
+        case emptyResponse
+        case decodingFailed
 
-        var urlRequest = URLRequest(url: requestUrl)
-        urlRequest.httpMethod = "DELETE"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var errorDescription: String? {
+            switch self {
+            case .invalidUrl: return "Invalid Alan API URL."
+            case .badStatus(let code, let body):
+                return "Alan API failed. status=\(code), body=\(body)"
+            case .emptyResponse: return "Alan API returned empty response."
+            case .decodingFailed: return "Failed to decode Alan API response."
+            }
+        }
+    }
 
-        if let authHeaderField, !authHeaderField.isEmpty, !apiKey.isEmpty {
-            let prefixValue = authHeaderPrefix ?? ""
-            urlRequest.setValue(prefixValue + apiKey, forHTTPHeaderField: authHeaderField)
+    private let configuration: Configuration
+    private let urlSession: URLSession
+
+    init(configuration: Configuration, urlSession: URLSession = .shared) {
+        self.configuration = configuration
+        self.urlSession = urlSession
+    }
+
+    func ask(content: String, clientId: String) async throws -> String {
+        var components = URLComponents(url: configuration.baseUrl, resolvingAgainstBaseURL: false)
+        components?.path = "/api/v1/question"
+        components?.queryItems = [
+            URLQueryItem(name: "content", value: content),
+            URLQueryItem(name: "client_id", value: clientId)
+        ]
+
+        guard let urlValue = components?.url else { throw AlanAPIError.invalidUrl }
+
+        var request = URLRequest(url: urlValue)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+
+        let (dataValue, responseValue) = try await urlSession.data(for: request)
+        return try Self.parseAlanResponse(data: dataValue, response: responseValue)
+    }
+
+    func resetState(clientId: String) async throws -> String {
+        guard let urlValue = URL(string: "/api/v1/reset-state", relativeTo: configuration.baseUrl) else {
+            throw AlanAPIError.invalidUrl
         }
 
-        urlRequest.httpBody = try JSONEncoder().encode(
-            AlanResetRequest(clientIdentifier: clientIdentifier)
-        )
+        var request = URLRequest(url: urlValue)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(ResetBody(clientId: clientId))
 
-        let (dataValue, responseValue) = try await URLSession.shared.data(for: urlRequest)
+        let (dataValue, responseValue) = try await urlSession.data(for: request)
+        return try Self.parseAlanResponse(data: dataValue, response: responseValue)
+    }
 
-        if let httpResponse = responseValue as? HTTPURLResponse,
-           !(200...299).contains(httpResponse.statusCode) {
-            throw AlanAPIError.badStatusCode(httpResponse.statusCode)
+    // MARK: - Private
+
+    private struct ResetBody: Encodable {
+        let clientId: String
+        enum CodingKeys: String, CodingKey { case clientId = "client_id" }
+    }
+
+    private struct AlanEnvelope: Decodable {
+        struct Action: Decodable {
+            let name: String?
+            let speak: String?
         }
 
-        if let textValue = String(data: dataValue, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines),
-           !textValue.isEmpty {
-            return textValue
+        let action: Action?
+        let content: String?
+    }
+
+    private static func parseAlanResponse(data: Data, response: URLResponse) throws -> String {
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+        if (200...299).contains(statusCode) == false {
+            let bodyText = String(data: data, encoding: .utf8) ?? ""
+            throw AlanAPIError.badStatus(statusCode, bodyText)
         }
 
-        throw AlanAPIError.emptyResponse
+        // 1) "JSON string" 형태:  "hello"
+        if let decodedString = try? JSONDecoder().decode(String.self, from: data) {
+            let trimmed = decodedString.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty { throw AlanAPIError.emptyResponse }
+            return trimmed
+        }
+
+        // 2) "JSON object" 형태: {"action": {...}, "content": "..."}
+        if let decodedObject = try? JSONDecoder().decode(AlanEnvelope.self, from: data) {
+            let content = (decodedObject.content ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if content.isEmpty == false {
+                return content
+            }
+
+            let speak = (decodedObject.action?.speak ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if speak.isEmpty == false {
+                return speak
+            }
+
+            throw AlanAPIError.emptyResponse
+        }
+
+        // 3) plain text fallback
+        if let plain = String(data: data, encoding: .utf8) {
+            let trimmed = plain.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty { throw AlanAPIError.emptyResponse }
+            return trimmed
+        }
+
+        throw AlanAPIError.decodingFailed
     }
 }

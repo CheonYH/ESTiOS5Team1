@@ -9,83 +9,94 @@ import SwiftUI
 
 struct AIIntegrationScreen: View {
     @Binding var settings: AppSettings
-    let botSession: StreamBotSession
+    @ObservedObject var botSession: StreamBotSession
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Bot Stream Login (only the bot logs in)") {
-                    TextField("API Key", text: $settings.botStream.apiKey)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+        Form {
+            Section("Stream Bot Connection") {
+                statusRow
 
-                    TextField("Bot User Identifier", text: $settings.botStream.botUserIdentifier)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                TextField("API Key", text: $settings.botStream.apiKey)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
 
-                    TextField("Bot Display Name", text: $settings.botStream.botUserDisplayName)
+                TextField("Bot User ID", text: $settings.botStream.userId)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
 
-                    SecureField("Bot User Token", text: $settings.botStream.botUserToken)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                TextField("Bot Name", text: $settings.botStream.userName)
 
-                    Button("Save & Connect Bot") {
-                        settings.save()
-                        Task { await botSession.connectBotIfPossible(credentials: settings.botStream) }
-                    }
+                SecureField("Bot Token", text: $settings.botStream.userToken)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
 
-                    botStateView
-                }
+                TextField("Default Channel CID", text: $settings.botStream.defaultChannelCid)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
 
-                Section("Alan API (Stage 2)") {
-                    Toggle("Enable Alan", isOn: $settings.alan.isEnabled)
-                    SecureField("Alan API Key", text: $settings.alan.apiKey)
+                Button("Save") { persistAndReload() }
 
-                    TextField("Endpoint", text: $settings.alan.endpoint)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-
-                    DisclosureGroup("Auth Header (only if required)") {
-                        TextField("Header Field", text: $settings.alan.authHeaderField)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-
-                        TextField("Header Prefix", text: $settings.alan.authHeaderPrefix)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                    }
-
-                    Button("Save") { settings.save() }
-                }
-
-                Section("Storage") {
-                    Text("Rooms and messages are saved locally (Application Support).")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                Button("Save & Connect Bot") {
+                    persistAndReload()
+                    Task { await botSession.connectBotIfPossible(credentials: settings.botStream) }
                 }
             }
-            .navigationTitle("AI / Keys")
+
+            Section("Alan") {
+                Toggle("Enable Alan", isOn: $settings.alan.isEnabled)
+
+                TextField("Endpoint", text: $settings.alan.endpoint)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                SecureField("Client Key (used as client_id)", text: $settings.alan.clientKey)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                Toggle("Include Local Context", isOn: $settings.alan.includeLocalContext)
+
+                Stepper(
+                    "Context Messages: \(settings.alan.contextMessageCount)",
+                    value: $settings.alan.contextMessageCount,
+                    in: 0...30
+                )
+
+                Stepper(
+                    "Max Context Chars: \(settings.alan.maxContextCharacters)",
+                    value: $settings.alan.maxContextCharacters,
+                    in: 500...6000,
+                    step: 250
+                )
+
+                Button("Save Alan Settings") { persistAndReload() }
+            }
         }
+        .navigationTitle("AI / Keys")
+        .onDisappear { settings.save() }
+    }
+
+    private func persistAndReload() {
+        settings.save()
+        settings = .load()
     }
 
     @ViewBuilder
-    private var botStateView: some View {
+    private var statusRow: some View {
         switch botSession.state {
-        case .idle:
-            Text("Bot is not connected.")
-                .font(.footnote)
+        case .notConfigured:
+            Label("Not configured", systemImage: "exclamationmark.triangle")
                 .foregroundStyle(.secondary)
         case .connecting:
-            HStack {
-                ProgressView()
-                Text("Connecting…").font(.footnote)
-            }
+            Label("Connecting…", systemImage: "arrow.triangle.2.circlepath")
         case .connected:
-            Text("Bot connected.").font(.footnote)
+            Label("Connected", systemImage: "checkmark.circle.fill")
         case .failed(let message):
-            Text("Failed: \(message)")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 6) {
+                Label("Failed", systemImage: "xmark.octagon.fill")
+                Text(message)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
