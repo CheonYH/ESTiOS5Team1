@@ -26,6 +26,7 @@ typealias IGDBRawResponse = [String: [[String: Any]]]
 /// ViewModel 코드를 수정하지 않기 위해 사용됩니다.
 protocol IGDBService {
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse
+    func fetchDetail(id: Int) async throws -> IGDBGameListDTO
 }
 
 /// IGDB API와 실제로 통신하는 서비스 구현체입니다.
@@ -85,4 +86,29 @@ final class IGDBServiceManager: IGDBService {
         return result
     }
 
+    func fetchDetail(id: Int) async throws -> IGDBGameListDTO {
+        let query = IGDBQuery.detail + "where id = \(id);"
+
+        var request = URLRequest(url: URL(string: "https://api.igdb.com/v4/games")!)
+        request.httpMethod = "POST"
+        request.httpBody = Data(query.utf8)
+
+        request.setValue(IGDBConfig.clientID, forHTTPHeaderField: "Client-ID")
+        request.setValue("Bearer \(IGDBConfig.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if !(200...299).contains((response as? HTTPURLResponse)?.statusCode ?? 0) {
+            throw URLError(.badServerResponse)
+        }
+
+        let arr = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+          guard let raw = arr.first else { throw URLError(.cannotDecodeContentData) }
+
+          let dtoData = try JSONSerialization.data(withJSONObject: raw, options: [])
+          return try JSONDecoder().decode(IGDBGameListDTO.self, from: dtoData)
+    }
+
 }
+

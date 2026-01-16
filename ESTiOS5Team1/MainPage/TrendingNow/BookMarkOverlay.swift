@@ -23,7 +23,7 @@ struct BookMarkOverlay: View {
                 isBookMark = !isBookMark
             } label: {
                 Image(systemName: isBookMark ? "bookmark.fill" : "bookmark")
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.symbolPrimary)
                     .padding(10)
                     .background(.black.opacity(0.8), in: Circle())
             }

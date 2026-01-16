@@ -9,15 +9,12 @@ import SwiftUI
 import Kingfisher
 
 struct MainView: View {
-    @State var imageColor: Color = .white
-    @State var textColor: Color = .white
-    
     @StateObject private var viewModel = MainViewModel()
-// 패딩 잘못 주고있음
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black
+                Color("BGColor")
                     .ignoresSafeArea()
 
                 VStack {
@@ -26,14 +23,14 @@ struct MainView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 30) {
                             if let item = viewModel.featuredItem {
-                                MainPoster(imageColor: .white, textColor: .white, item: item)
+                                MainPoster(item: item)
                             }
                             
                             TrendingNowGameView()
                             
                             BrowseByGenreGridView()
                             
-                            TitleBox(title: "New Releases")
+                            TitleBox(title: "New Releases", showsSeeAll: true, onSeeAllTap: { print("뉴 릴리즈 이동")})
                             
                             NewReleasesView()
                         }
@@ -41,11 +38,9 @@ struct MainView: View {
                 }
             }
         }
-        .ignoresSafeArea()
     }
 }
 
 #Preview {
     MainView()
-    .background(Color.black)
 }

@@ -13,8 +13,23 @@ struct NewReleasesView: View {
 
     var body: some View {
         VStack {
-            ForEach(viewModel.items.prefix(3)) { item in
-                NewReleasesGameCard(item: item)
+                if viewModel.isLoading {
+                    ProgressView("로딩 중")
+                } else if let error = viewModel.error {
+                    VStack {
+                        Text("오류발생")
+                            .font(.headline)
+                        Text(error.localizedDescription)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } else {
+                    ForEach(viewModel.items.prefix(3)) { item in
+                        NavigationLink(destination: DetailView(item: item)) {
+                            NewReleasesGameCard(item: item)
+                        }
+                        .buttonStyle(.plain)
+                    }
             }
         }
         .task {

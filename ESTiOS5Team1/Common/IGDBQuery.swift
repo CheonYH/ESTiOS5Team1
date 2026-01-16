@@ -27,10 +27,13 @@ enum IGDBQuery {
         id,
         name,
         cover.image_id,
-        rating,
+        summary,
+        aggregated_rating,
+        release_dates.y,
         genres.name,
         platforms.name,
         platforms.platform_logo.image_id;
+    sort popularity desc;
     limit 100;
     """
 
@@ -44,7 +47,9 @@ enum IGDBQuery {
         id,
         name,
         cover.image_id,
-        rating,
+        summary,
+        aggregated_rating,
+        release_dates.y,
         genres.name,
         platforms.name,
         platforms.platform_logo.image_id;
@@ -52,24 +57,35 @@ enum IGDBQuery {
     limit 100;
     """
 
+
     /// 최근 출시된 게임 목록 쿼리
     ///
     /// - Note:
-    /// 2024년 이후 출시된 게임만 조회하며,
+    /// 현재 시간으로부터 6개월 전까지의 시간동안 출시한 게임들의 목록을 가져옵니다.
     /// 출시일 기준으로 최신순 정렬합니다.
-    static let newReleases = """
-    fields
-        id,
-        name,
-        cover.image_id,
-        rating,
-        genres.name,
-        platforms.name,
-        platforms.platform_logo.image_id;
-    where first_release_date > 1704067200;
-    sort first_release_date desc;
-    limit 100;
-    """
+    static let newReleases: String = {
+        // 현재 timestamp
+        let now = Int(Date().timeIntervalSince1970)
+        // 6개월 = 6 * 30일 기준
+        let cutoff = now - (60 * 60 * 24 * 30 * 6)
+
+        return """
+        fields
+            id,
+            name,
+            cover.image_id,
+            summary,
+            aggregated_rating,
+            release_dates.y,
+            genres.name,
+            platforms.name,
+            platforms.platform_logo.image_id;
+        where status = 2 & first_release_date >= \(cutoff);
+        sort first_release_date desc;
+        limit 100;
+        """
+    }()
+
 
     /// 특정 장르에 해당하는 게임 목록 쿼리
     ///
@@ -97,6 +113,20 @@ enum IGDBQuery {
     static let allPlatforms = """
     fields id, name, abbreviation;
     limit 500;
+    """
+
+    static let detail = """
+    fields 
+    id,
+    name,
+    cover.image_id,
+    summary,
+    storyline,
+    aggregated_rating,
+    release_dates.y,
+    genres.name,
+    platforms.name;
+    
     """
 
 }

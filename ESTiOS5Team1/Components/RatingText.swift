@@ -20,8 +20,7 @@ struct RatingText: View {
         .foregroundColor(.black)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Color.yellow)
-        .cornerRadius(8)
-        .padding(8)
+        .background(Color("YellowPrimary"))
+        .cornerRadius(Radius.cr8)
     }
 }

@@ -17,7 +17,7 @@ struct BrowseByGenreGridView: View {
         VStack(alignment: .leading) {
             Text("BrowseByGenre")
                 .font(.title2.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(Color("TextPrimary"))
 
             ScrollView(.horizontal, showsIndicators: false) {
 
