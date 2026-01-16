@@ -15,24 +15,18 @@ struct NewReleasesView: View {
         VStack {
             TitleBox(title: "New Releases", showsSeeAll: true, onSeeAllTap: { print("뉴 릴리즈 이동")})
             
-                if viewModel.isLoading {
-                    ProgressView("로딩 중")
-                } else if let error = viewModel.error {
-                    VStack {
-                        Text("오류발생")
-                            .font(.headline)
-                        Text(error.localizedDescription)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                } else {
-                    ForEach(viewModel.items.prefix(3)) { item in
-                        NavigationLink(destination: DetailView(gameId: item.id)) {
-                            NewReleasesGameCard(item: item)
-                        }
-                        .buttonStyle(.plain)
-                    }
-            }
+            LoadableList(
+                isLoading: viewModel.isLoading,
+                error: viewModel.error,
+                items: viewModel.items,
+                limit: 4,
+                destination: { item in
+                    DetailView(gameId: item.id)
+                },
+                row: { item in
+                    NewReleasesGameCard(item: item)
+                }
+            )
         }
         .task {
             await viewModel.load()

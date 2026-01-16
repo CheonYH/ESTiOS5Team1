@@ -33,48 +33,29 @@ enum GameGenreModel: CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .pinball:
-            return "Pinball"
-        case .adventure:
-            return "Adventure"
-        case .arcade:
-            return "Arcade"
-        case .visualNovel:
-            return "VisualNovel"
-        case .cardBoard:
-            return "CardBoard"
-        case .moba:
-            return "Moba"
-        case .pointAndClick:
-            return "PointAndClick"
-        case .fighting:
-            return "Fighting"
-        case .music:
-            return "Music"
-        case .platform:
-            return "Platform"
-        case .puzzle:
-            return "Puzzle"
-        case .shooter:
-            return "Shooter"
-        case .racing:
-            return "Racing"
-        case .realTimeStrategy:
-            return "RealTimeStrategy"
-        case .turnBasedStrategy:
-            return "TurnBasedStrategy"
-        case .rolePlaying:
-            return "RolePlaying"
-        case .simulator:
-            return "Simulator"
-        case .sport:
-            return "Sport"
-        case .hackAndSlash:
-            return "HackAndSlash"
-        case .quizTrivia:
-            return "QuizTrivia"
+            case .pinball: return "핀볼"
+            case .adventure: return "어드벤처"
+            case .arcade: return "아케이드"
+            case .visualNovel: return "비주얼 노벨"
+            case .cardBoard: return "카드/보드"
+            case .moba: return "MOBA"
+            case .pointAndClick: return "포인트 앤 클릭"
+            case .fighting: return "격투"
+            case .music: return "음악"
+            case .platform: return "플랫포머"
+            case .puzzle: return "퍼즐"
+            case .shooter: return "슈팅"
+            case .racing: return "레이싱"
+            case .realTimeStrategy: return "실시간 전략"
+            case .turnBasedStrategy: return "턴제 전략"
+            case .rolePlaying: return "RPG"
+            case .simulator: return "시뮬레이터"
+            case .sport: return "스포츠"
+            case .hackAndSlash: return "핵 앤 슬래시"
+            case .quizTrivia: return "퀴즈"
         }
     }
+
 
     var imageName: String {
         switch self {

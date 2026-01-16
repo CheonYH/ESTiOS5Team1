@@ -23,7 +23,12 @@ struct BrowseByGenreGridView: View {
 
                 LazyHGrid(rows: rows, spacing: 15) {
                     ForEach(GameGenreModel.allCases) { genre in
-                        GenreCard(genre: genre)
+                        NavigationLink {
+                            Text("장르로 이동")
+                        } label: {
+                            GenreCard(genre: genre)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
