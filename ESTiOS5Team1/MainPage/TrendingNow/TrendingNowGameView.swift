@@ -18,24 +18,17 @@ struct TrendingNowGameView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
-                    if viewModel.isLoading {
-                        ProgressView("로딩 중")
-                    } else if let error = viewModel.error {
-                        VStack {
-                            Text("오류발생")
-                                .font(.headline)
-                            Text(error.localizedDescription)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                    LoadableList(
+                        isLoading: viewModel.isLoading,
+                        error: viewModel.error,
+                        items: viewModel.items,
+                        destination: { item in
+                            DetailView(gameId: item.id)
+                        },
+                        row: { item in
+                            TrendingNowGameCard(item: item)
                         }
-                    } else {
-                        ForEach(viewModel.items) { item in
-                            NavigationLink(destination: DetailView(gameId: item.id)) {
-                                TrendingNowGameCard(item: item)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
+                    )
                 }
             }
             .ignoresSafeArea(edges: .horizontal)
