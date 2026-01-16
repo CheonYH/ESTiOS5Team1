@@ -23,7 +23,7 @@ struct DetailView: View {
             Color.black
                 .ignoresSafeArea()
             VStack {
-                DetailViewTopBar()
+                DetailTopBar()
 
                 ScrollView {
                     if let item = viewModel.item {
@@ -40,21 +40,12 @@ struct DetailView: View {
                         Text("오류 발생: \(error.localizedDescription)")
                             .foregroundColor(.red)
                     }
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("About")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-
-                        Text("descriptionssdwdqrqgrgegerggergergregergergergregegergergergegeg")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.8))
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.06))
-                    )
+                    
+                    GameDetailBox()
+                    
+                    TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
+                    
+                    StarRatingView(rating: 4.5)
                 }
             }
         }

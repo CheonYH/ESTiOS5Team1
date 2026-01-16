@@ -13,6 +13,8 @@ struct NewReleasesView: View {
 
     var body: some View {
         VStack {
+            TitleBox(title: "New Releases", showsSeeAll: true, onSeeAllTap: { print("뉴 릴리즈 이동")})
+            
                 if viewModel.isLoading {
                     ProgressView("로딩 중")
                 } else if let error = viewModel.error {
@@ -25,7 +27,7 @@ struct NewReleasesView: View {
                     }
                 } else {
                     ForEach(viewModel.items.prefix(3)) { item in
-                        NavigationLink(destination: DetailView(item: item)) {
+                        NavigationLink(destination: DetailView(gameId: item.id)) {
                             NewReleasesGameCard(item: item)
                         }
                         .buttonStyle(.plain)

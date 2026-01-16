@@ -24,13 +24,11 @@ struct MainView: View {
                         VStack(alignment: .leading, spacing: 30) {
                             if let item = viewModel.featuredItem {
                                 MainPoster(item: item)
-                            }
+                            } 
                             
                             TrendingNowGameView()
                             
                             BrowseByGenreGridView()
-                            
-                            TitleBox(title: "New Releases", showsSeeAll: true, onSeeAllTap: { print("뉴 릴리즈 이동")})
                             
                             NewReleasesView()
                         }
