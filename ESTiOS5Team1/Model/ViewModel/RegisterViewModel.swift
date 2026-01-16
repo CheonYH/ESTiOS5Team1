@@ -34,6 +34,9 @@ final class RegisterViewModel: ObservableObject {
     /// 가입 비밀번호 입력
     @Published var password: String = ""
 
+    /// 가입 비밀번호 확인 입력
+    @Published var confirmPassword: String = ""
+
     /// 가입 닉네임 입력
     @Published var nickname: String = ""
 
@@ -87,6 +90,11 @@ final class RegisterViewModel: ObservableObject {
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: password)
     }
 
+    /// 비밀번호와 재입력 비밀번호 일치 여부 검증
+    var isConfirmPasswordValid: Bool {
+        !confirmPassword.isEmpty && password == confirmPassword
+    }
+
     /// 닉네임 검증
     ///
     /// - Rules:
@@ -109,7 +117,7 @@ final class RegisterViewModel: ObservableObject {
     /// - Usage:
     ///     가입 버튼 활성화 조건으로 활용 가능
     var canSubmit: Bool {
-        isEmailValid && isPasswordValid && isNicknameValid
+        isEmailValid && isPasswordValid && isConfirmPasswordValid && isNicknameValid
     }
 
     // MARK: - API Call
