@@ -75,7 +75,7 @@ struct LibraryView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("내 게임")
-                        .font(.headline)
+                        .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
@@ -91,6 +91,7 @@ struct LibraryView: View {
                     }) {
                         Image(systemName: isSearchActive ? "xmark" : "magnifyingglass")
                             .foregroundColor(.white)
+                            .font(.title3)
                     }
                 }
             }

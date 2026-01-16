@@ -10,6 +10,8 @@ import Kingfisher
 
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
+    // [수정] FavoriteManager 연동을 위해 추가
+    @EnvironmentObject var favoriteManager: FavoriteManager
 
     var body: some View {
         NavigationStack {
