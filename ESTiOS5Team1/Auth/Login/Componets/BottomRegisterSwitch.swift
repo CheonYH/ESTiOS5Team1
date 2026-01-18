@@ -7,12 +7,19 @@
 
 import SwiftUI
 
+/// 로그인 화면 하단의 회원가입 전환 섹션입니다.
+///
+/// - Purpose:
+///     계정이 없는 사용자를 회원가입 화면으로 유도합니다.
+/// - Navigation:
+///     `NavigationLink`를 통해 `RegisterView`로 이동합니다.
 struct BottomRegisterSwitch: View {
+    // MARK: - Body
     var body: some View {
         
         VStack {
             HStack {
-                Text("Don't have an account?")
+                Text("아직 계정이 없으신가요?")
                     .foregroundStyle(.gray)
                     .font(.callout)
                     .bold()
@@ -21,7 +28,7 @@ struct BottomRegisterSwitch: View {
                     RegisterView()
                         .navigationBarBackButtonHidden(true)
                 } label: {
-                    Text("Create an Account")
+                    Text("계정을 생성하세요")
                         .foregroundStyle(.purplePrimary)
                         .font(.callout)
                         .bold()
@@ -34,5 +41,12 @@ struct BottomRegisterSwitch: View {
 }
 
 #Preview {
-    BottomRegisterSwitch()
+    let toast = ToastManager()
+    let auth = AuthServiceImpl()
+    let appVM = AppViewModel(authService: auth, toast: toast)
+
+    LoginView()
+        .environmentObject(appVM)
+        .environmentObject(toast)
 }
+

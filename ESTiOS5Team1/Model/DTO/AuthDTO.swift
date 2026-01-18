@@ -93,12 +93,37 @@ struct RefreshRequest: Codable {
 /// ```
 typealias TokenPair = LoginResponse
 
+
+// MARK: - Register Request DTO
+/// 회원가입 요청에 사용되는 모델입니다.
+///
+/// 서버 요청 예:
+/// ```json
+/// {
+///   "email": "test@example.com",
+///   "password": "1234!abcd",
+///   "nickname": "game_fan"
+/// }
+/// ```
+///
+/// - Note:
+///     비밀번호 정책은 클라이언트/서버에서 모두 검증되어야 합니다.
 struct RegisterRequest: Codable, Hashable {
     let email: String
     let password: String
     let nickname: String
 }
 
+
+// MARK: - Register Response DTO
+/// 회원가입 응답 모델입니다.
+///
+/// - success:
+///     요청 처리 성공 여부
+/// - message:
+///     사용자에게 표시할 안내 메시지(검증 실패 사유 포함 가능)
 struct RegisterResponse: Codable, Hashable {
     let success: Bool
+    let message: String
 }
+

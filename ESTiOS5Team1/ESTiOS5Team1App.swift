@@ -12,7 +12,37 @@ import Firebase
 @main
 struct ESTiOS5Team1App: App {
 
-    @StateObject private var appViewModel = AppViewModel(authService: AuthServiceImpl())
+    @StateObject private var toastManager: ToastManager
+    @StateObject private var appViewModel: AppViewModel
+
+    init() {
+        let toast = ToastManager()
+        _toastManager = StateObject(wrappedValue: toast)
+        _appViewModel = StateObject(
+            wrappedValue: AppViewModel(
+                authService: AuthServiceImpl(),
+                toast: toast
+            )
+        )
+
+        FirebaseApp.configure()
+    }
+
+    @ViewBuilder
+    var content: some View {
+        switch appViewModel.state {
+            case .launching:
+                SplashView()
+
+            case .signedOut:
+                LoginView()
+
+            case .signedIn:
+                LogoutTestView()
+        }
+    }
+
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self
@@ -26,28 +56,19 @@ struct ESTiOS5Team1App: App {
         }
     }()
 
-    init() {
-        FirebaseApp.configure()
-    }
 
     var body: some Scene {
 
-      /*  WindowGroup {
-            MainTabView()
-        } */
+        /*  WindowGroup {
+         MainTabView()
+         } */
 
         WindowGroup {
-            switch appViewModel.state {
-                case .launching:
-                    SplashView()
-                case .signedOut:
-                    LoginView()
-                        .environmentObject(appViewModel)
-                case .signedIn:
-                    LogoutTestView()
-                        .environmentObject(appViewModel)
-            }
-        } 
+            content
+                .environmentObject(appViewModel)
+                .environmentObject(toastManager)
+        }
+
         .modelContainer(sharedModelContainer)
     }
 

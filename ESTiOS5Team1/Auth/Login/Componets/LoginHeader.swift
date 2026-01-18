@@ -7,7 +7,14 @@
 
 import SwiftUI
 
+/// 로그인 화면 상단 헤더 영역입니다.
+///
+/// - Composition:
+///     앱 로고/타이틀과 환영 문구를 표시합니다.
+/// - Important:
+///     화면 배경 및 색상은 상위 View에서 결정합니다.
 struct LoginHeader: View {
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 10) {
 
@@ -17,11 +24,12 @@ struct LoginHeader: View {
                 .foregroundStyle(.purplePrimary)
                 .frame(width: 44, height: 44)
 
-            Text("GameValut")
+            Text("GameCompass")
                 .font(.system(size: 48))
                 .bold()
                 .foregroundStyle(.white)
-            Text("Your gaming universe awaits")
+            
+            Text("게임 리뷰·추천·정보를 한 곳에서")
                 .font(.title3)
                 .bold()
                 .foregroundStyle(.gray)
@@ -29,12 +37,12 @@ struct LoginHeader: View {
         .frame(maxWidth: .infinity)
 
         VStack(alignment: .leading, spacing: 10) {
-            Text("Welcome Back")
+            Text("환영합니다")
                 .font(.largeTitle)
                 .bold()
                 .foregroundStyle(.white)
 
-            Text("Login to continue your adventure")
+            Text("로그인하고 당신만의 여정을 시작하세요")
                 .font(.title3)
                 .bold()
                 .foregroundStyle(.gray)
@@ -45,6 +53,14 @@ struct LoginHeader: View {
     }
 }
 
+// MARK: - Preview
+
 #Preview {
-    LoginHeader()
+    let toast = ToastManager()
+    let auth = AuthServiceImpl()
+    let appVM = AppViewModel(authService: auth, toast: toast)
+
+    LoginView()
+        .environmentObject(appVM)
+        .environmentObject(toast)
 }

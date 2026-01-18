@@ -7,21 +7,36 @@
 
 import SwiftUI
 
+/// 로그인 폼 View입니다.
+///
+/// - Purpose:
+///     이메일/비밀번호 입력과 로그인 액션을 제공합니다.
+/// - Dependencies:
+///     `AuthViewModel`로 입력을 바인딩하고, `AppViewModel` 및 `ToastManager`와 상호작용합니다.
+/// - Important:
+///     실제 로그인 로직은 ViewModel에서 수행되며, 이 View는 UI와 이벤트 트리거만 담당합니다.
 struct LoginForm: View {
-    
+    // MARK: - Properties
+
+    /// 사용자 입력 바인딩 및 `login()` 호출을 담당하는 ViewModel
     @ObservedObject var viewModel: AuthViewModel
-    @ObservedObject var appViewModel: AppViewModel
-    
+    /// 전역 앱 상태(App 상태 전환 등)에 접근합니다.
+    @EnvironmentObject var appViewModel: AppViewModel
+    /// 로그인 결과를 Toast로 표시하기 위한 매니저
+    @EnvironmentObject var toast: ToastManager
+
+    // MARK: - Body
     var body: some View {
 
         VStack(alignment: .leading, spacing: 15) {
-            
+
             Text("Email")
                 .font(Font.title3.bold())
                 .foregroundStyle(.white)
-            
+
             TextField("", text: $viewModel.email, prompt: Text("이메일을 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
                 .padding(10)
+                .foregroundStyle(.textPrimary)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
@@ -30,13 +45,14 @@ struct LoginForm: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(.gray.opacity(0.6), lineWidth: 1)
                 )
-            
+
             Text("Password")
                 .font(Font.title3.bold())
                 .foregroundStyle(.white)
-            
+
             SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
                 .padding(10)
+                .foregroundStyle(.textPrimary)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
@@ -45,13 +61,16 @@ struct LoginForm: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(.gray.opacity(0.6), lineWidth: 1)
                 )
-            
+
             Button {
                 Task {
-                    await viewModel.login(appViewModel: appViewModel)
+                    // ViewModel을 통해 로그인 요청 → UI로 전달할 FeedbackEvent 반환
+                    let feedback = await viewModel.login(appViewModel: appViewModel)
+                    // 반환된 이벤트를 ToastManager에 전달하여 화면에 표시
+                    toast.show(feedback)
                 }
             } label: {
-                Text("Login")
+                Text("로그인")
                     .font(.title2.bold())
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: 60)
@@ -61,33 +80,33 @@ struct LoginForm: View {
                     )
             }
             .padding(.top, 10)
-            
+
         }
         .padding(10)
-        
+
         HStack {
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(.gray.opacity(0.4))
                 .layoutPriority(0)
-            
-            Text("Or continue with")
+
+            Text("다른 방법으로 로그인")
                 .font(.headline)
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
                 .foregroundStyle(.gray.opacity(0.7))
                 .layoutPriority(1)
-            
+
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(.gray.opacity(0.4))
                 .layoutPriority(0)
         }
         .padding(10)
-        
+
         HStack(spacing: 16) {
             Button {
-                
+
             } label: {
                 Image(systemName: "applelogo")
                     .resizable()
@@ -101,9 +120,9 @@ struct LoginForm: View {
                     )
                     .foregroundStyle(.white)
             }
-            
+
             Button {
-                
+
             } label: {
                 Image(systemName: "playstation.logo")
                     .resizable()
@@ -117,9 +136,9 @@ struct LoginForm: View {
                     )
                     .foregroundStyle(.white)
             }
-            
+
             Button {
-                
+
             } label: {
                 Image(systemName: "xbox.logo")
                     .resizable()
@@ -133,13 +152,18 @@ struct LoginForm: View {
                     )
                     .foregroundStyle(.white)
             }
-            
+
         }
 
     }
 }
 
 #Preview {
+    let toast = ToastManager()
+    let auth = AuthServiceImpl()
+    let appVM = AppViewModel(authService: auth, toast: toast)
+
     LoginView()
-        .environmentObject(AppViewModel(authService: AuthServiceImpl()))
+        .environmentObject(appVM)
+        .environmentObject(toast)
 }
