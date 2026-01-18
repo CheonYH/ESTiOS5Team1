@@ -29,6 +29,7 @@ enum APIEnvironment {
 /// - API Spec:
 ///     `POST /auth/login`
 ///     `POST /auth/refresh`
+///     `POST /auth/register`
 ///
 /// - Usage:
 ///     let url = AuthEndpoint.login.url
@@ -54,18 +55,21 @@ enum AuthEndpoint {
 
 // MARK: - Auth Service Protocol
 
-/// Auth 도메인 서비스 인터페이스
+/// 인증(Auth) 도메인 서비스 인터페이스입니다.
+///
+/// - Purpose:
+///     ViewModel에서 인증 관련 작업을 수행하기 위한 추상화입니다.
 ///
 /// - Responsibilities:
-///     - 로그인 요청
-///     - Refresh Token 기반 토큰 갱신
+///     - 로그인
+///     - 회원가입
+///     - Refresh 토큰 기반 재발급
 ///
-/// - Design:
-///     ViewModel 또는 상위 계층은 본 프로토콜에 의존하며,
-///     실제 네트워크 구현체(AuthServiceImpl)와 분리된다.
+/// - Important:
+///     상위 계층은 본 프로토콜에 의존하고, 실제 네트워크 구현은 `AuthServiceImpl`이 담당합니다.
 ///
 /// - Token Handling:
-///     성공 시 Access/Refresh Token 저장 책임은 구현체에 있음
+///     성공 시 Access/Refresh Token 저장 책임은 구현체에 있습니다.
 protocol AuthService: Sendable {
 
     /// 로그인 요청
@@ -93,28 +97,45 @@ protocol AuthService: Sendable {
     ///     `TokenPair` (Access/Refresh Token)
     ///
     /// - Note:
-    ///     Refresh Token이 저장돼 있어야 호출 가능
+    ///     Refresh Token이 저장돼 있어야 호출 가능합니다. UI에서 반환값을 사용하지 않을 수 있으므로 discardable로 처리했습니다.
     ///
-    /// - Discardable Result:
-    ///     UI가 반환값을 사용하지 않는 경우가 있어 discardable 처리
+    /// - Example:
+    ///     `let tokens = try await authService.refresh()`
     @discardableResult
     func refresh() async throws -> TokenPair
 
+    /// 회원가입 요청
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/register`
+    ///
+    /// - Parameters:
+    ///     - email: 사용자 이메일
+    ///     - password: 사용자 비밀번호
+    ///     - nickname: 표시할 닉네임
+    ///
+    /// - Returns:
+    ///     `RegisterResponse` (성공 여부 및 메시지)
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 오류 / 검증 실패(`AuthError.validation` 등)
     func register(email: String, password: String, nickname: String) async throws -> RegisterResponse
 }
 
 // MARK: - Auth Service Implementation
 
-/// 실제 인증 API와 통신하는 구현체
+/// 인증 API와 통신하는 구현체입니다.
+///
+/// - Purpose:
+///     서버와의 통신 및 토큰 저장을 담당합니다.
 ///
 /// - Responsibilities:
 ///     - 로그인 요청 처리
-///     - Refresh Token을 이용한 토큰 재발급
-///     - Keychain에 토큰 저장
+///     - Refresh 토큰 재발급
+///     - Keychain 토큰 저장
 ///
 /// - Important:
-///     본 클래스는 데이터 가공을 하지 않으며,
-///     순수하게 서버 통신과 토큰 저장만 담당한다.
+///     데이터 가공 없이 순수 네트워크/저장만 담당합니다.
 final class AuthServiceImpl: AuthService {
 
     /// 로그인 요청
@@ -142,16 +163,29 @@ final class AuthServiceImpl: AuthService {
             throw URLError(.badServerResponse)
         }
 
-        guard http.statusCode == 200 else {
-            throw URLError(.userAuthenticationRequired)
+        switch http.statusCode {
+        case 200:
+            let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
+            TokenStore.shared.updateTokens(response: decoded)
+            return decoded
+
+        case 401:
+            throw AuthError.invalidCredentials
+
+        case 409:
+            throw AuthError.conflict("email")
+
+        case 422:
+            throw AuthError.validation("입력 형식을 확인해주세요.")
+
+        case 500...599:
+            throw AuthError.server
+
+        default:
+            throw AuthError.server
         }
 
-        let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
 
-        /// Token 저장 (Access + Refresh)
-        TokenStore.shared.updateTokens(response: decoded)
-
-        return decoded
     }
 
     /// Refresh Token 기반 토큰 재발급
@@ -185,19 +219,34 @@ final class AuthServiceImpl: AuthService {
             throw URLError(.badServerResponse)
         }
 
-        guard http.statusCode == 200 else {
-            throw URLError(.userAuthenticationRequired)
+        switch http.statusCode {
+        case 200:
+            let tokenPair = try JSONDecoder().decode(TokenPair.self, from: data)
+            TokenStore.shared.updateTokens(response: tokenPair)
+            return tokenPair
+
+        case 401:
+            throw AuthError.invalidCredentials // 즉 토큰 만료 → logout
+
+        default:
+            throw AuthError.server
         }
 
-        let tokenPair = try JSONDecoder().decode(TokenPair.self, from: data)
-
-        /// Token Rotation 적용 (Access + Refresh 갱신)
-        TokenStore.shared.updateTokens(response: tokenPair)
-
-        return tokenPair
     }
 
+    /// 회원가입 요청
+    ///
+    /// - Request Body:
+    ///     `RegisterRequest`
+    ///
+    /// - Response Body:
+    ///     `RegisterResponse`
+    ///
+    /// - Validation:
+    ///     서버가 `success == false` 또는 검증 에러를 반환하면
+    ///     `AuthError.validation`으로 매핑하여 throw 합니다.
     func register(email: String, password: String, nickname: String) async throws -> RegisterResponse {
+
         let url = AuthEndpoint.register.url
         let requestBody = RegisterRequest(email: email, password: password, nickname: nickname)
 
@@ -209,15 +258,32 @@ final class AuthServiceImpl: AuthService {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let http = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
+            throw AuthError.server
         }
 
-        guard http.statusCode == 200 else {
-            throw URLError(.userAuthenticationRequired)
+        // --- 1. Status Code 체크 (네트워크 레벨)
+        switch http.statusCode {
+        case 200:
+            break  // Payload 검사로 넘어감
+
+        case 400...499:
+            throw AuthError.validation("잘못된 요청입니다.")
+
+        case 500...599:
+            throw AuthError.server
+
+        default:
+            throw AuthError.server
         }
 
+        // --- 2. Payload 검사 (도메인 레벨)
         let decoded = try JSONDecoder().decode(RegisterResponse.self, from: data)
+
+        if decoded.success == false {
+            throw AuthError.validation(decoded.message)
+        }
 
         return decoded
     }
+
 }

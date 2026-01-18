@@ -7,7 +7,14 @@
 
 import SwiftUI
 
+/// 소셜 로그인 버튼 섹션입니다.
+///
+/// - Purpose:
+///     Apple/PlayStation/Xbox 등 소셜 로그인 진입 버튼을 보여줍니다.
+/// - Note:
+///     실제 소셜 로그인 연동은 추후 구현 예정이며, 현재는 UI만 제공합니다.
 struct SocialLoginSection: View {
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 16) {
             Button {
@@ -62,6 +69,7 @@ struct SocialLoginSection: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     SocialLoginSection()
 }

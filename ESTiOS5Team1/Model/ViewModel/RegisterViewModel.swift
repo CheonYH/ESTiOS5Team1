@@ -8,175 +8,174 @@
 import Foundation
 import Combine
 
-/// 회원가입 화면의 상태 및 로직을 관리하는 ViewModel
+/// 회원가입 화면의 상태 및 로직을 관리하는 ViewModel 입니다.
 ///
 /// - Responsibilities:
-///     - 사용자 입력(email / password / nickname)의 상태 관리
-///     - 로컬 검증(Validation)
-///     - 서버에 회원가입 요청 수행
-///     - UI에서 가입 버튼 활성화 여부 판단
+///     - 사용자가 입력한 회원가입 정보(email, password, nickname)를 관리
+///     - 로컬 입력 검증 수행
+///     - AuthService를 통해 서버에 회원가입 요청
+///     - 회원가입 성공 시 로그인 화면으로 유도
+///     - FeedbackEvent를 반환하여 Toast UI로 연결
 ///
-/// - Design:
-///     ViewModel은 View에 종속되지 않으며 AuthService를 통해 서버와 통신함.
-///     Entity를 별도 정의하지 않고 ViewModel에서 직접 입력값 검증을 처리하는 방식.
+/// - Important:
+///     ViewModel은 UI를 직접 변경하지 않고,
+///     상태(AppViewModel)와 이벤트(FeedbackEvent)를 통해 화면을 제어합니다.
 ///
-/// - Note:
-///     실제 서비스에서는 Validation 요구사항에 따라 강화 가능하며,
-///     닉네임 중복검사 등은 서버 검증이 추가될 수 있음.
 @MainActor
 final class RegisterViewModel: ObservableObject {
 
-    // MARK: - Input (사용자 입력)
+    // MARK: - Input (사용자 입력 필드)
 
-    /// 가입 이메일 입력
-    @Published var email: String = ""
+    @Published var email = ""
+    @Published var password = ""
+    @Published var confirmPassword = ""
+    @Published var nickname = ""
 
-    /// 가입 비밀번호 입력
-    @Published var password: String = ""
+    // MARK: - UI State 표시용
 
-    /// 가입 비밀번호 확인 입력
-    @Published var confirmPassword: String = ""
-
-    /// 가입 닉네임 입력
-    @Published var nickname: String = ""
-
-    // MARK: - Output (UI 표시용)
-
-    /// 서버 응답 결과 또는 오류 메시지
-    @Published var result: String?
+    /// 네트워크 요청 중 로딩 스피너 표시 등에 사용됩니다.
+    @Published var isLoading = false
 
     // MARK: - Dependencies
 
-    /// 서버 통신 담당 AuthService
+    /// Auth 도메인 API 호출 담당 서비스
     private let authService: AuthService
-
-    // MARK: - Initialization
 
     init(authService: AuthService) {
         self.authService = authService
     }
 
-    // MARK: - Local Validation (클라이언트 검증)
+    // MARK: - Computed Validation Properties
 
-    /// 이메일 형식 검증
-    ///
-    /// - Rule:
-    ///     RFC2822의 단순화된 정규식을 사용하여 email@domain 형태를 확인합니다.
-    ///
-    /// - Important:
-    ///     실제 서비스는 국제 이메일 규격이 더 복잡할 수 있으나
-    ///     현재 단계에서는 단순화된 정규식을 사용해 검증합니다.
+    /// 이메일 형식 검증 (단순 RFC 기반)
     var isEmailValid: Bool {
         let regex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
     }
 
-    /// 비밀번호 검증
-    ///
-    /// - Rules:
-    ///     - 최소 8자 이상
-    ///     - 영문 포함
-    ///     - 숫자 포함
-    ///     - 특수문자 포함 (!@#$%^&* 등)
-    ///
-    /// - Important:
-    ///     본 규칙은 회원가입 시 비밀번호 생성 조건을 만족하도록 검증합니다.
+    /// 비밀번호 규칙 검증 (영문 + 숫자 + 특수문자 + 8자 이상)
     var isPasswordValid: Bool {
-        // (?=.*[A-Za-z])  → 영문 포함
-        // (?=.*\d)        → 숫자 포함
-        // (?=.*[!@#$%^&*]) → 특수문자 포함
-        // .{8,}           → 최소 길이 8자
         let regex = #"^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$"#
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: password)
     }
 
-    /// 비밀번호와 재입력 비밀번호 일치 여부 검증
+    /// 비밀번호 재입력 확인 검증
     var isConfirmPasswordValid: Bool {
         !confirmPassword.isEmpty && password == confirmPassword
     }
 
-    /// 닉네임 검증
-    ///
-    /// - Rules:
-    ///     - 공백 제거 후 길이 2 ~ 12자
-    ///     - 이모지 포함 불가
-    ///     - 과도한 연속문자 포함 불가 (예: ㅋㅋㅋㅋ / aaa / 111 등)
-    ///
-    /// - Important:
-    ///     닉네임 중복 여부는 서버를 통해 검증합니다.
+    /// 닉네임 규칙 검증 (길이 + 이모지 + 반복문자 체크)
     var isNicknameValid: Bool {
         let trimmed = nickname.trimmingCharacters(in: .whitespaces)
         return trimmed.count >= 2 &&
-               trimmed.count <= 12 &&
-               !containsEmoji(trimmed) &&
-               !hasTooManyRepeatingCharacters(trimmed)
+        trimmed.count <= 12 &&
+        !containsEmoji(trimmed) &&
+        !hasTooManyRepeatingCharacters(trimmed)
     }
 
-    /// 모든 항목이 유효한지 여부
-    ///
-    /// - Usage:
-    ///     가입 버튼 활성화 조건으로 활용 가능
+    /// 모든 항목이 유효한지 여부 (가입 버튼 활성화 조건)
     var canSubmit: Bool {
         isEmailValid && isPasswordValid && isConfirmPasswordValid && isNicknameValid
     }
 
-    // MARK: - API Call
+    // MARK: - API Call (회원가입 처리)
 
-    /// 회원가입 요청
+    /// 회원가입 요청 → FeedbackEvent 반환 방식
     ///
-    /// - Operation:
-    ///     클라이언트 검증 통과 후 서버에 register 요청 수행합니다.
+    /// - Flow:
+    ///     1. 로컬 검증
+    ///     2. 서버 요청 (AuthService)
+    ///     3. 서버 검증 실패 시 AuthError 매핑
+    ///     4. FeedbackEvent 반환하여 Toast로 UI 출력
     ///
-    /// - UI Feedback:
-    ///     성공/실패 메시지는 `result` Published 속성 값으로 노출됩니다.
-    func register() async {
-        // 서버 보내기 전에 1차 사전 검증을 진행합니다.
-        guard canSubmit else {
-            result = "입력된 정보를 다시 확인해주세요."
-            return
+    /// - UI Behavior:
+    ///     성공 → 로그인 화면 이동 + 이메일 자동 채움
+    ///     실패 → Toast로 검증 안내 또는 오류 출력
+    @discardableResult
+    func register(appViewModel: AppViewModel) async -> FeedbackEvent {
+
+        // 1. Local Validation (입력 단계에서 오류를 즉시 알려줌)
+        guard !email.isEmpty else {
+            return FeedbackEvent(.auth, .warning, "이메일을 입력해주세요.")
         }
 
+        guard isEmailValid else {
+            return FeedbackEvent(.auth, .warning, "올바른 이메일 형식이 아닙니다.")
+        }
+
+        guard isPasswordValid else {
+            return FeedbackEvent(.auth, .warning, "비밀번호는 영문/숫자/특수문자 포함 8자 이상이어야 합니다.")
+        }
+
+        guard isConfirmPasswordValid else {
+            return FeedbackEvent(.auth, .warning, "비밀번호 확인이 일치하지 않습니다.")
+        }
+
+        guard isNicknameValid else {
+            return FeedbackEvent(.auth, .warning, "닉네임 형식을 확인해주세요.")
+        }
+
+        // 2. 서버 호출 시작
+        isLoading = true
+        defer { isLoading = false }
+
         do {
-            _ = try await authService.register(email: email, password: password, nickname: nickname)
-            result = "회원가입 성공"
+            // 서버 요청 (성공 시 success=true)
+            let _ = try await authService.register(
+                email: email,
+                password: password,
+                nickname: nickname
+            )
+
+            // 앱 상태 업데이트 (로그인 화면으로 이동)
+            appViewModel.prefilledEmail = email
+            appViewModel.state = .signedOut
+
+            return FeedbackEvent(.auth, .success, "회원가입 완료! 로그인해주세요.")
+
+        } catch let authError as AuthError {
+
+            // 서버/도메인 오류 매핑
+            switch authError {
+                case .validation(let message):
+                    return FeedbackEvent(.auth, .warning, message)
+
+                case .network:
+                    return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
+
+                case .server:
+                    return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
+
+                default:
+                    return FeedbackEvent(.auth, .error, "회원가입 중 오류가 발생했습니다.")
+            }
+
         } catch {
-            result = "회원가입 실패: \(error)"
+            // 예상하지 못한 오류 처리
+            return FeedbackEvent(.auth, .error, "알 수 없는 오류가 발생했습니다.")
         }
     }
 
     // MARK: - Validation Helpers
 
     /// 텍스트에 이모지가 포함되어 있는지 검사합니다.
-    ///
-    /// - Reason:
-    ///     닉네임에서 이모지는 대부분의 서비스에서 사용을 제한합니다.
-    ///
-    /// - Note:
-    ///     Unicode Scalar 범위 기반 검사이며 확장 가능합니다.
     private func containsEmoji(_ text: String) -> Bool {
         for scalar in text.unicodeScalars {
             switch scalar.value {
-            case 0x1F600...0x1F64F, // emoticons
-                 0x1F300...0x1F5FF, // symbols & pictographs
-                 0x1F680...0x1F6FF, // transport & map
-                 0x2600...0x26FF,   // miscellaneous symbols
-                 0x2700...0x27BF:   // dingbats
-                return true
-            default: continue
+                case 0x1F600...0x1F64F,
+                    0x1F300...0x1F5FF,
+                    0x1F680...0x1F6FF,
+                    0x2600...0x26FF,
+                    0x2700...0x27BF:
+                    return true
+                default:
+                    continue
             }
         }
         return false
     }
 
     /// 동일 문자 반복 여부 검사 (3회 이상)
-    ///
-    /// - Example:
-    ///     "aaa" → true
-    ///     "ㅋㅋㅋㅋ" → true
-    ///     "111" → true
-    ///
-    /// - Note:
-    ///     게임/커뮤니티 환경에서 품질 낮은 닉네임 방지하기 위해 사용합니다.
     private func hasTooManyRepeatingCharacters(_ text: String) -> Bool {
         var last: Character?
         var count = 1
@@ -193,5 +192,3 @@ final class RegisterViewModel: ObservableObject {
         return false
     }
 }
-
-
