@@ -40,11 +40,11 @@ struct DetailView: View {
                         Text("오류 발생: \(error.localizedDescription)")
                             .foregroundColor(.red)
                     }
-                    
+
                     GameDetailBox()
-                    
+
                     TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
-                    
+
                     StarRatingView(rating: 4.5)
                 }
             }
@@ -56,9 +56,6 @@ struct DetailView: View {
 
 }
 
-
 #Preview {
     DetailView(gameId: 119133)
 }
-
-

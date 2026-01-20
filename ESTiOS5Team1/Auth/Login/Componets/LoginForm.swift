@@ -106,7 +106,9 @@ struct LoginForm: View {
 
         HStack(spacing: 16) {
             Button {
-
+                Task {
+                    await viewModel.signInWithGoogle(appViewModel: appViewModel)
+                }
             } label: {
                 Image(systemName: "applelogo")
                     .resizable()

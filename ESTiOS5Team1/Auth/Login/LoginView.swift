@@ -18,7 +18,7 @@ import Combine
 ///     `onAppear`에서 `AppViewModel.prefilledEmail`이 있으면 입력 필드에 채워 넣습니다.
 struct LoginView: View {
     // MARK: - Properties
-    
+
     /// 앱 전역 상태(세션/화면 흐름)를 관리하는 ViewModel
     @EnvironmentObject var appViewModel: AppViewModel
     /// 로그인/로그아웃 관련 Toast 이벤트를 표시하는 매니저
@@ -26,7 +26,6 @@ struct LoginView: View {
 
     /// 로그인 로직과 입력 상태를 담당하는 ViewModel (DI 가능)
     @StateObject private var viewModel = AuthViewModel(service: AuthServiceImpl())
-
 
     // MARK: - Body
     var body: some View {
@@ -75,4 +74,3 @@ struct LoginView: View {
         .environmentObject(appVM)
         .environmentObject(toast)
 }
-

@@ -28,7 +28,6 @@ struct BottomLoginSwitch: View {
                 .font(.callout)
                 .bold()
 
-
             Button {
                 dismiss()
             } label: {
@@ -53,5 +52,3 @@ struct BottomLoginSwitch: View {
         .environmentObject(appVM)
         .environmentObject(toast)
 }
-
-

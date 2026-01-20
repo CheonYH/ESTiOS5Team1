@@ -1,5 +1,8 @@
 import Combine
+import FirebaseCore
 import Foundation
+import GoogleSignIn
+import FirebaseAuth
 
 /// 인증 관련 에러 타입입니다.
 ///
@@ -15,7 +18,6 @@ enum AuthError: Error {
     case server
     case network
 }
-
 
 /// 로그인 화면의 상태 및 로직을 관리하는 ViewModel 입니다.
 ///
@@ -74,16 +76,16 @@ final class AuthViewModel: ObservableObject {
 
         } catch let authError as AuthError {
             switch authError {
-            case .invalidCredentials:
-                return FeedbackEvent(.auth, .error, "이메일 또는 비밀번호가 올바르지 않습니다.")
-            case .conflict(let field):
-                return FeedbackEvent(.auth, .error, "\(field)이 이미 사용 중입니다.")
-            case .validation(let message):
-                return FeedbackEvent(.auth, .warning, message)
-            case .network:
-                return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
-            case .server:
-                return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
+                case .invalidCredentials:
+                    return FeedbackEvent(.auth, .error, "이메일 또는 비밀번호가 올바르지 않습니다.")
+                case .conflict(let field):
+                    return FeedbackEvent(.auth, .error, "\(field)이 이미 사용 중입니다.")
+                case .validation(let message):
+                    return FeedbackEvent(.auth, .warning, message)
+                case .network:
+                    return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
+                case .server:
+                    return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
             }
 
         } catch {
@@ -113,5 +115,90 @@ final class AuthViewModel: ObservableObject {
             message: "로그아웃 되었습니다"
         )
     }
-}
 
+    @discardableResult
+    func signInWithGoogle(appViewModel: AppViewModel) async -> FeedbackEvent {
+
+        print("[AuthVM] signInWithGoogle START")
+
+        do {
+            let (idToken, email) = try await googleAuth()
+            print("[AuthVM] Google result received")
+            print("[AuthVM] idToken prefix =", idToken.prefix(20))
+            print("[AuthVM] email =", email ?? "nil")
+
+            print("[AuthVM] calling Vapor socialLogin")
+            let result = try await service.socialLogin(
+                idToken: idToken,
+                provider: "google"
+            )
+
+            switch result {
+                case .signedIn(let tokens):
+                    print("[AuthVM] socialLogin -> signedIn")
+                    TokenStore.shared.updateTokens(pair: tokens)
+                    appViewModel.state = .signedIn
+                    print("[AuthVM] STATE -> signedIn")
+                    return FeedbackEvent(.auth, .success, "Google 로그인 성공!")
+
+                case let .needsRegister(serverEmail, providerUid):
+                    print("[AuthVM] socialLogin -> needsRegister")
+                    appViewModel.prefilledEmail = serverEmail ?? email
+                    appViewModel.socialProviderUid = providerUid
+                    appViewModel.state = .socialNeedsRegister
+                    print("[AuthVM] STATE -> socialNeedsRegister")
+                    return FeedbackEvent(.auth, .info, "닉네임을 등록해주세요.")
+            }
+
+        } catch {
+            print("[AuthVM] ERROR:", error)
+            return FeedbackEvent(.auth, .error, "Google 로그인 실패")
+        }
+    }
+
+    func googleAuth() async throws -> (idToken: String, email: String?) {
+        print("[AuthVM] googleAuth START")
+
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            print("[AuthVM] ERROR: no clientID")
+            throw AuthError.server
+        }
+
+        guard let rootVC = await findPresentingViewController() else {
+            print("[AuthVM] ERROR: no rootVC")
+            throw AuthError.server
+        }
+
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+
+        let signInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
+        print("[AuthVM] google sign-in UI DONE")
+
+        guard let idToken = signInResult.user.idToken?.tokenString else {
+            print("[AuthVM] ERROR: no idToken")
+            throw AuthError.server
+        }
+
+        let email = signInResult.user.profile?.email
+        print("[AuthVM] email =", email ?? "nil")
+
+        // Firebase Auth 연동
+        print("[AuthVM] Firebase credential sign-in START")
+        return (idToken, email)
+    }
+
+    func findPresentingViewController() async -> UIViewController? {
+        await MainActor.run {
+            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                return nil
+            }
+
+            guard let root = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+                return nil
+            }
+
+            return root.presentedViewController ?? root
+        }
+    }
+}

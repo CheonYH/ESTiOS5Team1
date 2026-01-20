@@ -27,7 +27,7 @@ struct RegisterForm: View {
 
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading , spacing: 15) {
+        VStack(alignment: .leading, spacing: 15) {
 
             Text("Email")
                 .font(Font.title3.bold())
@@ -60,11 +60,10 @@ struct RegisterForm: View {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
                 )
-                .overlay(
+                . overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(.gray.opacity(0.6), lineWidth: 1)
                 )
-
 
             Text("Confirm Password")
                 .font(Font.title3.bold())
@@ -134,4 +133,3 @@ struct RegisterForm: View {
         .environmentObject(appVM)
         .environmentObject(toast)
 }
-

@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import Firebase
+import GoogleSignIn
+import FirebaseAuth
 
 // MARK: - API Environment
 
@@ -37,6 +40,9 @@ enum AuthEndpoint {
     case login
     case refresh
     case register
+    case socialLogin
+    case socialRegister
+    case firebaseConfig
 
     /// API Path
     var path: String {
@@ -44,6 +50,9 @@ enum AuthEndpoint {
             case .login: return "/auth/login"
             case .refresh: return "/auth/refresh"
             case .register: return "/auth/register"
+            case .firebaseConfig: return "/firebase/config"
+            case .socialLogin: return "/auth/social"
+            case .socialRegister: return "/auth/social-register"
         }
     }
 
@@ -51,6 +60,11 @@ enum AuthEndpoint {
     var url: URL {
         APIEnvironment.baseURL.appendingPathComponent(path)
     }
+}
+
+enum SocialLoginResult {
+    case signedIn(TokenPair)
+    case needsRegister(email: String?, providerUid: String)
 }
 
 // MARK: - Auth Service Protocol
@@ -120,6 +134,10 @@ protocol AuthService: Sendable {
     /// - Throws:
     ///     네트워크 오류 / 서버 오류 / 검증 실패(`AuthError.validation` 등)
     func register(email: String, password: String, nickname: String) async throws -> RegisterResponse
+
+    func socialLogin(idToken: String, provider: String) async throws -> SocialLoginResult
+
+    func socialRegister(provider: String, providerUid: String, nickname: String, email: String?) async throws -> TokenPair
 }
 
 // MARK: - Auth Service Implementation
@@ -164,27 +182,26 @@ final class AuthServiceImpl: AuthService {
         }
 
         switch http.statusCode {
-        case 200:
-            let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
-            TokenStore.shared.updateTokens(response: decoded)
-            return decoded
+            case 200:
+                let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
+                TokenStore.shared.updateTokens(pair: decoded)
+                return decoded
 
-        case 401:
-            throw AuthError.invalidCredentials
+            case 401:
+                throw AuthError.invalidCredentials
 
-        case 409:
-            throw AuthError.conflict("email")
+            case 409:
+                throw AuthError.conflict("email")
 
-        case 422:
-            throw AuthError.validation("입력 형식을 확인해주세요.")
+            case 422:
+                throw AuthError.validation("입력 형식을 확인해주세요.")
 
-        case 500...599:
-            throw AuthError.server
+            case 500...599:
+                throw AuthError.server
 
-        default:
-            throw AuthError.server
+            default:
+                throw AuthError.server
         }
-
 
     }
 
@@ -206,32 +223,35 @@ final class AuthServiceImpl: AuthService {
         }
 
         let url = AuthEndpoint.refresh.url
-        let requestBody = RefreshRequest(refreshToken: refreshToken)
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONEncoder().encode(requestBody)
+        let body = RefreshRequest(
+            refreshToken: refreshToken,
+            deviceId: DeviceID.shared.value,
+            platform: "ios"
+        )
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONEncoder().encode(body)
 
+        let (data, response) = try await URLSession.shared.data(for: req)
         guard let http = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
-        }
-
-        switch http.statusCode {
-        case 200:
-            let tokenPair = try JSONDecoder().decode(TokenPair.self, from: data)
-            TokenStore.shared.updateTokens(response: tokenPair)
-            return tokenPair
-
-        case 401:
-            throw AuthError.invalidCredentials // 즉 토큰 만료 → logout
-
-        default:
             throw AuthError.server
         }
 
+        switch http.statusCode {
+            case 200:
+                let tokenPair = try JSONDecoder().decode(TokenPair.self, from: data)
+                TokenStore.shared.updateTokens(pair: tokenPair)
+                return tokenPair
+
+            case 401:
+                throw AuthError.invalidCredentials
+
+            default:
+                throw AuthError.server
+        }
     }
 
     /// 회원가입 요청
@@ -263,17 +283,17 @@ final class AuthServiceImpl: AuthService {
 
         // --- 1. Status Code 체크 (네트워크 레벨)
         switch http.statusCode {
-        case 200:
-            break  // Payload 검사로 넘어감
+            case 200:
+                break  // Payload 검사로 넘어감
 
-        case 400...499:
-            throw AuthError.validation("잘못된 요청입니다.")
+            case 400...499:
+                throw AuthError.validation("잘못된 요청입니다.")
 
-        case 500...599:
-            throw AuthError.server
+            case 500...599:
+                throw AuthError.server
 
-        default:
-            throw AuthError.server
+            default:
+                throw AuthError.server
         }
 
         // --- 2. Payload 검사 (도메인 레벨)
@@ -284,6 +304,74 @@ final class AuthServiceImpl: AuthService {
         }
 
         return decoded
+    }
+
+    func socialLogin(idToken: String, provider: String) async throws -> SocialLoginResult {
+
+        let url = AuthEndpoint.socialLogin.url
+        let body = SocialIdTokenLoginRequest(idToken: idToken, provider: provider)
+
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await URLSession.shared.data(for: req)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+
+        case 200:
+            let tokens = try JSONDecoder().decode(TokenPair.self, from: data)
+            TokenStore.shared.updateTokens(pair: tokens)
+            return .signedIn(tokens)
+
+        case 202:
+            let decoded = try JSONDecoder().decode(RegistrationNeededResponse.self, from: data)
+            return .needsRegister(email: decoded.email, providerUid: decoded.providerUid)
+
+        default:
+            throw AuthError.server
+        }
+    }
+
+    func socialRegister(provider: String, providerUid: String, nickname: String, email: String?) async throws -> TokenPair {
+
+        let url = AuthEndpoint.socialRegister.url
+        let body = SocialRegisterRequest(
+            provider: provider,
+            providerUid: providerUid,
+            nickname: nickname,
+            email: email
+        )
+
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await URLSession.shared.data(for: req)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+            case 200:
+                let tokens = try JSONDecoder().decode(TokenPair.self, from: data)
+                TokenStore.shared.updateTokens(pair: tokens)
+                return tokens
+
+            case 409:
+                throw AuthError.conflict("email")
+
+            case 422:
+                throw AuthError.validation("형식 오류")
+
+            default:
+                throw AuthError.server
+        }
     }
 
 }

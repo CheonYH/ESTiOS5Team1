@@ -1,3 +1,10 @@
+//
+//  IGDBService.swift
+//  ESTiOS5Team1
+//
+//  Created by cheon on 1/6/26.
+//
+
 import Foundation
 
 enum IGDBEndpoint: String {
@@ -16,28 +23,14 @@ struct IGDBBatchItem: Sendable {
 
 typealias IGDBRawResponse = [String: [[String: Any]]]
 
-/// IGDB API와 통신하기 위한 서비스 프로토콜입니다.
-///
-/// ViewModel은 이 프로토콜에만 의존하며,
-/// 실제 네트워크 구현(`IGDBServiceManager`)과 분리되어 있습니다.
-///
-/// - Note:
-/// 테스트(Mock Service)나 구현 변경 시
-/// ViewModel 코드를 수정하지 않기 위해 사용됩니다.
 protocol IGDBService {
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO
 }
 
-/// IGDB API와 실제로 통신하는 서비스 구현체입니다.
-///
-/// 네트워크 요청, 인증 헤더 설정,
-/// 응답 디코딩까지의 책임을 담당합니다.
-///
-/// - Important:
-/// 이 클래스는 **데이터 가공을 하지 않습니다.**
-/// DTO → Entity 변환은 ViewModel 또는 Entity 단계에서 수행합니다.
 final class IGDBServiceManager: IGDBService {
+
+    private let baseURL = "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app"
 
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse {
 
@@ -49,27 +42,18 @@ final class IGDBServiceManager: IGDBService {
             """
         }.joined(separator: "\n")
 
-        // print("📤 IGDB Multiquery Body:\n\(body)\n")
+        guard let url = URL(string: "\(baseURL)/v4/multiquery") else {
+            throw URLError(.badURL)
+        }
 
-        var request = URLRequest(url: URL(string: "https://api.igdb.com/v4/multiquery")!)
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = Data(body.utf8)
-
-        request.setValue(IGDBConfig.clientID, forHTTPHeaderField: "Client-ID")
-        request.setValue("Bearer \(IGDBConfig.accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
 
         let (data, response) = try await URLSession.shared.data(for: request)
-
-        if let http = response as? HTTPURLResponse {
-            print("📥 HTTP Status:", http.statusCode)
-        }
-
-        if let json = String(data: data, encoding: .utf8) {
-            print("📥 Raw Response JSON:\n\(json)\n")
-        }
-
-        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+        guard let http = response as? HTTPURLResponse,
+              (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
 
@@ -89,26 +73,25 @@ final class IGDBServiceManager: IGDBService {
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO {
         let query = IGDBQuery.detail + "where id = \(id);"
 
-        var request = URLRequest(url: URL(string: "https://api.igdb.com/v4/games")!)
+        guard let url = URL(string: "\(baseURL)/v4/games") else {
+            throw URLError(.badURL)
+        }
+
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = Data(query.utf8)
-
-        request.setValue(IGDBConfig.clientID, forHTTPHeaderField: "Client-ID")
-        request.setValue("Bearer \(IGDBConfig.accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
 
         let (data, response) = try await URLSession.shared.data(for: request)
-
-        if !(200...299).contains((response as? HTTPURLResponse)?.statusCode ?? 0) {
+        guard let http = response as? HTTPURLResponse,
+              (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
 
         let arr = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-          guard let raw = arr.first else { throw URLError(.cannotDecodeContentData) }
+        guard let raw = arr.first else { throw URLError(.cannotDecodeContentData) }
 
-          let dtoData = try JSONSerialization.data(withJSONObject: raw, options: [])
-          return try JSONDecoder().decode(IGDBGameListDTO.self, from: dtoData)
+        let dtoData = try JSONSerialization.data(withJSONObject: raw, options: [])
+        return try JSONDecoder().decode(IGDBGameListDTO.self, from: dtoData)
     }
-
 }
-

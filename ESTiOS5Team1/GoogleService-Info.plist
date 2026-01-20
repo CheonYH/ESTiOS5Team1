@@ -3,28 +3,28 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAPIOVeFuQxUnbaK_I7D1JBkdlaKyjYDiQ</string>
+	<string>AIzaSyDummyKey</string>
 	<key>GCM_SENDER_ID</key>
-	<string>282996800970</string>
+	<string></string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.cheon.ESTiOS5Team1</string>
+	<string></string>
 	<key>PROJECT_ID</key>
-	<string>estiosteam1</string>
+	<string>dummy-id</string>
 	<key>STORAGE_BUCKET</key>
-	<string>estiosteam1.firebasestorage.app</string>
+	<string></string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:282996800970:ios:bb2fd439eeac4ac4bb6333</string>
+	<string>1:1234567890:ios:abcdef123456</string>
 </dict>
 </plist>

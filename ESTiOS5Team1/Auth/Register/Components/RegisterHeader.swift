@@ -15,10 +15,10 @@ import SwiftUI
 ///     - dismiss: 상위 화면으로 복귀하는 액션(예: 로그인 화면으로 돌아가기)
 struct RegisterHeader: View {
     // MARK: - Properties
-    
+
     /// 상위에서 주입되는 화면 닫기 액션
     let dismiss: () -> Void
-    
+
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -64,4 +64,3 @@ struct RegisterHeader: View {
         .environmentObject(appVM)
         .environmentObject(toast)
 }
-

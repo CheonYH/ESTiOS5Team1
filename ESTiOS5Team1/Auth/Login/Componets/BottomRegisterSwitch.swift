@@ -16,15 +16,15 @@ import SwiftUI
 struct BottomRegisterSwitch: View {
     // MARK: - Body
     var body: some View {
-        
+
         VStack {
             HStack {
                 Text("아직 계정이 없으신가요?")
                     .foregroundStyle(.gray)
                     .font(.callout)
                     .bold()
-                
-                NavigationLink() {
+
+                NavigationLink {
                     RegisterView()
                         .navigationBarBackButtonHidden(true)
                 } label: {
@@ -33,7 +33,7 @@ struct BottomRegisterSwitch: View {
                         .font(.callout)
                         .bold()
                 }
-                
+
             }
             .padding()
         }
@@ -49,4 +49,3 @@ struct BottomRegisterSwitch: View {
         .environmentObject(appVM)
         .environmentObject(toast)
 }
-

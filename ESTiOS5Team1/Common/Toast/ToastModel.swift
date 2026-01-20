@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+// MARK: - ToastMessage
+
 /// 화면에 간단한 알림(Toast)을 표시하기 위한 데이터 모델입니다.
 ///
 /// - Purpose:
@@ -21,7 +23,7 @@ import SwiftUI
 ///
 /// - Example:
 ///     `ToastMessage(text: "로그인 성공!", type: .success)`
-// MARK: - ToastMessage
+
 struct ToastMessage: Identifiable {
     /// 각 메시지를 식별하기 위한 고유 ID입니다.
     ///
@@ -111,4 +113,3 @@ extension ToastType {
         }
     }
 }
-

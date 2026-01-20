@@ -5,7 +5,6 @@
 //  Created by cheon on 1/15/26.
 //
 
-
 //
 //  RegisterTestView.swift
 //  ESTiOS5Team1
@@ -58,7 +57,6 @@ struct RegisterView: View {
         }
     }
 }
-
 
 // MARK: - Preview
 #Preview {

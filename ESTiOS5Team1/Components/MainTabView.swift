@@ -12,7 +12,7 @@ struct MainTabView: View {
     @State var iconColor: Color = .gray
     @State private var selectedTab: Tab = .home
     @StateObject var favoriteManager = FavoriteManager()
-    
+
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
@@ -27,7 +27,7 @@ struct MainTabView: View {
                         MainView()
                 }
             }
-            
+
             TabBarView(selectedTab: $selectedTab)
         }
         .environmentObject(favoriteManager)

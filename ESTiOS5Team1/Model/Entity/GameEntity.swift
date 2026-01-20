@@ -40,7 +40,6 @@ struct GameEntity: Identifiable, Hashable {
     /// 앱에서 사용하는 플랫폼 모델로 변환한 결과입니다.
     let platforms: [GamePlatform]
 
-
     let releaseYear: Int?
 
     let summary: String?
@@ -84,7 +83,7 @@ extension GameEntity {
         self.summary = dto.summary
 
         // 출시년도 (최신 값 기준)
-        if let years = dto.release_dates?.compactMap({ $0.y }), let latestYear = years.max() {
+        if let years = dto.releaseDates?.compactMap({ $0.year }), let latestYear = years.max() {
             self.releaseYear = latestYear
         } else {
             self.releaseYear = nil

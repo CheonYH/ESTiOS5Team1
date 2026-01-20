@@ -75,7 +75,7 @@ extension KeychainStore {
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
+            kSecAttrAccount as String: key
         ]
 
         let attributes: [String: Any] = [
@@ -95,7 +95,7 @@ extension KeychainStore {
     func delete(key: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
+            kSecAttrAccount as String: key
         ]
 
         SecItemDelete(query as CFDictionary)
@@ -114,8 +114,7 @@ extension KeychainStore {
     /// - Note:
     ///     값이 없거나 접근 실패 시 nil을 반환합니다.
     func read(key: String) -> String? {
-
-        let query: [String : Any] = [
+        let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
             kSecMatchLimit as String: kSecMatchLimitOne,
@@ -125,10 +124,12 @@ extension KeychainStore {
         var item: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
 
-        guard status == errSecSuccess, let data = item as? Data else {
+        guard status == errSecSuccess,
+              let data = item as? Data,
+              let value = String(data: data, encoding: .utf8) else {
             return nil
         }
 
-        return String(decoding: data, as: UTF8.self)
+        return value
     }
 }

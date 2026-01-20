@@ -93,26 +93,9 @@ final class RegisterViewModel: ObservableObject {
     ///     실패 → Toast로 검증 안내 또는 오류 출력
     @discardableResult
     func register(appViewModel: AppViewModel) async -> FeedbackEvent {
-
-        // 1. Local Validation (입력 단계에서 오류를 즉시 알려줌)
-        guard !email.isEmpty else {
-            return FeedbackEvent(.auth, .warning, "이메일을 입력해주세요.")
-        }
-
-        guard isEmailValid else {
-            return FeedbackEvent(.auth, .warning, "올바른 이메일 형식이 아닙니다.")
-        }
-
-        guard isPasswordValid else {
-            return FeedbackEvent(.auth, .warning, "비밀번호는 영문/숫자/특수문자 포함 8자 이상이어야 합니다.")
-        }
-
-        guard isConfirmPasswordValid else {
-            return FeedbackEvent(.auth, .warning, "비밀번호 확인이 일치하지 않습니다.")
-        }
-
-        guard isNicknameValid else {
-            return FeedbackEvent(.auth, .warning, "닉네임 형식을 확인해주세요.")
+        // 1. 검증 로직을 별도 함수로 분리하여 복잡도 감소
+        if let validationError = validateInputs() {
+            return validationError
         }
 
         // 2. 서버 호출 시작
@@ -120,39 +103,18 @@ final class RegisterViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            // 서버 요청 (성공 시 success=true)
-            let _ = try await authService.register(
+            _ = try await authService.register(
                 email: email,
                 password: password,
                 nickname: nickname
             )
 
-            // 앱 상태 업데이트 (로그인 화면으로 이동)
             appViewModel.prefilledEmail = email
             appViewModel.state = .signedOut
-
             return FeedbackEvent(.auth, .success, "회원가입 완료! 로그인해주세요.")
 
-        } catch let authError as AuthError {
-
-            // 서버/도메인 오류 매핑
-            switch authError {
-                case .validation(let message):
-                    return FeedbackEvent(.auth, .warning, message)
-
-                case .network:
-                    return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
-
-                case .server:
-                    return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
-
-                default:
-                    return FeedbackEvent(.auth, .error, "회원가입 중 오류가 발생했습니다.")
-            }
-
         } catch {
-            // 예상하지 못한 오류 처리
-            return FeedbackEvent(.auth, .error, "알 수 없는 오류가 발생했습니다.")
+            return handleRegisterError(error)
         }
     }
 
@@ -190,5 +152,29 @@ final class RegisterViewModel: ObservableObject {
             }
         }
         return false
+    }
+
+    // MARK: - Helper Methods (복잡도 분산)
+    private func validateInputs() -> FeedbackEvent? {
+        guard !email.isEmpty else { return FeedbackEvent(.auth, .warning, "이메일을 입력해주세요.") }
+        guard isEmailValid else { return FeedbackEvent(.auth, .warning, "올바른 이메일 형식이 아닙니다.") }
+        guard isPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호는 영문/숫자/특수문자 포함 8자 이상이어야 합니다.") }
+        guard isConfirmPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호 확인이 일치하지 않습니다.") }
+        guard isNicknameValid else { return FeedbackEvent(.auth, .warning, "닉네임 형식을 확인해주세요.") }
+        return nil
+    }
+
+    /// 에러 처리 로직만 담당 (복잡도 분리)
+    private func handleRegisterError(_ error: Error) -> FeedbackEvent {
+        guard let authError = error as? AuthError else {
+            return FeedbackEvent(.auth, .error, "알 수 없는 오류가 발생했습니다.")
+        }
+
+        switch authError {
+            case .validation(let message): return FeedbackEvent(.auth, .warning, message)
+            case .network: return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
+            case .server: return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
+            default: return FeedbackEvent(.auth, .error, "회원가입 중 오류가 발생했습니다.")
+        }
     }
 }
