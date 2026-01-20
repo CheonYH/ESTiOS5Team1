@@ -5,12 +5,14 @@
 //  Created by Claude on 1/15/26.
 //
 //  [통일] SearchView의 CompactGameCard와 LibraryView의 LibraryGameCard를 통일한 공통 게임 카드
+//  [수정] Game → GameListItem 통일
 
 import SwiftUI
 
 // MARK: - Game List Card (통일된 게임 카드)
 struct GameListCard: View {
-    let game: Game
+    // [수정] Game → GameListItem
+    let item: GameListItem
     let isFavorite: Bool
     let onToggleFavorite: () -> Void
 
@@ -20,7 +22,7 @@ struct GameListCard: View {
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
                     // 커버 이미지
-                    if let coverURL = game.coverURL {
+                    if let coverURL = item.coverURL {
                         AsyncImage(url: coverURL) { phase in
                             switch phase {
                             case .empty:
@@ -40,35 +42,16 @@ struct GameListCard: View {
                         GameListCardPlaceholder()
                     }
 
-                    // 평점 배지 (왼쪽 상단)
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 10))
-                        Text(game.ratingText)
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                    }
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.yellow)
-                    .cornerRadius(8)
-                    .padding(8)
+                    // 평점 배지 (왼쪽 상단) - GameRatingBadge 사용
+                    GameRatingBadge(ratingText: item.ratingText)
+                        .padding(8)
 
-                    // 즐겨찾기 버튼 (오른쪽 상단)
+                    // 즐겨찾기 버튼 (오른쪽 상단) - GameFavoriteButton 사용
                     VStack {
                         HStack {
                             Spacer()
-                            Button(action: onToggleFavorite) {
-                                Image(systemName: isFavorite ? "heart.fill" : "heart")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(isFavorite ? .red : .white)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.black.opacity(0.6))
-                                    .clipShape(Circle())
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .padding(8)
+                            GameFavoriteButton(isFavorite: isFavorite, onToggle: onToggleFavorite)
+                                .padding(8)
                         }
                         Spacer()
                     }
@@ -82,26 +65,27 @@ struct GameListCard: View {
 
             // 게임 정보
             VStack(alignment: .leading, spacing: 4) {
-                Text(game.title)
+                Text(item.title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .lineLimit(1)
 
-                Text(game.genre)
+                // [수정] genre가 배열이므로 joined 사용
+                Text(item.genre.joined(separator: " · "))
                     .font(.caption)
                     .foregroundColor(.gray)
                     .lineLimit(1)
 
-                // 플랫폼 아이콘
+                // [수정] platforms → platformCategories
                 HStack(spacing: 4) {
-                    ForEach(game.platforms.prefix(3), id: \.rawValue) { platform in
+                    ForEach(item.platformCategories.prefix(3), id: \.rawValue) { platform in
                         Image(systemName: platform.iconName)
                             .font(.system(size: 10))
                             .foregroundColor(.gray)
                     }
-                    if game.platforms.count > 3 {
-                        Text("+\(game.platforms.count - 3)")
+                    if item.platformCategories.count > 3 {
+                        Text("+\(item.platformCategories.count - 3)")
                             .font(.system(size: 9))
                             .foregroundColor(.gray)
                     }
