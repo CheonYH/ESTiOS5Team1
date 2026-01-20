@@ -28,7 +28,7 @@ struct LoginHeader: View {
                 .font(.system(size: 48))
                 .bold()
                 .foregroundStyle(.white)
-            
+
             Text("게임 리뷰·추천·정보를 한 곳에서")
                 .font(.title3)
                 .bold()

@@ -8,6 +8,8 @@
 import SwiftUI
 import SwiftData
 import Firebase
+import GoogleSignIn
+import FirebaseAnalytics
 
 @main
 struct ESTiOS5Team1App: App {
@@ -24,8 +26,6 @@ struct ESTiOS5Team1App: App {
                 toast: toast
             )
         )
-
-        FirebaseApp.configure()
     }
 
     @ViewBuilder
@@ -39,10 +39,13 @@ struct ESTiOS5Team1App: App {
 
             case .signedIn:
                 LogoutTestView()
+
+            case .socialNeedsRegister:
+                SocialRegisterView(prefilledEmail: appViewModel.prefilledEmail)
         }
     }
 
-
+    // SwiftData 컨테이너 (struct 내부 유지)
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self
@@ -56,20 +59,15 @@ struct ESTiOS5Team1App: App {
         }
     }()
 
-
     var body: some Scene {
-
-        /*  WindowGroup {
-         MainTabView()
-         } */
-
         WindowGroup {
             content
-                .environmentObject(appViewModel)
                 .environmentObject(toastManager)
+                .environmentObject(appViewModel)
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
-
         .modelContainer(sharedModelContainer)
     }
-
 }

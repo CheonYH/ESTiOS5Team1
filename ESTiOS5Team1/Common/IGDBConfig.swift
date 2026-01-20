@@ -55,7 +55,7 @@ enum IGDBConfig {
         }
 
         print("[IGDBConfig] token length:", value.count)
-        
+
         return value
     }()
 }

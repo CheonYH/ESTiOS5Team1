@@ -25,7 +25,6 @@ struct LoginRequest: Codable, Hashable {
     let password: String
 }
 
-
 // MARK: - Login Response / Token Pair DTO
 /// 로그인 성공 시 서버에서 반환하는 토큰 쌍(Token Pair) 모델입니다.
 ///
@@ -60,6 +59,9 @@ struct LoginResponse: Codable, Hashable {
     }
 }
 
+struct LogoutRequest: Codable {
+    let refreshToken: String
+}
 
 // MARK: - Refresh Request DTO
 /// refresh token을 이용하여 새로운 access token을 발급받는 요청 모델입니다.
@@ -78,8 +80,9 @@ struct LoginResponse: Codable, Hashable {
 /// 이 요청은 `/auth/refresh` 엔드포인트에서 처리됩니다.
 struct RefreshRequest: Codable {
     let refreshToken: String
+    let deviceId: String?
+    let platform: String?
 }
-
 
 // MARK: - TokenPair Alias
 /// 서버에서 `access + refresh` 토큰을 함께 반환하는 경우가 많기 때문에
@@ -92,7 +95,6 @@ struct RefreshRequest: Codable {
 /// let tokens: TokenPair = try await authService.refresh()
 /// ```
 typealias TokenPair = LoginResponse
-
 
 // MARK: - Register Request DTO
 /// 회원가입 요청에 사용되는 모델입니다.
@@ -114,7 +116,6 @@ struct RegisterRequest: Codable, Hashable {
     let nickname: String
 }
 
-
 // MARK: - Register Response DTO
 /// 회원가입 응답 모델입니다.
 ///
@@ -127,3 +128,19 @@ struct RegisterResponse: Codable, Hashable {
     let message: String
 }
 
+struct SocialIdTokenLoginRequest: Codable {
+    let idToken: String
+    let provider: String
+}
+
+struct SocialRegisterRequest: Codable {
+    let provider: String
+    let providerUid: String
+    let nickname: String
+    let email: String?
+}
+
+struct RegistrationNeededResponse: Codable {
+    let email: String?
+    let providerUid: String
+}

@@ -31,4 +31,3 @@ struct BookMarkOverlay: View {
         .padding(4)
     }
 }
-

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TrendingNowGameView: View {
-    
+
     @StateObject private var viewModel =
     GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
 
@@ -50,4 +50,3 @@ struct TrendingNowGameView: View {
 #Preview {
     TrendingNowGameView()
 }
-

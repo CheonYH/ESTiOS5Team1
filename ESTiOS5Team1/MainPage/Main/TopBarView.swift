@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TopBarView: View {
-    
+
     var body: some View {
             HStack {
                 Button {

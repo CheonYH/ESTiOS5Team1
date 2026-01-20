@@ -11,13 +11,13 @@ struct StatView: View {
     let value: String
     let title: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
                 .font(.title3.bold())
                 .foregroundStyle(color)
-            
+
             Text(title)
                 .font(.caption)
                 .foregroundStyle(.gray)

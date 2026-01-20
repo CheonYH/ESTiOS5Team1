@@ -19,17 +19,17 @@ struct MainView: View {
 
                 VStack {
                     TopBarView()
-                    
+
                     ScrollView {
                         VStack(alignment: .leading, spacing: 30) {
                             if let item = viewModel.featuredItem {
                                 MainPoster(item: item)
-                            } 
-                            
+                            }
+
                             TrendingNowGameView()
-                            
+
                             BrowseByGenreGridView()
-                            
+
                             NewReleasesView()
                         }
                     }

@@ -37,7 +37,6 @@ final class ToastManager: ObservableObject {
     ///     위치는 `FeedbackEvent`의 정책에 따라 자동으로 결정됩니다.
     @Published var placement: FeedbackEvent.Placement = .auto
 
-
     // MARK: - Public API
 
     /// Toast를 화면에 표시합니다.
@@ -86,7 +85,6 @@ final class ToastManager: ObservableObject {
         }
     }
 
-
     // MARK: - Private Helpers
 
     /// 기기에서 햅틱(진동) 효과를 실행합니다.
@@ -113,4 +111,3 @@ final class ToastManager: ObservableObject {
         #endif
     }
 }
-
