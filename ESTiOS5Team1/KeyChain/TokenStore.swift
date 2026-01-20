@@ -51,15 +51,14 @@ final class TokenStore {
     /// let tokens = try await authService.refresh()
     /// TokenStore.shared.updateTokens(response: tokens)
     /// ```
-    func updateTokens(response: LoginResponse) {
-        // access token은 항상 갱신
-        KeychainStore.shared.save(key: Key.access, value: response.accessToken)
+    func updateTokens(pair: LoginResponse) {
+        updateAccessToken(pair.accessToken)
 
-        // refresh token은 서버 정책에 따라 null 가능
-        if let refresh = response.refreshToken {
-            KeychainStore.shared.save(key: Key.refresh, value: refresh)
+        if let refresh = pair.refreshToken {
+            updateRefreshToken(refresh)
         }
     }
+
 
     /// Access Token만 갱신할 때 사용합니다.
     ///

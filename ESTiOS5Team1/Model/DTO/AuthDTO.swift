@@ -25,7 +25,6 @@ struct LoginRequest: Codable, Hashable {
     let password: String
 }
 
-
 // MARK: - Login Response / Token Pair DTO
 /// 로그인 성공 시 서버에서 반환하는 토큰 쌍(Token Pair) 모델입니다.
 ///
@@ -60,6 +59,9 @@ struct LoginResponse: Codable, Hashable {
     }
 }
 
+struct LogoutRequest: Codable {
+    let refreshToken: String
+}
 
 // MARK: - Refresh Request DTO
 /// refresh token을 이용하여 새로운 access token을 발급받는 요청 모델입니다.
@@ -78,8 +80,9 @@ struct LoginResponse: Codable, Hashable {
 /// 이 요청은 `/auth/refresh` 엔드포인트에서 처리됩니다.
 struct RefreshRequest: Codable {
     let refreshToken: String
+    let deviceId: String?
+    let platform: String?
 }
-
 
 // MARK: - TokenPair Alias
 /// 서버에서 `access + refresh` 토큰을 함께 반환하는 경우가 많기 때문에
@@ -93,12 +96,51 @@ struct RefreshRequest: Codable {
 /// ```
 typealias TokenPair = LoginResponse
 
+// MARK: - Register Request DTO
+/// 회원가입 요청에 사용되는 모델입니다.
+///
+/// 서버 요청 예:
+/// ```json
+/// {
+///   "email": "test@example.com",
+///   "password": "1234!abcd",
+///   "nickname": "game_fan"
+/// }
+/// ```
+///
+/// - Note:
+///     비밀번호 정책은 클라이언트/서버에서 모두 검증되어야 합니다.
 struct RegisterRequest: Codable, Hashable {
     let email: String
     let password: String
     let nickname: String
 }
 
+// MARK: - Register Response DTO
+/// 회원가입 응답 모델입니다.
+///
+/// - success:
+///     요청 처리 성공 여부
+/// - message:
+///     사용자에게 표시할 안내 메시지(검증 실패 사유 포함 가능)
 struct RegisterResponse: Codable, Hashable {
     let success: Bool
+    let message: String
+}
+
+struct SocialIdTokenLoginRequest: Codable {
+    let idToken: String
+    let provider: String
+}
+
+struct SocialRegisterRequest: Codable {
+    let provider: String
+    let providerUid: String
+    let nickname: String
+    let email: String?
+}
+
+struct RegistrationNeededResponse: Codable {
+    let email: String?
+    let providerUid: String
 }

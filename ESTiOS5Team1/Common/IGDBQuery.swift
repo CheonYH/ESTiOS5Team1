@@ -57,7 +57,6 @@ enum IGDBQuery {
     limit 100;
     """
 
-
     /// 최근 출시된 게임 목록 쿼리
     ///
     /// - Note:
@@ -85,7 +84,6 @@ enum IGDBQuery {
         limit 100;
         """
     }()
-
 
     /// 특정 장르에 해당하는 게임 목록 쿼리
     ///
@@ -116,7 +114,7 @@ enum IGDBQuery {
     """
 
     static let detail = """
-    fields 
+    fields
     id,
     name,
     cover.image_id,
@@ -126,7 +124,7 @@ enum IGDBQuery {
     release_dates.y,
     genres.name,
     platforms.name;
-    
+
     """
 
 }

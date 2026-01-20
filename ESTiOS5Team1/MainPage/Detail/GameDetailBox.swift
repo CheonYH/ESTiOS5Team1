@@ -13,7 +13,7 @@ struct GameDetailBox: View {
             Text("About")
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
-            
+
             Text("게임 설명")
                 .font(.subheadline)
                 .foregroundStyle(.textPrimary.opacity(0.8))
@@ -24,7 +24,7 @@ struct GameDetailBox: View {
             RoundedRectangle(cornerRadius: Radius.card)
                 .fill(.textPrimary.opacity(0.06))
         )
-        
+
     }
 }
 
