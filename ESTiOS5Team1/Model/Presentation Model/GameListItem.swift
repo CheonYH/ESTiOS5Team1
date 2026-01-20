@@ -44,6 +44,8 @@ struct GameListItem: Identifiable, Hashable {
     let releaseYearText: String
     let summary: String?
 
+    let gracAge: GracAge
+
     /// GameEntity -> ViewModel 변환 초기화
     ///
     /// - Parameter entity: Domain Layer 모델
@@ -69,5 +71,6 @@ struct GameListItem: Identifiable, Hashable {
 
         // Summary 우선 (storyline은 상세에서 쓰므로 제외)
         self.summary = entity.summary
+        self.gracAge = entity.ageRating?.gracAge ?? .all
     }
 }

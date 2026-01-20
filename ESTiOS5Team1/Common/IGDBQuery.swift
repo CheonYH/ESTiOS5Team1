@@ -19,9 +19,6 @@ import Foundation
 enum IGDBQuery {
 
     /// Discover 화면에서 사용하는 기본 게임 목록 쿼리
-    ///
-    /// - Note:
-    /// 정렬이나 필터 없이 기본 게임 목록을 가져옵니다.
     static let discover = """
     fields
         id,
@@ -32,16 +29,14 @@ enum IGDBQuery {
         release_dates.y,
         genres.name,
         platforms.name,
-        platforms.platform_logo.image_id;
+        platforms.platform_logo.image_id,
+        age_ratings.category,
+        age_ratings.rating;
     sort popularity desc;
-    limit 100;
+    limit 300;
     """
 
     /// 현재 인기 있는 게임(Trending) 목록 쿼리
-    ///
-    /// - Note:
-    /// IGDB의 popularity 값을 기준으로
-    /// 인기 순서대로 게임을 가져옵니다.
     static let trendingNow = """
     fields
         id,
@@ -52,20 +47,16 @@ enum IGDBQuery {
         release_dates.y,
         genres.name,
         platforms.name,
-        platforms.platform_logo.image_id;
+        platforms.platform_logo.image_id,
+        age_ratings.category,
+        age_ratings.rating;
     sort popularity desc;
-    limit 100;
+    limit 300;
     """
 
-    /// 최근 출시된 게임 목록 쿼리
-    ///
-    /// - Note:
-    /// 현재 시간으로부터 6개월 전까지의 시간동안 출시한 게임들의 목록을 가져옵니다.
-    /// 출시일 기준으로 최신순 정렬합니다.
+    /// 최근 출시된 게임 목록 쿼리 (6개월)
     static let newReleases: String = {
-        // 현재 timestamp
         let now = Int(Date().timeIntervalSince1970)
-        // 6개월 = 6 * 30일 기준
         let cutoff = now - (60 * 60 * 24 * 30 * 6)
 
         return """
@@ -78,20 +69,16 @@ enum IGDBQuery {
             release_dates.y,
             genres.name,
             platforms.name,
-            platforms.platform_logo.image_id;
+            platforms.platform_logo.image_id,
+            age_ratings.category,
+            age_ratings.rating;
         where status = 2 & first_release_date >= \(cutoff);
         sort first_release_date desc;
-        limit 100;
+        limit 300;
         """
     }()
 
-    /// 특정 장르에 해당하는 게임 목록 쿼리
-    ///
-    /// - Parameter genreId:
-    ///   IGDB에서 제공하는 장르 ID 값
-    ///
-    /// - Note:
-    /// 장르별 화면이나 섹션을 구성할 때 사용합니다.
+    /// 특정 장르 기반 쿼리
     static func genre(_ genreId: Int) -> String {
         """
         fields
@@ -101,30 +88,55 @@ enum IGDBQuery {
             rating,
             genres.name,
             platforms.name,
-            platforms.platform_logo.image_id;
+            platforms.platform_logo.image_id,
+            age_ratings.category,
+            age_ratings.rating;
         where genres = (\(genreId));
         sort popularity desc;
         limit 30;
         """
     }
 
+    /// 플랫폼 전체 목록 요청
     static let allPlatforms = """
     fields id, name, abbreviation;
     limit 500;
     """
 
+    /// 상세 조회용 쿼리
     static let detail = """
     fields
-    id,
-    name,
-    cover.image_id,
-    summary,
-    storyline,
-    aggregated_rating,
-    release_dates.y,
-    genres.name,
-    platforms.name;
-
+        id,
+        name,
+        cover.image_id,
+        summary,
+        storyline,
+        aggregated_rating,
+        release_dates.y,
+        genres.name,
+        platforms.name,
+        age_ratings.category,
+        age_ratings.rating;
     """
+
+    static func filteredByAge() -> String {
+        """
+        fields
+            id,
+            name,
+            cover.image_id,
+            summary,
+            aggregated_rating,
+            release_dates.y,
+            genres.name,
+            platforms.name,
+            platforms.platform_logo.image_id,
+            age_ratings.category,
+            age_ratings.rating;
+        where age_ratings.rating != null;
+        sort popularity desc;
+        limit 300;
+        """
+    }
 
 }

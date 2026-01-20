@@ -44,6 +44,8 @@ struct GameEntity: Identifiable, Hashable {
 
     let summary: String?
 
+    let ageRating: AgeRatingEntity?
+
 }
 
 extension GameEntity {
@@ -88,5 +90,7 @@ extension GameEntity {
         } else {
             self.releaseYear = nil
         }
+
+        self.ageRating = AgeRatingEntity.from(dto.ageRatings)
     }
 }

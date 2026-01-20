@@ -40,3 +40,8 @@ struct SocialRegisterView: View {
         .padding()
     }
 }
+
+#Preview {
+
+    SocialRegisterView(prefilledEmail: "test@example.com")
+}

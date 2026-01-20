@@ -75,12 +75,15 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
 
     let storyline: String?
 
+    let ageRatings: [IGDBAgeRatingDTO]?
 }
 
 enum CodingKeys: String, CodingKey {
 
+    case ageRatings = "age_ratings"
     case releaseDates = "release_dates"
     case aggregatedRating = "aggregated_rating"
+
 }
 
 /// IGDB API에서 제공하는 장르 정보를 표현하는 DTO입니다.

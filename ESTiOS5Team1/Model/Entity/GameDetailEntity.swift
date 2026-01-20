@@ -18,6 +18,7 @@ struct GameDetailEntity {
     let genres: [String]
     let platforms: [GamePlatform]
     let rating: Double?
+    let ageRating: AgeRatingEntity?
 }
 
 extension GameDetailEntity {
@@ -49,5 +50,7 @@ extension GameDetailEntity {
         } ?? []
 
         self.rating = dto.rating
+
+        self.ageRating = AgeRatingEntity.from(dto.ageRatings)
     }
 }
