@@ -182,7 +182,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				25B45A222F1DFBE70093740B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
@@ -356,10 +355,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		25B45A222F1DFBE70093740B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 25B45A212F1DFBE70093740B /* SwiftLintBuildToolPlugin */;
-		};
 		25C032532F0C972500CA196B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
@@ -748,11 +743,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
-		};
-		25B45A212F1DFBE70093740B /* SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 		25E2319C2F10854D00C0B57B /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
