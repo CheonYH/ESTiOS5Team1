@@ -34,9 +34,9 @@ extension GameDetailEntity {
         self.summary = dto.summary
         self.storyline = dto.storyline
 
-        self.metaScore = dto.aggregated_rating
+        self.metaScore = dto.aggregatedRating
 
-        if let years = dto.release_dates?.compactMap({ $0.y }), let latest = years.max() {
+        if let years = dto.releaseDates?.compactMap({ $0.year }), let latest = years.max() {
             self.releaseYear = latest
         } else {
             self.releaseYear = nil
@@ -51,4 +51,3 @@ extension GameDetailEntity {
         self.rating = dto.rating
     }
 }
-

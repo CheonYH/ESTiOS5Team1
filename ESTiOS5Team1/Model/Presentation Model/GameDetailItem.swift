@@ -20,7 +20,6 @@ struct GameDetailItem: Identifiable, Hashable {
     let ratingText: String
 }
 
-
 extension GameDetailItem {
     init(detail: GameDetailEntity) {
         self.id = detail.id

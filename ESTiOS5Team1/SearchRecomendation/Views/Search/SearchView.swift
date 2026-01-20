@@ -107,7 +107,7 @@ struct SearchView: View {
                                     }
                                 }
                             }
-                            
+
                             .padding(.bottom, 10)
                         }
                         .refreshable {

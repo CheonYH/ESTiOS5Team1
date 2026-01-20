@@ -10,15 +10,15 @@ struct TitleBox: View {
     var title: String
     var showsSeeAll: Bool = false
     let onSeeAllTap: (() -> Void)?
-    
+
     var body: some View {
         HStack {
             Text(title)
                 .font(.title2.bold())
                 .foregroundStyle(.white)
-            
+
             Spacer()
-            
+
             if showsSeeAll {
                 Button("See All") {
                     onSeeAllTap?()
@@ -33,8 +33,8 @@ struct TitleBox: View {
 }
 
 struct ComponentFormat: View {
-    
+
     var body: some View {
-        
+
     }
 }

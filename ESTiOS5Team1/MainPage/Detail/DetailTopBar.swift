@@ -9,9 +9,9 @@ import SwiftUI
 
 struct DetailTopBar: View {
     @State var isHeart: Bool = false
-    
+
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         HStack {
             Button {
@@ -20,9 +20,9 @@ struct DetailTopBar: View {
                 Image(systemName: "chevron.backward")
                     .foregroundStyle(.textPrimary)
             }
-            
+
             Spacer()
-            
+
             Button {
                 isHeart = !isHeart
             } label: {
@@ -30,9 +30,9 @@ struct DetailTopBar: View {
                     .foregroundStyle(.textPrimary)
             }
             .padding(.horizontal)
-            
+
             Button {
-                
+
             } label: {
                 Image(systemName: "square.and.arrow.up")
                     .foregroundStyle(.textPrimary)
@@ -40,7 +40,7 @@ struct DetailTopBar: View {
         }
         .navigationBarBackButtonHidden()
         .padding(.horizontal, Spacing.pv10)
-        
+
         Divider()
             .frame(height: 1)
             .background(.textPrimary.opacity(0.2))

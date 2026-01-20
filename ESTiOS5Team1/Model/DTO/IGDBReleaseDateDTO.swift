@@ -9,6 +9,6 @@ import Foundation
 
 struct IGDBReleaseDateDTO: Codable, Hashable {
     let id: Int
-    let y: Int?
+    let year: Int?
     let date: Int?
 }
