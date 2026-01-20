@@ -45,15 +45,3 @@ struct ChatRoom: Codable, Hashable, Identifiable {
         self.updatedAt = updatedAt
     }
 }
-
-extension ChatRoom {
-    static let defaultRoomIdentifier = UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID()
-
-    static let defaultRoom = ChatRoom(
-        identifier: defaultRoomIdentifier,
-        title: "GameFactsBot",
-        isDefaultRoom: true,
-        alanClientIdentifier: "ios-default-room",
-        updatedAt: Date()
-    )
-}

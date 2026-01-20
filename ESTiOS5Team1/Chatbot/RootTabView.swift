@@ -18,21 +18,19 @@ struct RootTabView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if let room = roomsViewModel.selectedRoom() {
-                    ChatRoomView(
-                        room: room,
-                        store: store,
-                        roomsViewModel: roomsViewModel,
-                    )
-                } else {
-                    Text("No rooms available.")
-                        .foregroundStyle(.secondary)
-                }
+        Group {
+            if let room = roomsViewModel.selectedRoom() {
+                ChatRoomView(
+                    room: room,
+                    store: store,
+                    roomsViewModel: roomsViewModel
+                )
+            } else {
+                Text("No rooms available.")
+                    .foregroundStyle(.secondary)
             }
-            .task { await roomsViewModel.load() }
         }
+        .task { await roomsViewModel.load() }
     }
 }
 

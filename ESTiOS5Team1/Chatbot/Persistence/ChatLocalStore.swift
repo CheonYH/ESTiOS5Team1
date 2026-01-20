@@ -8,80 +8,32 @@
 import Foundation
 
 actor ChatLocalStore {
-    private let fileManager = FileManager.default
-
-    private var baseFolderUrl: URL {
-        let baseUrl = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return baseUrl.appendingPathComponent("GameFactsBot", isDirectory: true)
-    }
-
-    private var roomsFileUrl: URL {
-        baseFolderUrl.appendingPathComponent("rooms.json")
-    }
-
-    private func messagesFileUrl(roomIdentifier: UUID) -> URL {
-        baseFolderUrl.appendingPathComponent("messages-\(roomIdentifier.uuidString).json")
-    }
-
-    // MARK: - Rooms
+    private let baseFolderName = "ESTiOS5Team1_ChatStore"
+    private let roomsFileName = "rooms.json"
 
     func loadRooms() -> [ChatRoom] {
         ensureFolderExists()
+        let url = roomsFileUrl()
 
-        guard let dataValue = try? Data(contentsOf: roomsFileUrl) else {
-            return ensureDefaultRoomExists(in: [])
-        }
-
-        if let decodedRooms = try? JSONDecoder().decode([ChatRoom].self, from: dataValue) {
-            return ensureDefaultRoomExists(in: decodedRooms)
-        }
-
-        if let legacyRooms = try? JSONDecoder().decode([LegacyChatRoom].self, from: dataValue) {
-            let migratedRooms: [ChatRoom] = legacyRooms.map { legacy in
-                ChatRoom(
-                    identifier: legacy.identifier,
-                    title: legacy.title,
-                    isDefaultRoom: false,
-                    alanClientIdentifier: legacy.alanClientIdentifier,
-                    updatedAt: legacy.updatedAt
-                )
-            }
-
-            let finalRooms = ensureDefaultRoomExists(in: migratedRooms)
-            saveRooms(finalRooms)
-            return finalRooms
-        }
-
-        let fallbackRooms = ensureDefaultRoomExists(in: [])
-        saveRooms(fallbackRooms)
-        return fallbackRooms
+        guard let data = try? Data(contentsOf: url) else { return [] }
+        guard let rooms = try? JSONDecoder().decode([ChatRoom].self, from: data) else { return [] }
+        return rooms
     }
 
     func saveRooms(_ rooms: [ChatRoom]) {
         ensureFolderExists()
-
-        let normalizedRooms = ensureDefaultRoomExists(in: rooms)
-        guard let encodedData = try? JSONEncoder().encode(normalizedRooms) else { return }
-        try? encodedData.write(to: roomsFileUrl, options: [.atomic])
+        let url = roomsFileUrl()
+        guard let data = try? JSONEncoder().encode(rooms) else { return }
+        try? data.write(to: url, options: [.atomic])
     }
-
-    func deleteRoomMessages(roomIdentifier: UUID) {
-        ensureFolderExists()
-        let fileUrl = messagesFileUrl(roomIdentifier: roomIdentifier)
-        try? fileManager.removeItem(at: fileUrl)
-    }
-
-    // MARK: - Messages
 
     func loadMessages(roomIdentifier: UUID) -> [ChatMessage] {
         ensureFolderExists()
         let fileUrl = messagesFileUrl(roomIdentifier: roomIdentifier)
 
-        guard let dataValue = try? Data(contentsOf: fileUrl),
-              let decodedMessages = try? JSONDecoder().decode([ChatMessage].self, from: dataValue)
-        else { return [] }
-
-        return decodedMessages
+        guard let data = try? Data(contentsOf: fileUrl) else { return [] }
+        guard let messages = try? JSONDecoder().decode([ChatMessage].self, from: data) else { return [] }
+        return messages
     }
 
     func saveMessages(_ messages: [ChatMessage], roomIdentifier: UUID) {
@@ -92,31 +44,33 @@ actor ChatLocalStore {
         try? encodedData.write(to: fileUrl, options: [.atomic])
     }
 
-    // MARK: - Helpers
+    // MARK: - Activity
+
+    func touchRoomUpdatedAt(roomIdentifier: UUID) {
+        var rooms = loadRooms()
+        guard let index = rooms.firstIndex(where: { $0.identifier == roomIdentifier }) else { return }
+
+        rooms[index].updatedAt = Date()
+        saveRooms(rooms)
+    }
+
+    // MARK: - Internal
 
     private func ensureFolderExists() {
-        if fileManager.fileExists(atPath: baseFolderUrl.path) == false {
-            try? fileManager.createDirectory(at: baseFolderUrl, withIntermediateDirectories: true)
-        }
+        let url = baseFolderUrl()
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     }
 
-    private func ensureDefaultRoomExists(in rooms: [ChatRoom]) -> [ChatRoom] {
-        if rooms.contains(where: { $0.isDefaultRoom }) {
-            return rooms
-        }
-
-        // 기본방이 없으면 앞에 삽입
-        var newRooms = rooms
-        newRooms.insert(.defaultRoom, at: 0)
-        return newRooms
+    private func baseFolderUrl() -> URL {
+        let docUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        return docUrl.appendingPathComponent(baseFolderName, isDirectory: true)
     }
-}
 
-// MARK: - Legacy Migration
+    private func roomsFileUrl() -> URL {
+        baseFolderUrl().appendingPathComponent(roomsFileName)
+    }
 
-private struct LegacyChatRoom: Codable {
-    var identifier: UUID
-    var title: String
-    var alanClientIdentifier: String
-    var updatedAt: Date
+    private func messagesFileUrl(roomIdentifier: UUID) -> URL {
+        baseFolderUrl().appendingPathComponent("messages_\(roomIdentifier.uuidString).json")
+    }
 }

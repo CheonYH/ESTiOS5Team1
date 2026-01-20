@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ChatRoomView: View {
     @StateObject private var roomViewModel: ChatRoomViewModel
@@ -14,6 +15,8 @@ struct ChatRoomView: View {
     @State private var isPresentingRooms = false
 
     @FocusState private var isComposerFocused: Bool
+
+    @State private var keyboardHeight: CGFloat = 0
 
     private let bottomAnchorId = "bottom_anchor"
 
@@ -35,19 +38,41 @@ struct ChatRoomView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            ZStack {
+                Color.black.ignoresSafeArea()
                 messagesList
+            }
+            .preferredColorScheme(.dark)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
                 composerBar
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Color.clear)
             }
             .navigationTitle(roomViewModel.room.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        Task {
+                            await roomsViewModel.startNewConversation()
+                            await roomViewModel.reload(room: roomsViewModel.defaultRoom)
+                            focusComposerSoon()
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .tint(playNowTint)
+                    .accessibilityLabel("Start new chat")
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         isPresentingRooms = true
                     } label: {
                         Image(systemName: "text.bubble")
                     }
+                    .tint(playNowTint)
                 }
             }
             .sheet(isPresented: $isPresentingRooms) {
@@ -66,14 +91,35 @@ struct ChatRoomView: View {
             .onAppear {
                 focusComposerSoon()
             }
+            // 키보드 프레임 변경(등장/사라짐/높이 변경) 통합 처리
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
+                handleKeyboardWillChangeFrame(notification)
+            }
         }
     }
+
+    private var playNowTint: Color { .purple }
 
     private func focusComposerSoon() {
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 150_000_000)
             isComposerFocused = true
         }
+    }
+
+    private func handleKeyboardWillChangeFrame(_ notification: Notification) {
+        guard let endFrameValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+            return
+        }
+
+        let endFrame = endFrameValue.cgRectValue
+        let screenHeight = UIScreen.main.bounds.height
+
+        // endFrame이 화면 바깥(아래)로 내려가면 키보드 hidden 상태로 판단
+        let isKeyboardHidden = endFrame.origin.y >= screenHeight
+        let newHeight: CGFloat = isKeyboardHidden ? 0 : endFrame.height
+
+        keyboardHeight = newHeight
     }
 
     private var messagesList: some View {
@@ -85,7 +131,6 @@ struct ChatRoomView: View {
                             .id(message.identifier)
                     }
 
-                    // ✅ Typing dot (항상 보이도록 바닥 앵커 위에 배치)
                     if roomViewModel.isSending {
                         TypingBubbleView()
                             .transition(.opacity)
@@ -97,12 +142,13 @@ struct ChatRoomView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    // ✅ 항상 스크롤 타겟이 되는 바닥 앵커 (typing 포함)
                     Color.clear
                         .frame(height: 1)
                         .id(bottomAnchorId)
                 }
-                .padding()
+                .padding(.horizontal, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
             }
             .scrollDismissesKeyboard(.interactively)
             .task {
@@ -113,6 +159,18 @@ struct ChatRoomView: View {
             }
             .onChange(of: roomViewModel.isSending) { _, _ in
                 scrollToBottom(proxy: proxy, animated: true)
+            }
+            .onChange(of: isComposerFocused) { _, focused in
+                guard focused else { return }
+                scrollToBottom(proxy: proxy, animated: true)
+            }
+            // 키보드가 올라갈 때/내려갈 때 모두 “레이아웃 반영 후” 바닥으로 재정렬
+            .onChange(of: keyboardHeight) { _, _ in
+                Task { @MainActor in
+                    // 키보드 애니메이션/레이아웃 반영 타이밍 보정
+                    try? await Task.sleep(nanoseconds: 80_000_000)
+                    scrollToBottom(proxy: proxy, animated: true)
+                }
             }
         }
     }
@@ -130,23 +188,34 @@ struct ChatRoomView: View {
     private var composerBar: some View {
         HStack(spacing: 10) {
             TextField("Ask about games…", text: $roomViewModel.composerText, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
                 .lineLimit(1...4)
                 .disabled(roomViewModel.isSending)
                 .focused($isComposerFocused)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.white.opacity(0.10), lineWidth: 1)
+                }
 
             Button {
                 Task { await roomViewModel.sendGuestMessage() }
             } label: {
                 Image(systemName: "paperplane.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.black)
+                    .frame(width: 44, height: 44)
+                    .background(playNowTint)
+                    .clipShape(Circle())
             }
             .disabled(
                 roomViewModel.isSending ||
                 roomViewModel.composerText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             )
+            .accessibilityLabel("Send message")
         }
-        .padding()
-        .background(.ultraThinMaterial)
     }
 }
 
@@ -179,7 +248,6 @@ private struct MessageBubbleView: View {
                     case .text(let value):
                         let cleaned = TextCleaner.stripSourceMarkers(value)
                         if cleaned.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
-                            // Markdown 렌더링 (덜 SMS 느낌)
                             MarkdownBlockView(text: cleaned)
                         }
 
@@ -196,6 +264,10 @@ private struct MessageBubbleView: View {
                             .padding(.vertical, 8)
                             .background(.thinMaterial)
                             .clipShape(Capsule())
+                            .overlay {
+                                Capsule()
+                                    .stroke(Color.white.opacity(0.10), lineWidth: 1)
+                            }
                         }
                         .buttonStyle(.plain)
                     }
@@ -203,10 +275,17 @@ private struct MessageBubbleView: View {
             }
         }
         .padding(14)
-        .background(message.author == .bot ? Color.gray.opacity(0.15) : Color.blue.opacity(0.15))
+        .background(bubbleBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(radius: 0.5, y: 0.5)
+        .shadow(radius: 0.7, y: 0.7)
         .frame(maxWidth: 520, alignment: bubbleAlignment)
+    }
+
+    private var bubbleBackground: Color {
+        if message.author == .bot {
+            return Color.white.opacity(0.12)
+        }
+        return Color.white.opacity(0.10)
     }
 
     private func linkTitle(for url: URL) -> String {
@@ -256,11 +335,12 @@ private enum LinkSegmenter {
             let range = match.range
 
             if range.location > cursorIndex {
-                let prefix = nsText.substring(with: NSRange(location: cursorIndex, length: range.location - cursorIndex))
+                let prefix = nsText.substring(
+                    with: NSRange(location: cursorIndex, length: range.location - cursorIndex)
+                )
                 result.append(LinkSegment(kind: .text(prefix)))
             }
 
-            // ✅ URL 문자열 대신 버튼 세그먼트
             result.append(LinkSegment(kind: .link(url)))
             cursorIndex = range.location + range.length
         }
@@ -297,30 +377,25 @@ private enum TextCleaner {
     static func sanitizeMarkdownLinksAndSources(_ input: String) -> String {
         var output = input
 
-        // 1) 마크다운 링크: [텍스트](https://...)  →  https://...
         output = output.replacingOccurrences(
             of: #"\[[^\]]*\]\((https?://[^)\s]+)\)"#,
             with: "$1",
             options: .regularExpression
         )
 
-        // 2) 출처 라벨 제거
         let sourcePatterns: [String] = [
-            #"\(출처\s*\d+\)"#,     // (출처12)
-            #"출처\(\s*\d+\s*\)"#,  // 출처(12)
-            #"출처\s*\d+"#,         // 출처12
-            #"\[\s*출처\s*\d+\s*\]"# // [출처12]
+            #"\(출처\s*\d+\)"#,
+            #"출처\(\s*\d+\s*\)"#,
+            #"출처\s*\d+"#,
+            #"\[\s*출처\s*\d+\s*\]"#
         ]
 
         for pattern in sourcePatterns {
             output = output.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
         }
 
-        // 3) 남는 괄호/대괄호 찌꺼기 정리
         output = output.replacingOccurrences(of: #"\[\s*\]"#, with: "", options: .regularExpression)
         output = output.replacingOccurrences(of: #"\(\s*\)"#, with: "", options: .regularExpression)
-
-        // 4) 공백 정리
         output = output.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
 
         return output.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -348,28 +423,23 @@ private enum TextCleaner {
         output = removeOrphanPunctuationLines(output)
         return output
     }
-    
+
     private static func removeOrphanPunctuationLines(_ input: String) -> String {
         var output = input
 
-        // ✅ 줄 전체가 문장부호만 있는 경우 제거 (".", "·", "•", "-", "–" 등)
-        // 빈 줄은 유지하되, "고립된 문장부호 줄"만 제거
         output = output.replacingOccurrences(
             of: #"(?m)^\s*[\.\u00B7•\-–—]+\s*$\n?"#,
             with: "",
             options: .regularExpression
         )
 
-        // ✅ 링크가 버튼으로 치환되며 남는 ")\n." 같은 패턴 방어
         output = output.replacingOccurrences(
             of: #"\)\s*\n\s*\."#,
             with: ")",
             options: .regularExpression
         )
 
-        // ✅ 여러 줄 공백 정리 (과도하게 줄이진 않음)
         output = output.replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
-
         return output
     }
 }
@@ -405,8 +475,12 @@ private struct TypingBubbleView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color.gray.opacity(0.15))
+        .background(Color.white.opacity(0.12))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.white.opacity(0.10), lineWidth: 1)
+        }
         .accessibilityLabel("Bot is typing")
     }
 
@@ -454,6 +528,7 @@ private struct MarkdownBlockView: View {
             }
         }
         .textSelection(.enabled)
+        .foregroundStyle(.primary)
     }
 
     private func headingFont(for level: Int) -> Font {
@@ -518,7 +593,6 @@ private struct MarkdownBlockView: View {
     }
 
     private func parseHeading(_ line: String) -> Block? {
-        // # ~ ###### 지원
         let pattern = #"^(#{1,6})\s+(.+)$"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
 
@@ -528,14 +602,15 @@ private struct MarkdownBlockView: View {
         guard match.numberOfRanges >= 3 else { return nil }
 
         let hashes = nsLine.substring(with: match.range(at: 1))
-        let content = nsLine.substring(with: match.range(at: 2)).trimmingCharacters(in: .whitespacesAndNewlines)
+        let content = nsLine
+            .substring(with: match.range(at: 2))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let level = min(max(hashes.count, 1), 6)
         return Block(kind: .heading(level: level, content: content))
     }
 
     private func parseBullet(_ line: String) -> Block? {
-        // "- item" 또는 "• item"
         if line.hasPrefix("- ") {
             let content = String(line.dropFirst(2)).trimmingCharacters(in: .whitespacesAndNewlines)
             return Block(kind: .bullet(content: content))
