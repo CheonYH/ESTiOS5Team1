@@ -44,7 +44,7 @@ struct LoginRequest: Codable, Hashable {
 ///     access token 만료 시 새로운 access token을 발급받기 위해 사용됩니다.
 ///
 /// - Important:
-///     refreshToken은 **절대 UserDefaults에 저장하면 안 되며** Keychain에 저장해야 합니다.
+///     refreshToken은 보안상 Keychain에 저장하는 쪽으로 설계되어 있습니다.
 ///
 /// - Note:
 ///     refreshToken이 `nil`일 수도 있습니다.
@@ -75,7 +75,7 @@ struct LogoutRequest: Codable {
 ///
 /// - Important:
 ///     refresh token은 Keychain에서 가져와야 하며,
-///     refresh 실패 시 사용자의 인증 상태를 signedOut으로 변경해야 합니다.
+///     refresh 실패 시 앱 상태를 signedOut으로 전환하는 흐름을 사용합니다.
 ///
 /// 이 요청은 `/auth/refresh` 엔드포인트에서 처리됩니다.
 struct RefreshRequest: Codable {
@@ -128,11 +128,22 @@ struct RegisterResponse: Codable, Hashable {
     let message: String
 }
 
+// MARK: - Social Login/Register DTO
+
+/// 소셜 로그인 요청에 사용하는 모델입니다.
+///
+/// - Note:
+/// 서버는 idToken을 검증한 뒤, 기존 계정이면 토큰을 반환하거나
+/// 신규 사용자라면 가입이 필요하다는 응답을 반환합니다.
 struct SocialIdTokenLoginRequest: Codable {
     let idToken: String
     let provider: String
 }
 
+/// 소셜 회원가입 요청에 사용하는 모델입니다.
+///
+/// - Important:
+/// providerUid는 소셜 로그인 결과에서 받은 고유 식별자를 전달하는 용도입니다.
 struct SocialRegisterRequest: Codable {
     let provider: String
     let providerUid: String
@@ -140,7 +151,20 @@ struct SocialRegisterRequest: Codable {
     let email: String?
 }
 
+/// 소셜 로그인 후 추가 가입이 필요한 경우의 서버 응답입니다.
 struct RegistrationNeededResponse: Codable {
     let email: String?
     let providerUid: String
+}
+
+// MARK: - Nickname Check DTO
+
+/// 닉네임 중복 확인 요청 모델입니다.
+struct NicknameCheckRequest: Codable {
+    let nickname: String
+}
+
+/// 닉네임 중복 확인 응답 모델입니다.
+struct NicknameCheckResponse: Decodable {
+    let available: Bool
 }

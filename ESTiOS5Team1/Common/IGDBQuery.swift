@@ -29,9 +29,7 @@ enum IGDBQuery {
         release_dates.y,
         genres.name,
         platforms.name,
-        platforms.platform_logo.image_id,
-        age_ratings.category,
-        age_ratings.rating;
+        platforms.platform_logo.image_id;
     sort popularity desc;
     limit 300;
     """
@@ -47,9 +45,7 @@ enum IGDBQuery {
         release_dates.y,
         genres.name,
         platforms.name,
-        platforms.platform_logo.image_id,
-        age_ratings.category,
-        age_ratings.rating;
+        platforms.platform_logo.image_id;
     sort popularity desc;
     limit 300;
     """
@@ -69,9 +65,7 @@ enum IGDBQuery {
             release_dates.y,
             genres.name,
             platforms.name,
-            platforms.platform_logo.image_id,
-            age_ratings.category,
-            age_ratings.rating;
+            platforms.platform_logo.image_id;
         where status = 2 & first_release_date >= \(cutoff);
         sort first_release_date desc;
         limit 300;
@@ -88,9 +82,7 @@ enum IGDBQuery {
             rating,
             genres.name,
             platforms.name,
-            platforms.platform_logo.image_id,
-            age_ratings.category,
-            age_ratings.rating;
+            platforms.platform_logo.image_id;
         where genres = (\(genreId));
         sort popularity desc;
         limit 30;
@@ -114,29 +106,9 @@ enum IGDBQuery {
         aggregated_rating,
         release_dates.y,
         genres.name,
-        platforms.name,
-        age_ratings.category,
-        age_ratings.rating;
+        platforms.name;
     """
 
-    static func filteredByAge() -> String {
-        """
-        fields
-            id,
-            name,
-            cover.image_id,
-            summary,
-            aggregated_rating,
-            release_dates.y,
-            genres.name,
-            platforms.name,
-            platforms.platform_logo.image_id,
-            age_ratings.category,
-            age_ratings.rating;
-        where age_ratings.rating != null;
-        sort popularity desc;
-        limit 300;
-        """
-    }
+
 
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// IGDB 장르 정보를 그대로 표현하는 DTO입니다.
 struct IGDBGenreDTO: Codable, Hashable, Identifiable {
 
     /// IGDB에서 부여한 장르의 고유 식별자

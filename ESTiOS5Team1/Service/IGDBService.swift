@@ -7,14 +7,19 @@
 
 import Foundation
 
+/// IGDB API에서 사용하는 엔드포인트 목록입니다.
+///
+/// 쿼리 구성 시 이 enum을 기준으로 endpoint를 지정합니다.
 enum IGDBEndpoint: String {
     case games
     case genres
     case platforms
-    case ageRatings = "age_ratings"
     case releaseDates = "release_dates"
 }
 
+/// multiquery 요청 한 블록을 표현합니다.
+///
+/// name은 응답에서 섹션 키로 그대로 사용됩니다.
 struct IGDBBatchItem: Sendable {
     let name: String
     let endpoint: IGDBEndpoint
@@ -23,11 +28,17 @@ struct IGDBBatchItem: Sendable {
 
 typealias IGDBRawResponse = [String: [[String: Any]]]
 
+/// IGDB 요청을 추상화한 인터페이스입니다.
+///
+/// ViewModel은 이 프로토콜에 의존합니다.
 protocol IGDBService {
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO
 }
 
+/// IGDB multiquery 요청을 수행하는 서비스 구현체입니다.
+///
+/// 서버 프록시를 통해 IGDB와 통신합니다.
 final class IGDBServiceManager: IGDBService {
 
     private let baseURL = "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app"

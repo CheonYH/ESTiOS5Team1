@@ -15,7 +15,7 @@ import Foundation
 /// - Important:
 /// 이 타입은 **가공되지 않은 API 응답 모델**입니다.
 /// UI 표시용 포맷팅, Optional 처리, 문자열 변환 등은
-/// 반드시 `GameEntity` 또는 ViewModel 단계에서 수행해야 합니다.
+/// 가공과 포맷팅은 `GameEntity` 또는 ViewModel 단계에서 수행합니다.
 struct IGDBGameListDTO: Codable, Hashable, Identifiable {
 
     /// IGDB에서 부여한 게임의 고유 식별자
@@ -33,7 +33,7 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
     ///
     /// IGDB는 실제 이미지 URL을 반환하지 않고
     /// `image_id`만 제공하므로,
-    /// 클라이언트에서 URL을 조합해야 합니다.
+    /// 클라이언트에서 URL을 조합하는 구조입니다.
     ///
     /// - Note:
     /// 커버 이미지가 등록되지 않은 게임도 많기 때문에 Optional입니다.
@@ -64,26 +64,33 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
     /// - Important:
     /// IGDB의 플랫폼 명칭은 매우 다양하므로
     /// 이 DTO 값은 그대로 사용하지 않고
-    /// `Platform` enum 등을 통해 매핑하는 것이 권장됩니다.
+    /// `Platform` enum 등으로 매핑해 사용하는 흐름입니다.
     let platforms: [IGDBPlatformDTO]?
 
+    /// 출시일 정보 목록
     let releaseDates: [IGDBReleaseDateDTO]?
 
+    /// 집계 평점 (aggregated_rating)
     let aggregatedRating: Double?
 
+    /// 게임 요약 텍스트
     let summary: String?
 
+    /// 게임 스토리라인(서사) 텍스트
     let storyline: String?
 
-    let ageRatings: [IGDBAgeRatingDTO]?
-}
-
-enum CodingKeys: String, CodingKey {
-
-    case ageRatings = "age_ratings"
-    case releaseDates = "release_dates"
-    case aggregatedRating = "aggregated_rating"
-
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case cover
+        case rating
+        case genres
+        case platforms
+        case releaseDates = "release_dates"
+        case aggregatedRating = "aggregated_rating"
+        case summary
+        case storyline
+    }
 }
 
 /// IGDB API에서 제공하는 장르 정보를 표현하는 DTO입니다.

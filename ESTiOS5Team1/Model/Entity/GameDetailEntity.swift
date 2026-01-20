@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 게임 상세 화면에 필요한 필드를 모은 엔티티입니다.
 struct GameDetailEntity {
     let id: Int
     let title: String
@@ -18,7 +19,6 @@ struct GameDetailEntity {
     let genres: [String]
     let platforms: [GamePlatform]
     let rating: Double?
-    let ageRating: AgeRatingEntity?
 }
 
 extension GameDetailEntity {
@@ -51,6 +51,5 @@ extension GameDetailEntity {
 
         self.rating = dto.rating
 
-        self.ageRating = AgeRatingEntity.from(dto.ageRatings)
     }
 }

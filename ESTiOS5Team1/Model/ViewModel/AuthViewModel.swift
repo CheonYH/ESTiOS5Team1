@@ -183,8 +183,6 @@ final class AuthViewModel: ObservableObject {
         let email = signInResult.user.profile?.email
         print("[AuthVM] email =", email ?? "nil")
 
-        // Firebase Auth 연동
-        print("[AuthVM] Firebase credential sign-in START")
         return (idToken, email)
     }
 

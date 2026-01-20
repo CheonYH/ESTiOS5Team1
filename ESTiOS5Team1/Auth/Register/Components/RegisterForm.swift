@@ -25,6 +25,8 @@ struct RegisterForm: View {
     /// 회원가입 결과를 Toast로 표시하기 위한 매니저
     @EnvironmentObject var toastManager: ToastManager
 
+    @Environment(\.dismiss) private var dismiss
+
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -106,6 +108,10 @@ struct RegisterForm: View {
                     let event = await viewModel.register(appViewModel: appViewModel)
                     // 반환된 이벤트를 ToastManager에 전달하여 화면에 표시
                     toastManager.show(event)
+
+                    if event.status == .success {
+                        dismiss()  // 로그인 화면으로 pop
+                    }
                 }
             } label: {
                 Text("가입하기")

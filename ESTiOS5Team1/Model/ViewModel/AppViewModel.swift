@@ -10,6 +10,7 @@ import Combine
 import Firebase
 import GoogleSignIn
 
+/// 앱 전역 상태(세션/라우팅)를 관리하는 ViewModel입니다.
 @MainActor
 final class AppViewModel: ObservableObject {
 

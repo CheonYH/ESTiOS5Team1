@@ -38,6 +38,13 @@ struct SocialRegisterView: View {
 
         }
         .padding()
+        .overlay(alignment: toast.placement == .top ? .top : .bottom) {
+            if let event = toast.event {
+                ToastView(event: event)
+                    .transition(.move(edge: toast.placement == .top ? .top : .bottom).combined(with: .opacity))
+                    .padding()
+            }
+        }
     }
 }
 

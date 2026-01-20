@@ -103,6 +103,11 @@ final class RegisterViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            let isAvailable = try await authService.checkNickname(nickname)
+            if !isAvailable {
+                return FeedbackEvent(.auth, .warning, "이미 사용 중인 닉네임입니다.")
+            }
+
             _ = try await authService.register(
                 email: email,
                 password: password,
@@ -174,6 +179,7 @@ final class RegisterViewModel: ObservableObject {
             case .validation(let message): return FeedbackEvent(.auth, .warning, message)
             case .network: return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
             case .server: return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
+            case .conflict(let field): return FeedbackEvent(.auth, .warning, "\(field)이 이미 사용 중입니다.")
             default: return FeedbackEvent(.auth, .error, "회원가입 중 오류가 발생했습니다.")
         }
     }
