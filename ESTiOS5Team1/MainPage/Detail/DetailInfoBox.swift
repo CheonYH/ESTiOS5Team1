@@ -19,7 +19,7 @@ struct DetailInfoBox: View {
         } placeholder: {
             Color.gray.opacity(0.3)
         }
-        .frame(height: 500)
+        .frame(height: 420)
         .clipped()
 
         VStack(alignment: .leading) {
@@ -61,7 +61,7 @@ struct DetailInfoBox: View {
                     .frame(height: 40)
                     .background(.textPrimary.opacity(0.2))
 
-                StatView(value: "Me", title: "Metacritic", color: .mint)
+                StatView(value: item.metaScore, title: "Metacritic", color: .mint)
                     .frame(maxWidth: .infinity)
             }
         }

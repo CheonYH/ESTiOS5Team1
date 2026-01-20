@@ -20,7 +20,7 @@ struct TitleBox: View {
             Spacer()
 
             if showsSeeAll {
-                Button("See All") {
+                Button("모두 보기") {
                     onSeeAllTap?()
                     // See All 버튼 이동
                     // trending now와 new Releases에서 사용하니 분류할 것
