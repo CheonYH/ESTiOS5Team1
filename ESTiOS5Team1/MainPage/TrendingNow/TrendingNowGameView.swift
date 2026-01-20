@@ -12,9 +12,11 @@ struct TrendingNowGameView: View {
     @StateObject private var viewModel =
     GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
 
+    @State private var showAll = false
     var body: some View {
         VStack(alignment: .leading) {
-            TitleBox(title: "Trending Now", showsSeeAll: true, onSeeAllTap: { print("트렌딩 나우 이동")})
+            TitleBox(title: "인기 게임", showsSeeAll: true, onSeeAllTap: { showAll = true }
+            )
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
@@ -36,6 +38,9 @@ struct TrendingNowGameView: View {
         }
         .task {
             await viewModel.load()
+        }
+        .navigationDestination(isPresented: $showAll) {
+            GameListSeeAll(title: "인기 게임", query: IGDBQuery.trendingNow)
         }
     }
 }

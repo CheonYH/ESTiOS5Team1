@@ -12,8 +12,9 @@ struct StarRatingView: View {
     let rating: Double
     var body: some View {
         VStack(spacing: 5) {
-            Text("8.9")
+            Text("\(rating, specifier: "%.1f")")
                 .font(.largeTitle)
+                .foregroundStyle(.textPrimary)
                 .bold()
             HStack {
                 ForEach(1...5, id: \.self) { index in

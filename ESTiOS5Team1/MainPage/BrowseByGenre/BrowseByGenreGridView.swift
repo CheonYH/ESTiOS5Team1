@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct BrowseByGenreGridView: View {
-
+    @EnvironmentObject var favoriteManager: FavoriteManager
+    
     private let rows = [
         GridItem(.fixed(140), spacing: 16),
         GridItem(.fixed(140), spacing: 16)
     ]
     var body: some View {
         VStack(alignment: .leading) {
-            Text("BrowseByGenre")
+            Text("장르")
                 .font(.title2.bold())
                 .foregroundStyle(Color("TextPrimary"))
 
@@ -24,7 +25,8 @@ struct BrowseByGenreGridView: View {
                 LazyHGrid(rows: rows, spacing: 15) {
                     ForEach(GameGenreModel.allCases) { genre in
                         NavigationLink {
-                            Text("장르로 이동")
+                            SearchView(favoriteManager: favoriteManager, gameGenre: genre)
+                                .environmentObject(favoriteManager)
                         } label: {
                             GenreCard(genre: genre)
                         }
