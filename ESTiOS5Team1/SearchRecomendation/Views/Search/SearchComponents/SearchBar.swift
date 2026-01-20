@@ -11,16 +11,17 @@ import SwiftUI
 struct SearchBar: View {
     @Binding var searchText: String
     @Binding var isSearchActive: Bool
+    var placeholder: String = "게임 제목, 장르, 태그 검색..."
 
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
 
-            TextField("게임 제목, 장르, 태그 검색...", text: $searchText)
+            TextField(placeholder, text: $searchText)
                 .foregroundColor(.white)
                 .placeholder(when: searchText.isEmpty) {
-                    Text("게임 제목, 장르, 태그 검색...")
+                    Text(placeholder)
                         .foregroundColor(.gray)
                 }
 
