@@ -18,11 +18,29 @@ struct MainView: View {
             ZStack {
                 Color("BGColor")
                     .ignoresSafeArea()
+<<<<<<< HEAD
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 30) {
                         if let item = viewModel.featuredItem {
                             MainPoster(item: item)
+=======
+
+                VStack {
+                    TopBarView()
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 30) {
+                            if let item = viewModel.featuredItem {
+                                MainPoster(item: item)
+                            }
+
+                            TrendingNowGameView()
+
+                            BrowseByGenreGridView()
+
+                            NewReleasesView()
+>>>>>>> origin/refactor/auth-views
                         }
                         
                         TrendingNowGameView()
