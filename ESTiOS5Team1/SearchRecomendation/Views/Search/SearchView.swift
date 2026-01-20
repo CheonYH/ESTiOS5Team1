@@ -342,6 +342,7 @@ struct ResultHeader: View {
 
 // MARK: - Game Grid View (2열 세로 스크롤)
 // [수정] games → items, Game → GameListItem
+// [수정] NavigationLink 추가하여 DetailView로 이동
 struct GameGridView: View {
     let items: [GameListItem]
     @EnvironmentObject var favoriteManager: FavoriteManager
@@ -354,13 +355,16 @@ struct GameGridView: View {
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             ForEach(items, id: \.id) { item in
-                GameListCard(
-                    item: item,
-                    isFavorite: favoriteManager.isFavorite(itemId: item.id),
-                    onToggleFavorite: {
-                        favoriteManager.toggleFavorite(item: item)
-                    }
-                )
+                NavigationLink(destination: DetailView(gameId: item.id)) {
+                    GameListCard(
+                        item: item,
+                        isFavorite: favoriteManager.isFavorite(itemId: item.id),
+                        onToggleFavorite: {
+                            favoriteManager.toggleFavorite(item: item)
+                        }
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.horizontal)
