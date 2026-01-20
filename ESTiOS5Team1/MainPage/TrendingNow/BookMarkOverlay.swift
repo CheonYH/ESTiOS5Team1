@@ -11,18 +11,18 @@ struct BookMarkOverlay: View {
     let item: GameListItem
     // [수정] @State 제거 → FavoriteManager 연동
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     // [수정] GameListItem을 Game으로 변환
     private var game: Game {
         Game(from: item)
     }
-    
+
     var body: some View {
         HStack {
             RatingText(item: item)
-            
+
             Spacer()
-            
+
             // [수정] FavoriteManager와 연동된 하트 버튼 + UI 통일
             Button {
                 favoriteManager.toggleFavorite(game: game)
@@ -39,8 +39,3 @@ struct BookMarkOverlay: View {
         .padding(4)
     }
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> origin/refactor/auth-views

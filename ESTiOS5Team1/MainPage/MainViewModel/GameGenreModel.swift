@@ -56,7 +56,6 @@ enum GameGenreModel: CaseIterable, Identifiable {
         }
     }
 
-
     var imageName: String {
         switch self {
         case .pinball:

@@ -11,13 +11,13 @@ struct LoadableList<Items: RandomAccessCollection, Row: View, Destination: View>
     let isLoading: Bool
     let error: Error?
     let items: Items
-    
-    var limit: Int? = nil
+
+    var limit: Int?
     var loadingText: String = "로딩 중"
-    
+
     let destination: (Items.Element) -> Destination
     let row: (Items.Element) -> Row
-    
+
     var body: some View {
         if isLoading {
             ProgressView(loadingText)
@@ -39,7 +39,7 @@ struct LoadableList<Items: RandomAccessCollection, Row: View, Destination: View>
             }
         }
     }
-    
+
     private func prefix(_ array: [Items.Element]) -> [Items.Element] {
         guard let limit else { return array }
         return Array(array.prefix(limit))

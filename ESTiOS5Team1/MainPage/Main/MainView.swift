@@ -12,41 +12,23 @@ struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     // [수정] FavoriteManager 연동을 위해 추가
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color("BGColor")
                     .ignoresSafeArea()
-<<<<<<< HEAD
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 30) {
                         if let item = viewModel.featuredItem {
                             MainPoster(item: item)
-=======
-
-                VStack {
-                    TopBarView()
-
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 30) {
-                            if let item = viewModel.featuredItem {
-                                MainPoster(item: item)
-                            }
-
-                            TrendingNowGameView()
-
-                            BrowseByGenreGridView()
-
-                            NewReleasesView()
->>>>>>> origin/refactor/auth-views
                         }
-                        
+
                         TrendingNowGameView()
-                        
+
                         BrowseByGenreGridView()
-                        
+
                         NewReleasesView()
                     }
                 }
@@ -62,7 +44,7 @@ struct MainView: View {
                             .font(.title3)
                     }
                 }
-                
+
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: 4) {
                         Image(systemName: "book")
@@ -73,7 +55,7 @@ struct MainView: View {
                             .foregroundColor(.white)
                     }
                 }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         // 검색 액션
