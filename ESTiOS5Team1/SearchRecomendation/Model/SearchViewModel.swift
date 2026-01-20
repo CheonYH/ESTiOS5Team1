@@ -4,6 +4,7 @@
 //
 //  Created by 이찬희 on 1/7/26.
 //
+//  [수정] Game → GameListItem 통일
 
 import Foundation
 import Combine
@@ -14,9 +15,10 @@ import Combine
 final class SearchViewModel: ObservableObject {
 
     // MARK: - Published Properties
-    @Published var discoverGames: [Game] = []
-    @Published var trendingGames: [Game] = []
-    @Published var newReleaseGames: [Game] = []
+    // [수정] Game → GameListItem
+    @Published var discoverItems: [GameListItem] = []
+    @Published var trendingItems: [GameListItem] = []
+    @Published var newReleaseItems: [GameListItem] = []
 
     @Published var isLoading: Bool = false
     @Published var error: Error?
@@ -64,27 +66,27 @@ final class SearchViewModel: ObservableObject {
     }
 
     private func observeViewModels() {
-        // Discover 데이터 변화 감지
+        // [수정] Discover 데이터 변화 감지 - Game 변환 제거
         discoverViewModel?.$items
             .sink { [weak self] items in
-                self?.discoverGames = items.map { Game(from: $0) }
-                self?.favoriteManager.updateGames(self?.discoverGames ?? [])
+                self?.discoverItems = items
+                self?.favoriteManager.updateItems(items)
             }
             .store(in: &cancellables)
 
-        // Trending 데이터 변화 감지
+        // [수정] Trending 데이터 변화 감지 - Game 변환 제거
         trendingViewModel?.$items
             .sink { [weak self] items in
-                self?.trendingGames = items.map { Game(from: $0) }
-                self?.favoriteManager.updateGames(self?.trendingGames ?? [])
+                self?.trendingItems = items
+                self?.favoriteManager.updateItems(items)
             }
             .store(in: &cancellables)
 
-        // New Releases 데이터 변화 감지
+        // [수정] New Releases 데이터 변화 감지 - Game 변환 제거
         newReleasesViewModel?.$items
             .sink { [weak self] items in
-                self?.newReleaseGames = items.map { Game(from: $0) }
-                self?.favoriteManager.updateGames(self?.newReleaseGames ?? [])
+                self?.newReleaseItems = items
+                self?.favoriteManager.updateItems(items)
             }
             .store(in: &cancellables)
 
