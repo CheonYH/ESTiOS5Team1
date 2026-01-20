@@ -11,10 +11,11 @@ struct NewReleasesView: View {
     @StateObject private var viewModel =
     GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
 
+    @State private var showAll: Bool = false
     var body: some View {
         VStack {
-            TitleBox(title: "New Releases", showsSeeAll: true, onSeeAllTap: { print("뉴 릴리즈 이동")})
-
+            TitleBox(title: "신규 출시", showsSeeAll: true, onSeeAllTap: { showAll = true})
+            
             LoadableList(
                 isLoading: viewModel.isLoading,
                 error: viewModel.error,
@@ -30,6 +31,9 @@ struct NewReleasesView: View {
         }
         .task {
             await viewModel.load()
+        }
+        .navigationDestination(isPresented: $showAll) {
+            GameListSeeAll(title: "신규 출시", query: IGDBQuery.newReleases)
         }
 
     }

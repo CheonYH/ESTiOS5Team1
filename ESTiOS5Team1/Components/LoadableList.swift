@@ -30,7 +30,7 @@ struct LoadableList<Items: RandomAccessCollection, Row: View, Destination: View>
                     .foregroundStyle(.secondary)
             }
         } else {
-            let list = Array(items) // prefix 쓰기 쉽게 한번 배열로
+            let list = Array(items)
             ForEach(prefix(list)) { item in
                 NavigationLink(destination: destination(item)) {
                     row(item)

@@ -18,14 +18,14 @@ struct NewReleasesGameCard: View {
                         ProgressView()
                     }
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
                     .frame(width: 100, height: 100)
                     .clipped()
                     .cornerRadius(Radius.card)
 
                 VStack(alignment: .leading) {
                     Text(item.title)
-                        .font(.title3)
+                        .font(.title2)
 
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)
