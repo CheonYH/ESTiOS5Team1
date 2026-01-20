@@ -4,6 +4,7 @@
 //
 //  Created by 이찬희 on 1/9/26.
 //
+//  [수정] Game → GameListItem 통일
 
 import SwiftUI
 
@@ -11,16 +12,21 @@ import SwiftUI
 /// 텍스트 스타일의 가로 스크롤 장르 필터 + 하단 구분선 통합
 struct GenreFilter: View {
     @Binding var selectedGenre: GenreFilterType
-    var games: [Game] = []
+    // [수정] games → items, Game → GameListItem
+    var items: [GameListItem] = []
 
     // 게임 수에 따라 정렬된 장르 목록 ("전체"는 항상 첫 번째)
     private var sortedGenres: [GenreFilterType] {
         let otherGenres = GenreFilterType.allCases.filter { $0 != .all }
 
-        // 각 장르별 게임 수 계산
+        // [수정] 각 장르별 게임 수 계산 - genre가 배열이므로 any로 매칭
         let sorted = otherGenres.sorted { genre1, genre2 in
-            let count1 = games.filter { genre1.matches(genre: $0.genre) }.count
-            let count2 = games.filter { genre2.matches(genre: $0.genre) }.count
+            let count1 = items.filter { item in
+                item.genre.contains { genre1.matches(genre: $0) }
+            }.count
+            let count2 = items.filter { item in
+                item.genre.contains { genre2.matches(genre: $0) }
+            }.count
             return count1 > count2
         }
 
