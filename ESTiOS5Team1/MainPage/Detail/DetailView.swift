@@ -23,16 +23,14 @@ struct DetailView: View {
             Color.black
                 .ignoresSafeArea()
             VStack {
-                DetailTopBar()
-
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
-
+                        
                         VStack(alignment: .leading) {
                             Text("Additional Info")
                         }
-
+                        
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")
                             .padding()
@@ -40,11 +38,12 @@ struct DetailView: View {
                         Text("오류 발생: \(error.localizedDescription)")
                             .foregroundColor(.red)
                     }
-
-                    GameDetailBox()
-
+                    
+                    if let item = viewModel.item {
+                        GameDetailBox(item: item)
+                    }
                     TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
-
+                    
                     StarRatingView(rating: 4.5)
                 }
             }
@@ -52,8 +51,22 @@ struct DetailView: View {
         .task {
             await viewModel.load()
         }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 4) {
+                    Text("상세 정보")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
+            }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 0.5)
+        }
     }
-
 }
 
 #Preview {

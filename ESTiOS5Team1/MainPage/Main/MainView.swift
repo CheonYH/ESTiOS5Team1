@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 struct MainView: View {
-    @StateObject private var viewModel = MainViewModel()
+    @StateObject private var viewModel = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
     // [수정] FavoriteManager 연동을 위해 추가
     @EnvironmentObject var favoriteManager: FavoriteManager
     
@@ -21,7 +21,7 @@ struct MainView: View {
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 30) {
-                        if let item = viewModel.featuredItem {
+                        if let item = viewModel.items.first {
                             MainPoster(item: item)
                         }
                         
@@ -32,12 +32,17 @@ struct MainView: View {
                         NewReleasesView()
                     }
                 }
+                .scrollIndicators(.hidden)
+                .padding(Spacing.pv10)
+                .task {
+                    await viewModel.load()
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
-                        // 메뉴 액션
+                        
                     } label: {
                         Image(systemName: "line.3.horizontal")
                             .foregroundColor(.white)
@@ -45,20 +50,22 @@ struct MainView: View {
                     }
                 }
                 
-                ToolbarItem(placement: .principal) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "book")
-                            .foregroundStyle(.purple)
-                        Text("GameVault")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    }
-                }
+//                ToolbarItem(placement: .principal) {
+//                    HStack(spacing: 4) {
+//                        Image(systemName: "gamecontroller")
+//                            .foregroundStyle(.purple)
+//                        Text("게임 목록")
+//                            .font(.title2)
+//                            .fontWeight(.bold)
+//                            .foregroundColor(.white)
+//                    }
+//                }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        // 검색 액션
+                        // 검색 액션 NavigationLink(destination: SearchView(favoriteManager: favoriteManager)) {
+                        //Image(systemName: "magnifyingglass")
+                    //}
                     } label: {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.white)
