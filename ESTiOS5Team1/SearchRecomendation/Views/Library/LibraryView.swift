@@ -56,14 +56,18 @@ struct LibraryView: View {
                         } else {
                             LazyVGrid(columns: columns, spacing: 16) {
                                 // [수정] game → item
+                                // [수정] NavigationLink 추가하여 DetailView로 이동
                                 ForEach(filteredItems) { item in
-                                    GameListCard(
-                                        item: item,
-                                        isFavorite: favoriteManager.isFavorite(itemId: item.id),
-                                        onToggleFavorite: {
-                                            favoriteManager.toggleFavorite(item: item)
-                                        }
-                                    )
+                                    NavigationLink(destination: DetailView(gameId: item.id)) {
+                                        GameListCard(
+                                            item: item,
+                                            isFavorite: favoriteManager.isFavorite(itemId: item.id),
+                                            onToggleFavorite: {
+                                                favoriteManager.toggleFavorite(item: item)
+                                            }
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                             .padding(.horizontal)
