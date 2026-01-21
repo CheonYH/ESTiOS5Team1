@@ -35,6 +35,7 @@ enum PlatformFilterType: String, CaseIterable {
     case playstation = "PlayStation"
     case xbox = "Xbox"
     case nintendo = "Nintendo"
+    case mobile = "Mobile"
 
     var iconColor: Color {
         switch self {
@@ -43,6 +44,7 @@ enum PlatformFilterType: String, CaseIterable {
         case .playstation: return .blue
         case .xbox: return .green
         case .nintendo: return .red
+        case .mobile: return .cyan
         }
     }
 }
@@ -85,6 +87,8 @@ struct PlatformButton: View {
             Image(systemName: "xbox.logo")
         case .nintendo:
             Image(systemName: "switch.2")
+        case .mobile:
+            Image(systemName: "iphone")
         }
     }
 }

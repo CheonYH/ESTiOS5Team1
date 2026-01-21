@@ -141,7 +141,7 @@ struct SearchView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("추천 검색")
+                    Text("게임 탐색")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -302,6 +302,7 @@ struct SearchView: View {
             case .playstation: return itemPlatform == .playstation
             case .xbox: return itemPlatform == .xbox
             case .nintendo: return itemPlatform == .nintendo
+            case .mobile: return itemPlatform == .mobile
             }
         }
     }
