@@ -103,6 +103,14 @@ final class IGDBServiceManager: IGDBService {
         guard let raw = arr.first else { throw URLError(.cannotDecodeContentData) }
 
         let dtoData = try JSONSerialization.data(withJSONObject: raw, options: [])
-        return try JSONDecoder().decode(IGDBGameListDTO.self, from: dtoData)
+        do {
+            return try JSONDecoder().decode(IGDBGameListDTO.self, from: dtoData)
+        } catch {
+            print("[IGDB] decode failed:", error)
+            if let json = String(data: dtoData, encoding: .utf8) {
+                print("[IGDB] raw detail json:", json)
+            }
+            throw error
+        }
     }
 }

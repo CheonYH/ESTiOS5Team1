@@ -24,8 +24,6 @@ struct DetailInfoBox: View {
             .clipped()
             .cornerRadius(Radius.card)
 
-        
-
         VStack(alignment: .leading) {
             HStack {
                 KFImage(item.coverURL)
@@ -55,7 +53,7 @@ struct DetailInfoBox: View {
                         .bold()
                         .padding(.horizontal, 5)
                         .background(.purple.opacity(0.2), in: Capsule())
-                    
+
                     ForEach(item.platforms, id: \.rawValue) { platform in
                         Image(systemName: platform.iconName)
                             .foregroundStyle(.textPrimary.opacity(0.6))

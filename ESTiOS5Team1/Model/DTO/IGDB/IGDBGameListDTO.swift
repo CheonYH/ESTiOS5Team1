@@ -79,6 +79,12 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
     /// 게임 스토리라인(서사) 텍스트
     let storyline: String?
 
+    let websites: [IGDBWebsiteDTO]?
+
+    let videos: [IGDBVideoDTO]?
+
+    let involvedCompanies: [IGDBInvolvedCompanyDTO]?
+
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -90,6 +96,9 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
         case aggregatedRating = "aggregated_rating"
         case summary
         case storyline
+        case websites
+        case videos
+        case involvedCompanies = "involved_companies"
     }
 }
 

@@ -34,7 +34,7 @@ struct TrendingNowGameCard: View {
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption)
                     .foregroundColor(.textPrimary.opacity(0.7))
-                
+
             }
             .frame(width: 150, height: 250)
 

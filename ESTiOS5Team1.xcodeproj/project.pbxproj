@@ -45,7 +45,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
-				Model/DTO/IGDBGenreDTO.swift,
+				Model/DTO/IGDB/IGDBGenreDTO.swift,
 				Model/ViewModel/GenreListViewModel.swift,
 				Security/DeviceID.swift,
 				Security/TokenStore.swift,
@@ -57,7 +57,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
-				Model/DTO/IGDBGenreDTO.swift,
+				Model/DTO/IGDB/IGDBGenreDTO.swift,
 				Model/ViewModel/GenreListViewModel.swift,
 				Security/DeviceID.swift,
 				Security/TokenStore.swift,

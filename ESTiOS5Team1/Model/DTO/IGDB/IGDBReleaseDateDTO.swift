@@ -18,4 +18,10 @@ struct IGDBReleaseDateDTO: Codable, Hashable {
     let year: Int?
     /// 출시 날짜 타임스탬프 (초 단위)
     let date: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case year = "y"
+        case date
+    }
 }

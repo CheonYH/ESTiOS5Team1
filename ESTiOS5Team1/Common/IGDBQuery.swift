@@ -95,7 +95,6 @@ enum IGDBQuery {
     limit 500;
     """
 
-    /// 상세 조회용 쿼리
     static let detail = """
     fields
         id,
@@ -106,7 +105,14 @@ enum IGDBQuery {
         aggregated_rating,
         release_dates.y,
         genres.name,
-        platforms.name;
+        platforms.name,
+        websites.category,
+        websites.url,
+        videos.video_id,
+        videos.name,
+        involved_companies.developer,
+        involved_companies.publisher,
+        involved_companies.company.name;
     """
 
 }

@@ -12,7 +12,7 @@ struct GameSummaryBox: View {
     @State private var isExpanded = false
     var body: some View {
         let description = item.summary?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        
+
         if description.isEmpty {
             EmptyView()
         } else {
@@ -20,8 +20,7 @@ struct GameSummaryBox: View {
                 Text("About")
                     .font(.headline)
                     .foregroundStyle(.textPrimary)
-                
-                
+
                 Text(item.summary ?? "상세 설명 없음")
                     .font(.subheadline)
                     .foregroundStyle(.textPrimary.opacity(0.8))
