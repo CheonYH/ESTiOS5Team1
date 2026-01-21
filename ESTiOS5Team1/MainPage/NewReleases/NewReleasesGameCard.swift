@@ -14,6 +14,8 @@ struct NewReleasesGameCard: View {
     var body: some View {
             HStack {
                 KFImage(item.coverURL)
+                    .cacheOriginalImage()
+                    .loadDiskFileSynchronously()
                     .placeholder {
                         ProgressView()
                     }
@@ -34,7 +36,11 @@ struct NewReleasesGameCard: View {
                     HStack {
                         RatingText(item: item)
 
-                        Text("플랫폼 아이콘")
+                        ForEach(item.platformCategories, id: \.rawValue) { platform in
+                            Image(systemName: platform.iconName)
+                                .foregroundStyle(.textPrimary.opacity(0.6))
+                                .font(.caption)
+                        }
 
                         Spacer()
 

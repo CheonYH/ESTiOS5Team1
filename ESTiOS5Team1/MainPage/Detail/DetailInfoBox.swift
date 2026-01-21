@@ -12,41 +12,56 @@ struct DetailInfoBox: View {
     let item: GameDetailItem
 
     var body: some View {
-        AsyncImage(url: item.coverURL) { image in
-            image
-                .resizable()
-                .scaledToFill()
-        } placeholder: {
-            Color.gray.opacity(0.3)
-        }
-        .frame(height: 420)
-        .clipped()
+        KFImage(item.coverURL)
+            .cacheOriginalImage()
+            .loadDiskFileSynchronously()
+            .placeholder {
+                ProgressView()
+            }
+            .resizable()
+            .scaledToFill()
+            .frame(height: 400)
+            .clipped()
+            .cornerRadius(Radius.card)
+
+        
 
         VStack(alignment: .leading) {
             HStack {
                 KFImage(item.coverURL)
+                    .cacheOriginalImage()
+                    .loadDiskFileSynchronously()
                     .placeholder {
                         ProgressView()
                     }
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 100)
+                    .frame(height: 130)
                     .clipped()
                     .cornerRadius(Radius.cr8)
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text(item.title)
                         .font(.title)
 
                     Text("개발사")
+                        .font(.caption)
                         .foregroundStyle(.gray.opacity(0.8))
-
+                    Text(item.releaseYear)
+                        .font(.caption)
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)
                         .foregroundStyle(.pink.opacity(0.75))
                         .bold()
                         .padding(.horizontal, 5)
                         .background(.purple.opacity(0.2), in: Capsule())
+                    
+                    ForEach(item.platforms, id: \.rawValue) { platform in
+                        Image(systemName: platform.iconName)
+                            .foregroundStyle(.textPrimary.opacity(0.6))
+                            .font(.caption)
+                    }
+
                 }
             }
             .foregroundStyle(.textPrimary)
