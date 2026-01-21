@@ -88,9 +88,6 @@ struct GenreTextButton: View {
     }
 }
 
-// 이전 이름 호환성 유지
-typealias GenreCapsuleButton = GenreTextButton
-
 // MARK: - Preview
 #Preview("GenreFilter") {
     ZStack {

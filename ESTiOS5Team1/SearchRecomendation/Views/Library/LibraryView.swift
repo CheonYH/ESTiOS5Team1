@@ -41,8 +41,12 @@ struct LibraryView: View {
                 VStack(spacing: 0) {
                     // 검색바 (조건부 표시)
                     if isSearchActive {
-                        LibrarySearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                        SearchBar(
+                            searchText: $searchText,
+                            isSearchActive: $isSearchActive,
+                            placeholder: "게임 제목 또는 장르로 검색..."
+                        )
+                        .transition(.move(edge: .top).combined(with: .opacity))
                     }
 
                     // 게임 목록
@@ -107,40 +111,6 @@ struct LibraryView: View {
                     .frame(height: 0.5)
             }
         }
-    }
-}
-
-// MARK: - Library Search Bar
-struct LibrarySearchBar: View {
-    @Binding var searchText: String
-    @Binding var isSearchActive: Bool
-
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-
-            TextField("게임 제목 또는 장르로 검색...", text: $searchText)
-                .foregroundColor(.white)
-                .placeholder(when: searchText.isEmpty) {
-                    Text("게임 제목 또는 장르로 검색...")
-                        .foregroundColor(.gray)
-                }
-
-            if !searchText.isEmpty {
-                Button(action: {
-                    searchText = ""
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
-            }
-        }
-        .padding()
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(12)
-        .padding(.horizontal)
-        .padding(.vertical, 8)
     }
 }
 

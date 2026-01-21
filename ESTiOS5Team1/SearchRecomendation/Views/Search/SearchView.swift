@@ -121,19 +121,19 @@ struct SearchView: View {
                             .padding(.bottom, 10)
                         }
                         .refreshable {
-                            await viewModel.loadAllGames()
+                            await viewModel.forceRefreshAllGames()
                         }
-                        // 장르 변경 시 상단으로 스크롤
+                        // 플랫폼 변경 시 상단으로 스크롤 (애니메이션 제거)
+                        .onChange(of: selectedPlatform) { _ in
+                            proxy.scrollTo("top", anchor: .top)
+                        }
+                        // 장르 변경 시 상단으로 스크롤 (애니메이션 제거)
                         .onChange(of: selectedGenre) { _ in
-                            withAnimation(.spring(response: 0.4)) {
-                                proxy.scrollTo("top", anchor: .top)
-                            }
+                            proxy.scrollTo("top", anchor: .top)
                         }
-                        // 고급 필터 변경 시 상단으로 스크롤
+                        // 고급 필터 변경 시 상단으로 스크롤 (애니메이션 제거)
                         .onChange(of: advancedFilterState) { _ in
-                            withAnimation(.spring(response: 0.4)) {
-                                proxy.scrollTo("top", anchor: .top)
-                            }
+                            proxy.scrollTo("top", anchor: .top)
                         }
                     }
                 }
@@ -141,7 +141,7 @@ struct SearchView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("추천 검색")
+                    Text("게임 탐색")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -302,6 +302,7 @@ struct SearchView: View {
             case .playstation: return itemPlatform == .playstation
             case .xbox: return itemPlatform == .xbox
             case .nintendo: return itemPlatform == .nintendo
+            case .mobile: return itemPlatform == .mobile
             }
         }
     }
@@ -368,89 +369,7 @@ struct GameGridView: View {
             }
         }
         .padding(.horizontal)
-    }
-}
-
-// MARK: - Active Filters Bar
-struct ActiveFiltersBar: View {
-    @Binding var selectedPlatform: PlatformFilterType
-    @Binding var selectedGenre: GenreFilterType
-    @Binding var searchText: String
-
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                if selectedPlatform != .all {
-                    FilterChip(
-                        label: selectedPlatform.rawValue,
-                        color: selectedPlatform.iconColor
-                    ) {
-                        withAnimation { selectedPlatform = .all }
-                    }
-                }
-
-                if selectedGenre != .all {
-                    FilterChip(
-                        label: selectedGenre.displayName,
-                        color: selectedGenre.themeColor
-                    ) {
-                        withAnimation { selectedGenre = .all }
-                    }
-                }
-
-                if !searchText.isEmpty {
-                    FilterChip(
-                        label: "\"\(searchText)\"",
-                        color: .blue
-                    ) {
-                        withAnimation { searchText = "" }
-                    }
-                }
-
-                // 전체 초기화 버튼
-                Button(action: {
-                    withAnimation {
-                        selectedPlatform = .all
-                        selectedGenre = .all
-                        searchText = ""
-                    }
-                }) {
-                    Text("초기화")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.red.opacity(0.2))
-                        .clipShape(Capsule())
-                }
-            }
-            .padding(.horizontal)
-        }
-    }
-}
-
-// MARK: - Filter Chip
-struct FilterChip: View {
-    let label: String
-    let color: Color
-    let onRemove: () -> Void
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(label)
-                .font(.caption)
-                .fontWeight(.medium)
-
-            Button(action: onRemove) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.caption)
-            }
-        }
-        .foregroundColor(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(color.opacity(0.8))
-        .clipShape(Capsule())
+        .animation(nil, value: items.map { $0.id })
     }
 }
 
