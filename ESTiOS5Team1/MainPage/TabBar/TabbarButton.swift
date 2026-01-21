@@ -32,6 +32,8 @@ struct TabbarButton: View {
                 Text(iconName)
             }
             .foregroundStyle(isSelected ? .purple : .gray)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .contentShape(Rectangle())
         }
     }
 }

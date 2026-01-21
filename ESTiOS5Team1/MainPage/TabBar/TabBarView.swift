@@ -23,6 +23,7 @@ struct TabBarView: View {
                         tab: .home,
                         selectedTab: $selectedTab
                     )
+                    .frame(maxWidth: .infinity)
 
                     Spacer()
 
@@ -32,7 +33,8 @@ struct TabBarView: View {
                         tab: .discover,
                         selectedTab: $selectedTab
                     )
-
+                    .frame(maxWidth: .infinity)
+                    
                     Spacer()
 
                     TabbarButton(
@@ -41,7 +43,8 @@ struct TabBarView: View {
                         tab: .library,
                         selectedTab: $selectedTab
                     )
-
+                    .frame(maxWidth: .infinity)
+                    
                     Spacer()
 
                     TabbarButton(
@@ -50,8 +53,10 @@ struct TabBarView: View {
                         tab: .profile,
                         selectedTab: $selectedTab
                     )
+                    .frame(maxWidth: .infinity)
                 }
                 .padding()
+                .contentShape(Rectangle())
             }
     }
 }
