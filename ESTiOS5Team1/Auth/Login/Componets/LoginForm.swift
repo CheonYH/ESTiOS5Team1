@@ -31,10 +31,11 @@ struct LoginForm: View {
         VStack(alignment: .leading, spacing: 15) {
 
             Text("Email")
-                .font(Font.title3.bold())
+                .font(.headline)
                 .foregroundStyle(.white)
 
             TextField("", text: $viewModel.email, prompt: Text("이메일을 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+                .font(.callout)
                 .padding(10)
                 .foregroundStyle(.textPrimary)
                 .background(
@@ -47,10 +48,11 @@ struct LoginForm: View {
                 )
 
             Text("Password")
-                .font(Font.title3.bold())
+                .font(.headline)
                 .foregroundStyle(.white)
 
             SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+                .font(.callout)
                 .padding(10)
                 .foregroundStyle(.textPrimary)
                 .background(
@@ -71,7 +73,7 @@ struct LoginForm: View {
                 }
             } label: {
                 Text("로그인")
-                    .font(.title2.bold())
+                    .font(.headline)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: 60)
                     .background(

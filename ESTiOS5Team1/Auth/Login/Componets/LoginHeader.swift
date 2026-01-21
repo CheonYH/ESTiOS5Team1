@@ -25,12 +25,12 @@ struct LoginHeader: View {
                 .frame(width: 44, height: 44)
 
             Text("GameCompass")
-                .font(.system(size: 48))
+                .font(.largeTitle)
                 .bold()
                 .foregroundStyle(.white)
 
             Text("게임 리뷰·추천·정보를 한 곳에서")
-                .font(.title3)
+                .font(.headline)
                 .bold()
                 .foregroundStyle(.gray)
         }
@@ -43,7 +43,7 @@ struct LoginHeader: View {
                 .foregroundStyle(.white)
 
             Text("로그인하고 당신만의 여정을 시작하세요")
-                .font(.title3)
+                .font(.headline)
                 .bold()
                 .foregroundStyle(.gray)
         }

@@ -8,7 +8,7 @@ import SwiftUI
 
 struct GameListRow: View {
     let item: GameListItem
-    
+
     var body: some View {
         HStack(spacing: 12) {
             // 썸네일
@@ -19,20 +19,20 @@ struct GameListRow: View {
             }
             .frame(width: 70, height: 90)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            
+
             VStack(alignment: .leading, spacing: 6) {
                 Text(item.title)
                     .foregroundStyle(Color("TextPrimary"))
                     .font(.headline)
                     .lineLimit(2)
-                
+
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption)
                     .foregroundColor(.textPrimary.opacity(0.7))
-                
+
                 // 별점
             }
-            
+
             Spacer()
         }
         .padding(12)

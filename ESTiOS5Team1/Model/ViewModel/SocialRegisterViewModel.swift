@@ -44,7 +44,6 @@ final class SocialRegisterViewModel: ObservableObject {
             }
             print("[SocialRegister] nickname available")
 
-
             print("[SocialRegister] calling service.socialRegister")
             let token = try await service.socialRegister(
                 provider: "google",

@@ -103,7 +103,6 @@ struct SearchView: View {
                                         title: headerTitle,
                                         count: filteredItems.count
                                     )
-                                    
 
                                     // 2열 그리드 게임 카드
                                     // [수정] filteredGames → filteredItems

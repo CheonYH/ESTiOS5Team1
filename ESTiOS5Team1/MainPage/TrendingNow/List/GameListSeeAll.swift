@@ -10,9 +10,9 @@ import SwiftUI
 struct GameListSeeAll: View {
     let title: String
     let query: String
-    
+
     @StateObject private var viewModel: GameListSingleQueryViewModel
-    
+
     init (title: String, query: String) {
         self.title = title
         self.query = query
@@ -23,7 +23,7 @@ struct GameListSeeAll: View {
             )
         )
     }
-    
+
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {

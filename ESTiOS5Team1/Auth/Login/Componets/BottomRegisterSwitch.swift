@@ -21,7 +21,7 @@ struct BottomRegisterSwitch: View {
             HStack {
                 Text("아직 계정이 없으신가요?")
                     .foregroundStyle(.gray)
-                    .font(.callout)
+                    .font(.caption)
                     .bold()
 
                 NavigationLink {
@@ -30,7 +30,7 @@ struct BottomRegisterSwitch: View {
                 } label: {
                     Text("계정을 생성하세요")
                         .foregroundStyle(.purplePrimary)
-                        .font(.callout)
+                        .font(.caption)
                         .bold()
                 }
 

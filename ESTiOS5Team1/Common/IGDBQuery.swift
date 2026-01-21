@@ -109,6 +109,4 @@ enum IGDBQuery {
         platforms.name;
     """
 
-
-
 }

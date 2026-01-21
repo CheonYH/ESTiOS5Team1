@@ -42,14 +42,14 @@ struct MainView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
-                        
+
                     } label: {
                         Image(systemName: "line.3.horizontal")
                             .foregroundColor(.white)
                             .font(.title3)
                     }
                 }
-                
+
 //                ToolbarItem(placement: .principal) {
 //                    HStack(spacing: 4) {
 //                        Image(systemName: "gamecontroller")
@@ -60,12 +60,12 @@ struct MainView: View {
 //                            .foregroundColor(.white)
 //                    }
 //                }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         // 검색 액션 NavigationLink(destination: SearchView(favoriteManager: favoriteManager)) {
-                        //Image(systemName: "magnifyingglass")
-                    //}
+                        // Image(systemName: "magnifyingglass")
+                    // }
                     } label: {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.white)
