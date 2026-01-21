@@ -9,8 +9,7 @@ import SwiftUI
 
 struct TrendingNowGameView: View {
 
-    @StateObject private var viewModel =
-    GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
+    @ObservedObject var viewModel: GameListSingleQueryViewModel
 
     @State private var showAll = false
     var body: some View {
@@ -37,14 +36,14 @@ struct TrendingNowGameView: View {
 
         }
         .task {
-            await viewModel.load()
+            if viewModel.items.isEmpty {
+                await viewModel.load()
+            }
         }
+        
         .navigationDestination(isPresented: $showAll) {
             GameListSeeAll(title: "인기 게임", query: IGDBQuery.trendingNow)
         }
     }
 }
 
-#Preview {
-    TrendingNowGameView()
-}

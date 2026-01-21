@@ -15,6 +15,8 @@ struct TrendingNowGameCard: View {
         ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 5) {
                 KFImage(item.coverURL)
+                    .cacheOriginalImage()
+                    .loadDiskFileSynchronously()
                     .placeholder {
                         ProgressView()
                     }
@@ -32,6 +34,7 @@ struct TrendingNowGameCard: View {
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption)
                     .foregroundColor(.textPrimary.opacity(0.7))
+                
             }
             .frame(width: 150, height: 250)
 
