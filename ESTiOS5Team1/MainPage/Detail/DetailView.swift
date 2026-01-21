@@ -40,7 +40,7 @@ struct DetailView: View {
                     }
 
                     if let item = viewModel.item {
-                        GameDetailBox(item: item)
+                        GameSummaryBox(item: item)
                     }
                     TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
 

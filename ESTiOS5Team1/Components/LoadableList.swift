@@ -19,16 +19,10 @@ struct LoadableList<Items: RandomAccessCollection, Row: View, Destination: View>
     let row: (Items.Element) -> Row
 
     var body: some View {
-        if isLoading {
+        if isLoading && Array(items).isEmpty {
             ProgressView(loadingText)
-        } else if let error {
-            VStack {
-                Text("오류발생")
-                    .font(.headline)
-                Text(error.localizedDescription)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+        } else if error != nil {
+            // error UI
         } else {
             let list = Array(items)
             ForEach(prefix(list)) { item in

@@ -32,13 +32,14 @@ struct GameRatingBadge: View {
 struct GameFavoriteButton: View {
     let isFavorite: Bool
     let onToggle: () -> Void
-
+    var frameWH: CGFloat = 32
+    
     var body: some View {
         Button(action: onToggle) {
             Image(systemName: isFavorite ? "heart.fill" : "heart")
                 .font(.system(size: 14))
                 .foregroundColor(isFavorite ? .red : .white)
-                .frame(width: 32, height: 32)
+                .frame(width: frameWH, height: frameWH)
                 .background(Color.black.opacity(0.6))
                 .clipShape(Circle())
         }
