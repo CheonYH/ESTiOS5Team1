@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Firebase
 import GoogleSignIn
+import Kingfisher
 
 /// 앱 전역 상태(세션/라우팅)를 관리하는 ViewModel입니다.
 @MainActor
@@ -36,6 +37,8 @@ final class AppViewModel: ObservableObject {
         Task {
             await initializeApp()
         }
+
+        configureImageCache()
     }
 
     private func initializeApp() async {
@@ -112,4 +115,10 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    private func configureImageCache() {
+        let cache = ImageCache.default
+        cache.memoryStorage.config.totalCostLimit = 200 * 1024 * 1024  // 200MB
+        cache.diskStorage.config.sizeLimit = 500 * 1024 * 1024         // 500MB
+        cache.diskStorage.config.expiration = .days(30)                // 30일 유지
+    }
 }

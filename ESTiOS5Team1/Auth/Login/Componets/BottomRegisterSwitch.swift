@@ -26,7 +26,6 @@ struct BottomRegisterSwitch: View {
 
                 NavigationLink {
                     RegisterView()
-                        .navigationBarBackButtonHidden(true)
                 } label: {
                     Text("계정을 생성하세요")
                         .foregroundStyle(.purplePrimary)

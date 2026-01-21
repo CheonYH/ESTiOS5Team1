@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum LoginField: Hashable {
+    case email
+    case password
+}
+
 /// 로그인 폼 View입니다.
 ///
 /// - Purpose:
@@ -20,6 +25,7 @@ struct LoginForm: View {
 
     /// 사용자 입력 바인딩 및 `login()` 호출을 담당하는 ViewModel
     @ObservedObject var viewModel: AuthViewModel
+    var focusedField: FocusState<LoginField?>.Binding
     /// 전역 앱 상태(App 상태 전환 등)에 접근합니다.
     @EnvironmentObject var appViewModel: AppViewModel
     /// 로그인 결과를 Toast로 표시하기 위한 매니저
@@ -38,6 +44,8 @@ struct LoginForm: View {
                 .font(.callout)
                 .padding(10)
                 .foregroundStyle(.textPrimary)
+                .focused(focusedField, equals: .email)
+                .id(LoginField.email)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
@@ -55,6 +63,8 @@ struct LoginForm: View {
                 .font(.callout)
                 .padding(10)
                 .foregroundStyle(.textPrimary)
+                .focused(focusedField, equals: .password)
+                .id(LoginField.password)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
@@ -73,9 +83,10 @@ struct LoginForm: View {
                 }
             } label: {
                 Text("로그인")
-                    .font(.headline)
+                    .font(.title2)
+                    .bold()
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, maxHeight: 60)
+                    .frame(maxWidth: .infinity, minHeight: 60)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.purplePrimary)
@@ -167,7 +178,9 @@ struct LoginForm: View {
     let auth = AuthServiceImpl()
     let appVM = AppViewModel(authService: auth, toast: toast)
 
-    LoginView()
-        .environmentObject(appVM)
-        .environmentObject(toast)
+    NavigationStack {
+        LoginView()
+    }
+    .environmentObject(appVM)
+    .environmentObject(toast)
 }

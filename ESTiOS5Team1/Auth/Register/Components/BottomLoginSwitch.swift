@@ -25,7 +25,7 @@ struct BottomLoginSwitch: View {
         HStack {
             Text("이미 계정이 있으신가요?")
                 .foregroundStyle(.gray)
-                .font(.callout)
+                .font(.caption)
                 .bold()
 
             Button {
@@ -33,7 +33,7 @@ struct BottomLoginSwitch: View {
             } label: {
                 Text("로그인 하기")
                     .foregroundStyle(.purplePrimary)
-                    .font(.callout)
+                    .font(.caption)
                     .bold()
             }
         }
