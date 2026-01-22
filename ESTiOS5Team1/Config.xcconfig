@@ -1,0 +1,27 @@
+//
+//  Config.xcconfig
+//  ESTiOS5Team1
+//
+//  Created by 김대현 on 1/14/26.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+// Include your local, private secrets here if needed.
+// Prefer a relative path within the repo, or leave commented out and define below.
+// Example:
+// #include "Secrets/IGDB.private.xcconfig"
+// Define fallback keys here so the project builds without user-specific paths.
+IGDB_CLIENT_ID =
+IGDB_ACCESS_TOKEN =
+
+// Export as build settings that code can read via Info.plist or Swift build settings if needed.
+
+#include "/Users/elysium/Documents/Secret/IGDB.xcconfig"
+
+//// ALAN API Key 관련 추가(김대현)
+//ALAN_ENDPOINT =
+//ALAN_CLIENT_KEY =
+//
+//#include "/Users/elysium/Documents/Secret/ALAN.xcconfig"

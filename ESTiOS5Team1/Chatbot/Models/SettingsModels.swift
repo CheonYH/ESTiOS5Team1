@@ -7,39 +7,46 @@
 
 import Foundation
 
-struct BotStreamCredentials: Codable, Hashable {
-    var apiKey: String = ""
-    var botUserIdentifier: String = "alan_bot"
-    var botUserDisplayName: String = "Alan Bot"
-    var botUserToken: String = ""
-}
-
 struct AlanSettings: Codable, Hashable {
-    var isEnabled: Bool = true
-    var apiKey: String = ""
-    var endpoint: String = "https://kdt-api-function.azurewebsites.net"
+    var endpoint: String
+    var clientKey: String
+    var includeLocalContext: Bool = true
+    var contextMessageCount: Int = 8
+    var maxContextCharacters: Int = 2500
 
-    // 필요 시만 사용 (401/403 뜨면 채움)
-    var authHeaderField: String = ""
-    var authHeaderPrefix: String = ""
+    init(
+        endpoint: String = Bundle.main.stringValue(forInfoPlistKey: "ALAN_ENDPOINT") ?? "",
+        clientKey: String = Bundle.main.stringValue(forInfoPlistKey: "ALAN_CLIENT_KEY") ?? ""
+    ) {
+        self.endpoint = endpoint
+        self.clientKey = clientKey
+    }
 }
 
 struct AppSettings: Codable, Hashable {
-    var botStream: BotStreamCredentials = .init()
     var alan: AlanSettings = .init()
 
     private static let storageKey = "GameFactsBot.AppSettings"
 
     static func load() -> AppSettings {
-        guard
-            let storedData = UserDefaults.standard.data(forKey: storageKey),
-            let decoded = try? JSONDecoder().decode(AppSettings.self, from: storedData)
-        else { return .init() }
-        return decoded
+        if let data = UserDefaults.standard.data(forKey: storageKey),
+           let decoded = try? JSONDecoder().decode(AppSettings.self, from: data) {
+            return decoded
+        }
+        return .init()
     }
 
     func save() {
-        guard let encodedData = try? JSONEncoder().encode(self) else { return }
-        UserDefaults.standard.set(encodedData, forKey: Self.storageKey)
+        guard let data = try? JSONEncoder().encode(self) else { return }
+        UserDefaults.standard.set(data, forKey: Self.storageKey)
+    }
+}
+
+// MARK: - Info.plist helpers
+private extension Bundle {
+    func stringValue(forInfoPlistKey key: String) -> String? {
+        guard let raw = infoDictionary?[key] as? String else { return nil }
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }
