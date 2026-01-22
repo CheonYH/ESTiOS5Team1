@@ -4,6 +4,7 @@
 //
 //  Created by 이찬희 on 1/6/26.
 //
+//  [수정] Game → GameListItem 통일
 
 import SwiftUI
 
@@ -18,41 +19,59 @@ struct LibraryView: View {
         GridItem(.flexible(), spacing: 16)
     ]
 
-    // 검색 필터링된 게임 목록
-    var filteredGames: [Game] {
+    // [수정] 검색 필터링된 게임 목록 - Game → GameListItem
+    var filteredItems: [GameListItem] {
         if searchText.isEmpty {
-            return favoriteManager.favoriteGames
+            return favoriteManager.favoriteItems
         } else {
-            return favoriteManager.favoriteGames.filter { game in
-                game.title.localizedCaseInsensitiveContains(searchText) ||
-                game.genre.localizedCaseInsensitiveContains(searchText)
+            return favoriteManager.favoriteItems.filter { item in
+                item.title.localizedCaseInsensitiveContains(searchText) ||
+                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(searchText)
             }
         }
     }
 
     var body: some View {
-        NavigationView {
+        // NavigationView → NavigationStack으로 변경
+        // 탭 전환 후 돌아올 때 navigation bar가 사라지는 문제 해결 (iOS 16+)
+        NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
 
                 VStack(spacing: 0) {
                     // 검색바 (조건부 표시)
                     if isSearchActive {
-                        LibrarySearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                        SearchBar(
+                            searchText: $searchText,
+                            isSearchActive: $isSearchActive,
+                            placeholder: "게임 제목 또는 장르로 검색..."
+                        )
+                        .transition(.move(edge: .top).combined(with: .opacity))
                     }
 
                     // 게임 목록
                     ScrollView {
-                        if favoriteManager.favoriteGames.isEmpty {
+                        // [수정] favoriteGames → favoriteItems
+                        if favoriteManager.favoriteItems.isEmpty {
                             EmptyLibraryView()
-                        } else if filteredGames.isEmpty {
+                        } else if filteredItems.isEmpty {
                             // 검색 결과 없음
                             EmptySearchResultView()
                         } else {
                             LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(filteredGames) { game in
-                                    LibraryGameCard(game: game)
+                                // [수정] game → item
+                                // [수정] NavigationLink 추가하여 DetailView로 이동
+                                ForEach(filteredItems) { item in
+                                    NavigationLink(destination: DetailView(gameId: item.id)) {
+                                        GameListCard(
+                                            item: item,
+                                            isFavorite: favoriteManager.isFavorite(itemId: item.id),
+                                            onToggleFavorite: {
+                                                favoriteManager.toggleFavorite(item: item)
+                                            }
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                             .padding(.horizontal)
@@ -66,7 +85,7 @@ struct LibraryView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("내 게임")
-                        .font(.headline)
+                        .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
@@ -82,6 +101,7 @@ struct LibraryView: View {
                     }) {
                         Image(systemName: isSearchActive ? "xmark" : "magnifyingglass")
                             .foregroundColor(.white)
+                            .font(.title3)
                     }
                 }
             }
@@ -91,40 +111,6 @@ struct LibraryView: View {
                     .frame(height: 0.5)
             }
         }
-    }
-}
-
-// MARK: - Library Search Bar
-struct LibrarySearchBar: View {
-    @Binding var searchText: String
-    @Binding var isSearchActive: Bool
-
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-
-            TextField("게임 제목 또는 장르로 검색...", text: $searchText)
-                .foregroundColor(.white)
-                .placeholder(when: searchText.isEmpty) {
-                    Text("게임 제목 또는 장르로 검색...")
-                        .foregroundColor(.gray)
-                }
-
-            if !searchText.isEmpty {
-                Button(action: {
-                    searchText = ""
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
-            }
-        }
-        .padding()
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(12)
-        .padding(.horizontal)
-        .padding(.vertical, 8)
     }
 }
 
@@ -171,107 +157,6 @@ struct EmptySearchResultView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.top, 100)
-    }
-}
-
-// MARK: - Library Game Card
-struct LibraryGameCard: View {
-    let game: Game
-    @EnvironmentObject var favoriteManager: FavoriteManager
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .topLeading) {
-                // Game Image
-                if let coverURL = game.coverURL {
-                    AsyncImage(url: coverURL) { phase in
-                        switch phase {
-                            case .empty:
-                                LibraryPlaceholder()
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                            case .failure:
-                                LibraryPlaceholder()
-                            @unknown default:
-                                LibraryPlaceholder()
-                        }
-                    }
-                    .frame(height: 240)
-                    .cornerRadius(12)
-                    .clipped()
-                } else {
-                    LibraryPlaceholder()
-                }
-
-                // Rating Badge and Heart Button
-                HStack {
-                    // Rating Badge
-                    if game.rating > 0 {
-                        Text(String(format: "%.1f", game.rating))
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.yellow)
-                            .cornerRadius(6)
-                    }
-
-                    Spacer()
-
-                    // Heart Button
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3)) {
-                            favoriteManager.toggleFavorite(game: game)
-                        }
-                    }) {
-                        Image(systemName: favoriteManager.isFavorite(gameId: game.id) ? "heart.fill" : "heart")
-                            .font(.system(size: 20))
-                            .foregroundColor(.purple)
-                            .frame(width: 36, height: 36)
-                            .background(Color.white.opacity(0.9))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(8)
-            }
-
-            // Game Info
-            VStack(alignment: .leading, spacing: 4) {
-                Text(game.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-                    .frame(height: 36, alignment: .top)
-
-                Text(game.genre)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            .padding(.top, 8)
-        }
-    }
-}
-
-// MARK: - Library Placeholder
-struct LibraryPlaceholder: View {
-    var body: some View {
-        Rectangle()
-            .fill(LinearGradient(
-                colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ))
-            .frame(height: 240)
-            .cornerRadius(12)
-            .overlay(
-                Image(systemName: "photo")
-                    .font(.largeTitle)
-                    .foregroundColor(.gray)
-            )
     }
 }
 

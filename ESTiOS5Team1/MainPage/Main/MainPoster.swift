@@ -6,75 +6,79 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct MainPoster: View {
-    @State var imageColor: Color = .white
-    @State var textColor: Color = .white
-
     let item: GameListItem
-
+    @EnvironmentObject var favoriteManager: FavoriteManager
+    
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            AsyncImage(url: item.coverURL) { image in
-                image
-                    .resizable()
-                    .scaledToFill()
-            } placeholder: {
-                Color.gray.opacity(0.3)
-            }
-            .frame(height: 400)
-            .clipped()
-            .padding(.top, 20)
+            KFImage(item.coverURL)
+                .cacheOriginalImage()
+                .loadDiskFileSynchronously()
+                .placeholder { Color.gray.opacity(0.3) }
+                .resizable()
+                .scaledToFill()
+                .frame(height: 400)
+                .clipped()
+                .padding(.top, 20)
+                
+                
 
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("FEATURED")
-                        .foregroundStyle(textColor)
+                        .font(.callout)
+                        .foregroundStyle(.textPrimary)
                         .padding(.vertical, 5)
                         .padding(.horizontal, 10)
                         .background(.purple, in: Capsule())
 
                     Text(item.ratingText)// 임시
-                        .foregroundStyle(textColor)
+                        .font(.callout)
+                        .foregroundStyle(.textPrimary)
                         .bold()
                         .padding(.vertical, 5)
-                        .padding(.horizontal, 15)
+                        .padding(.horizontal, 10)
                         .background(.yellow, in: Capsule())
                 }
 
                 Text(item.title)
                     .font(.largeTitle)
-                    .foregroundStyle(textColor)
+                    .foregroundStyle(.textPrimary)
 
-                Text("Rise, Tarnished, and be guided by grace to brandish the power of the Elden Ring.")
-                    .font(.headline)
-                    .foregroundStyle(textColor)
-                    .multilineTextAlignment(.leading)
+//                Text(item.id.description ?? "")
+//                    .font(.caption)
+//                    .foregroundStyle(.textPrimary)
+//                    .multilineTextAlignment(.leading)
 
                 Text(item.genre.joined(separator: " · "))
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
-
+                    .font(.caption2)
+                    .foregroundColor(.textPrimary.opacity(0.7))
+                
+                ForEach(item.platformCategories, id: \.rawValue) { platform in
+                    Image(systemName: platform.iconName)
+                        .foregroundStyle(.textPrimary.opacity(0.6))
+                        .font(.caption)
+                }
+                
                 HStack {
                     Button {
                         // 플레이 나우 기능
                     } label: {
                         Label("Play Now", systemImage: "play.fill")
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.textPrimary)
                             .frame(maxWidth: 250)
-                            .frame(height: 50)
-                            .background(.purple, in: RoundedRectangle(cornerRadius: 15))
+                            .frame(height: 40)
+                            .background(.purple, in: RoundedRectangle(cornerRadius: Radius.cr16))
                     }
-
-                    Button {
-                        // 좋아요 기능
-                    } label: {
-                        Image(systemName: "heart.fill")
-                            .foregroundStyle(.white)
-                            .frame(width: 50, height: 50)
-                            .background(.black.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
-                    }
+                    GameFavoriteButton(
+                        isFavorite: favoriteManager.isFavorite(itemId: item.id),
+                        onToggle: { favoriteManager.toggleFavorite(item: item) },
+                        frameWH: 40
+                    )
                 }
             }
             .padding()

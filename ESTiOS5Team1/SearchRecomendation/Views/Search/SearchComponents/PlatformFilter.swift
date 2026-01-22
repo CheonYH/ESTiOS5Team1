@@ -35,6 +35,7 @@ enum PlatformFilterType: String, CaseIterable {
     case playstation = "PlayStation"
     case xbox = "Xbox"
     case nintendo = "Nintendo"
+    case mobile = "Mobile"
 
     var iconColor: Color {
         switch self {
@@ -43,11 +44,12 @@ enum PlatformFilterType: String, CaseIterable {
         case .playstation: return .blue
         case .xbox: return .green
         case .nintendo: return .red
+        case .mobile: return .cyan
         }
     }
 }
 
-// MARK: - Platform Button
+// MARK: - Platform Capsule Button
 struct PlatformButton: View {
     let platform: PlatformFilterType
     let isSelected: Bool
@@ -57,13 +59,19 @@ struct PlatformButton: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 platformIcon
-                    .font(.system(size: 20))
+                    .font(.system(size: 14))
+
+                Text(platform.rawValue)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .foregroundColor(isSelected ? .white : .gray)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
             .background(isSelected ? platform.iconColor : Color.white.opacity(0.1))
-            .cornerRadius(12)
+            .clipShape(Capsule())
         }
+        .buttonStyle(PlainButtonStyle())
     }
 
     @ViewBuilder
@@ -71,19 +79,16 @@ struct PlatformButton: View {
         switch platform {
         case .all:
             Image(systemName: "square.grid.2x2.fill")
-                .foregroundColor(.white)
         case .pc:
             Image(systemName: "desktopcomputer")
-                .foregroundColor(.white)
         case .playstation:
             Image(systemName: "playstation.logo")
-                .foregroundColor(.white)
         case .xbox:
             Image(systemName: "xbox.logo")
-                .foregroundColor(.white)
         case .nintendo:
             Image(systemName: "switch.2")
-                .foregroundColor(.white)
+        case .mobile:
+            Image(systemName: "iphone")
         }
     }
 }

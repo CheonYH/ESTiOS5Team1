@@ -39,6 +39,11 @@ struct GameEntity: Identifiable, Hashable {
     /// IGDB의 플랫폼 이름을
     /// 앱에서 사용하는 플랫폼 모델로 변환한 결과입니다.
     let platforms: [GamePlatform]
+
+    let releaseYear: Int?
+
+    let summary: String?
+
 }
 
 extension GameEntity {
@@ -66,11 +71,22 @@ extension GameEntity {
         // 원본 평점 값 유지
         self.rating = dto.rating
 
-        // 장르가 없을 경우 빈 배열로 처리
+        // 장르 처리
         self.genre = dto.genres?.map { $0.name } ?? []
 
-        // 플랫폼 이름을 앱에서 사용하는 플랫폼 모델로 변환
-        self.platforms = dto.platforms?
-            .map { GamePlatform(name: $0.name) } ?? []
+        // 플랫폼 매핑
+        self.platforms = dto.platforms?.map {
+            GamePlatform(name: $0.name)
+        } ?? []
+
+        // 요약/설명
+        self.summary = dto.summary
+
+        // 출시년도 (최신 값 기준)
+        if let years = dto.releaseDates?.compactMap({ $0.year }), let latestYear = years.max() {
+            self.releaseYear = latestYear
+        } else {
+            self.releaseYear = nil
+        }
     }
 }

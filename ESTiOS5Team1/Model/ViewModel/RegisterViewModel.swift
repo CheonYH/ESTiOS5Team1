@@ -1,0 +1,180 @@
+//
+//  RegisterViewModel.swift
+//  ESTiOS5Team1
+//
+//  Created by cheon on 1/15/26.
+//
+
+import Foundation
+import Combine
+
+/// 회원가입 화면의 상태 및 로직을 관리하는 ViewModel 입니다.
+///
+/// - Responsibilities:
+///     - 사용자가 입력한 회원가입 정보(email, password, nickname)를 관리
+///     - 로컬 입력 검증 수행
+///     - AuthService를 통해 서버에 회원가입 요청
+///     - 회원가입 성공 시 로그인 화면으로 유도
+///     - FeedbackEvent를 반환하여 Toast UI로 연결
+///
+/// - Important:
+///     ViewModel은 UI를 직접 변경하지 않고,
+///     상태(AppViewModel)와 이벤트(FeedbackEvent)를 통해 화면을 제어합니다.
+///
+@MainActor
+final class RegisterViewModel: ObservableObject {
+
+    // MARK: - Input (사용자 입력 필드)
+
+    @Published var email = ""
+    @Published var password = ""
+    @Published var confirmPassword = ""
+    @Published var nickname = ""
+
+    // MARK: - UI State 표시용
+
+    /// 네트워크 요청 중 로딩 스피너 표시 등에 사용됩니다.
+    @Published var isLoading = false
+
+    // MARK: - Dependencies
+
+    /// Auth 도메인 API 호출 담당 서비스
+    private let authService: AuthService
+
+    init(authService: AuthService) {
+        self.authService = authService
+    }
+
+    // MARK: - Computed Validation Properties
+
+    /// 이메일 형식 검증 (단순 RFC 기반)
+    var isEmailValid: Bool {
+        let regex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
+    }
+
+    /// 비밀번호 규칙 검증 (영문 + 숫자 + 특수문자 + 8자 이상)
+    var isPasswordValid: Bool {
+        let regex = #"^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$"#
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: password)
+    }
+
+    /// 비밀번호 재입력 확인 검증
+    var isConfirmPasswordValid: Bool {
+        !confirmPassword.isEmpty && password == confirmPassword
+    }
+
+    /// 닉네임 규칙 검증 (길이 + 이모지 + 반복문자 체크)
+    var isNicknameValid: Bool {
+        let trimmed = nickname.trimmingCharacters(in: .whitespaces)
+        return trimmed.count >= 2 &&
+        trimmed.count <= 12 &&
+        !containsEmoji(trimmed) &&
+        !hasTooManyRepeatingCharacters(trimmed)
+    }
+
+    /// 모든 항목이 유효한지 여부 (가입 버튼 활성화 조건)
+    var canSubmit: Bool {
+        isEmailValid && isPasswordValid && isConfirmPasswordValid && isNicknameValid
+    }
+
+    // MARK: - API Call (회원가입 처리)
+
+    /// 회원가입 요청 → FeedbackEvent 반환 방식
+    ///
+    /// - Flow:
+    ///     1. 로컬 검증
+    ///     2. 서버 요청 (AuthService)
+    ///     3. 서버 검증 실패 시 AuthError 매핑
+    ///     4. FeedbackEvent 반환하여 Toast로 UI 출력
+    ///
+    /// - UI Behavior:
+    ///     성공 → 로그인 화면 이동 + 이메일 자동 채움
+    ///     실패 → Toast로 검증 안내 또는 오류 출력
+    @discardableResult
+    func register(appViewModel: AppViewModel) async -> FeedbackEvent {
+        // 1. 검증 로직을 별도 함수로 분리하여 복잡도 감소
+        if let validationError = validateInputs() {
+            return validationError
+        }
+
+        // 2. 서버 호출 시작
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            _ = try await authService.register(
+                email: email,
+                password: password,
+                nickname: nickname
+            )
+
+            appViewModel.prefilledEmail = email
+            appViewModel.state = .signedOut
+            return FeedbackEvent(.auth, .success, "회원가입 완료! 로그인해주세요.")
+
+        } catch {
+            return handleRegisterError(error)
+        }
+    }
+
+    // MARK: - Validation Helpers
+
+    /// 텍스트에 이모지가 포함되어 있는지 검사합니다.
+    private func containsEmoji(_ text: String) -> Bool {
+        for scalar in text.unicodeScalars {
+            switch scalar.value {
+                case 0x1F600...0x1F64F,
+                    0x1F300...0x1F5FF,
+                    0x1F680...0x1F6FF,
+                    0x2600...0x26FF,
+                    0x2700...0x27BF:
+                    return true
+                default:
+                    continue
+            }
+        }
+        return false
+    }
+
+    /// 동일 문자 반복 여부 검사 (3회 이상)
+    private func hasTooManyRepeatingCharacters(_ text: String) -> Bool {
+        var last: Character?
+        var count = 1
+
+        for char in text {
+            if char == last {
+                count += 1
+                if count >= 3 { return true }
+            } else {
+                count = 1
+                last = char
+            }
+        }
+        return false
+    }
+
+    // MARK: - Helper Methods (복잡도 분산)
+    private func validateInputs() -> FeedbackEvent? {
+        guard !email.isEmpty else { return FeedbackEvent(.auth, .warning, "이메일을 입력해주세요.") }
+        guard isEmailValid else { return FeedbackEvent(.auth, .warning, "올바른 이메일 형식이 아닙니다.") }
+        guard isPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호는 영문/숫자/특수문자 포함 8자 이상이어야 합니다.") }
+        guard isConfirmPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호 확인이 일치하지 않습니다.") }
+        guard isNicknameValid else { return FeedbackEvent(.auth, .warning, "닉네임 형식을 확인해주세요.") }
+        return nil
+    }
+
+    /// 에러 처리 로직만 담당 (복잡도 분리)
+    private func handleRegisterError(_ error: Error) -> FeedbackEvent {
+        guard let authError = error as? AuthError else {
+            return FeedbackEvent(.auth, .error, "알 수 없는 오류가 발생했습니다.")
+        }
+
+        switch authError {
+            case .validation(let message): return FeedbackEvent(.auth, .warning, message)
+            case .network: return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
+            case .server: return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
+            default: return FeedbackEvent(.auth, .error, "회원가입 중 오류가 발생했습니다.")
+        }
+    }
+}

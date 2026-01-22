@@ -30,11 +30,11 @@ enum IGDBConfig {
     /// - Warning:
     /// 값이 존재하지 않을 경우 앱은 실행 중 즉시 종료됩니다.
     static let clientID: String = {
-        guard let value = Bundle.main.object(
-            forInfoDictionaryKey: "IGDBClientID"
-        ) as? String else {
+        guard let value = Bundle.main.object( forInfoDictionaryKey: "IGDBClientID" ) as? String else {
             fatalError("IGDBClientID not set")
         }
+
+        print("[IGDBConfig] client length:", value.count)
         return value
     }()
 
@@ -53,6 +53,9 @@ enum IGDBConfig {
         ) as? String else {
             fatalError("IGDBAccessToken not set")
         }
+
+        print("[IGDBConfig] token length:", value.count)
+
         return value
     }()
 }

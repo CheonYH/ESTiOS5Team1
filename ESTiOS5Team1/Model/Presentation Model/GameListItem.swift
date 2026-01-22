@@ -9,6 +9,7 @@ import Foundation
 /// 이 타입은 화면 표시(View Layer)를 위한 데이터 전용이며,
 /// 네트워크 통신, 비즈니스 로직, 캐싱, Domain 처리 등의 책임을 갖지 않습니다.
 /// Domain Layer는 `GameEntity`, Networking은 `IGDBGameListDTO`가 담당합니다.
+@MainActor
 struct GameListItem: Identifiable, Hashable {
 
     /// SwiftUI List/ForEach에서 사용되는 식별자
@@ -40,6 +41,9 @@ struct GameListItem: Identifiable, Hashable {
     /// 중복은 제거됩니다.
     let platformCategories: [Platform]
 
+    let releaseYearText: String
+    let summary: String?
+
     /// GameEntity -> ViewModel 변환 초기화
     ///
     /// - Parameter entity: Domain Layer 모델
@@ -57,5 +61,13 @@ struct GameListItem: Identifiable, Hashable {
         self.platformCategories = Array(
             Set(entity.platforms.compactMap { Platform(igdbName: $0.name) })
         )
+        // 메타 점수 (0~100)
+
+        // 출시년도
+        self.releaseYearText = entity.releaseYear
+            .map { "\($0)" } ?? "–"
+
+        // Summary 우선 (storyline은 상세에서 쓰므로 제외)
+        self.summary = entity.summary
     }
 }

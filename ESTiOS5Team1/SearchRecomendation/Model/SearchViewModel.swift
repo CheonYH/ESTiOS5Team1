@@ -4,6 +4,7 @@
 //
 //  Created by 이찬희 on 1/7/26.
 //
+//  [수정] Game → GameListItem 통일
 
 import Foundation
 import Combine
@@ -13,10 +14,17 @@ import Combine
 @MainActor
 final class SearchViewModel: ObservableObject {
 
+    // MARK: - Static Cache (API 중복 호출 방지)
+    private static var cachedDiscoverItems: [GameListItem] = []
+    private static var cachedTrendingItems: [GameListItem] = []
+    private static var cachedNewReleaseItems: [GameListItem] = []
+    private static var hasLoadedData: Bool = false
+
     // MARK: - Published Properties
-    @Published var discoverGames: [Game] = []
-    @Published var trendingGames: [Game] = []
-    @Published var newReleaseGames: [Game] = []
+    // [수정] Game → GameListItem
+    @Published var discoverItems: [GameListItem] = []
+    @Published var trendingItems: [GameListItem] = []
+    @Published var newReleaseItems: [GameListItem] = []
 
     @Published var isLoading: Bool = false
     @Published var error: Error?
@@ -64,27 +72,27 @@ final class SearchViewModel: ObservableObject {
     }
 
     private func observeViewModels() {
-        // Discover 데이터 변화 감지
+        // [수정] Discover 데이터 변화 감지 - Game 변환 제거
         discoverViewModel?.$items
             .sink { [weak self] items in
-                self?.discoverGames = items.map { Game(from: $0) }
-                self?.favoriteManager.updateGames(self?.discoverGames ?? [])
+                self?.discoverItems = items
+                self?.favoriteManager.updateItems(items)
             }
             .store(in: &cancellables)
 
-        // Trending 데이터 변화 감지
+        // [수정] Trending 데이터 변화 감지 - Game 변환 제거
         trendingViewModel?.$items
             .sink { [weak self] items in
-                self?.trendingGames = items.map { Game(from: $0) }
-                self?.favoriteManager.updateGames(self?.trendingGames ?? [])
+                self?.trendingItems = items
+                self?.favoriteManager.updateItems(items)
             }
             .store(in: &cancellables)
 
-        // New Releases 데이터 변화 감지
+        // [수정] New Releases 데이터 변화 감지 - Game 변환 제거
         newReleasesViewModel?.$items
             .sink { [weak self] items in
-                self?.newReleaseGames = items.map { Game(from: $0) }
-                self?.favoriteManager.updateGames(self?.newReleaseGames ?? [])
+                self?.newReleaseItems = items
+                self?.favoriteManager.updateItems(items)
             }
             .store(in: &cancellables)
 
@@ -114,11 +122,40 @@ final class SearchViewModel: ObservableObject {
 
     // MARK: - Public Methods
 
-    /// 모든 카테고리 데이터 로드
+    /// 모든 카테고리 데이터 로드 (캐시된 데이터가 있으면 사용)
     func loadAllGames() async {
+        // 이미 캐시된 데이터가 있으면 캐시에서 불러오기
+        if SearchViewModel.hasLoadedData {
+            self.discoverItems = SearchViewModel.cachedDiscoverItems
+            self.trendingItems = SearchViewModel.cachedTrendingItems
+            self.newReleaseItems = SearchViewModel.cachedNewReleaseItems
+            return
+        }
+
+        // 처음 로드하는 경우 API 호출
         await discoverViewModel?.load()
         await trendingViewModel?.load()
         await newReleasesViewModel?.load()
+
+        // 캐시에 저장
+        SearchViewModel.cachedDiscoverItems = self.discoverItems
+        SearchViewModel.cachedTrendingItems = self.trendingItems
+        SearchViewModel.cachedNewReleaseItems = self.newReleaseItems
+        SearchViewModel.hasLoadedData = true
+    }
+
+    /// 강제로 새로고침 (pull-to-refresh용)
+    func forceRefreshAllGames() async {
+        SearchViewModel.hasLoadedData = false
+        await discoverViewModel?.load()
+        await trendingViewModel?.load()
+        await newReleasesViewModel?.load()
+
+        // 캐시 업데이트
+        SearchViewModel.cachedDiscoverItems = self.discoverItems
+        SearchViewModel.cachedTrendingItems = self.trendingItems
+        SearchViewModel.cachedNewReleaseItems = self.newReleaseItems
+        SearchViewModel.hasLoadedData = true
     }
 
     /// 특정 카테고리만 새로고침

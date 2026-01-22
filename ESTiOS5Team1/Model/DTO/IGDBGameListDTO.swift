@@ -66,6 +66,21 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
     /// 이 DTO 값은 그대로 사용하지 않고
     /// `Platform` enum 등을 통해 매핑하는 것이 권장됩니다.
     let platforms: [IGDBPlatformDTO]?
+
+    let releaseDates: [IGDBReleaseDateDTO]?
+
+    let aggregatedRating: Double?
+
+    let summary: String?
+
+    let storyline: String?
+
+}
+
+enum CodingKeys: String, CodingKey {
+
+    case releaseDates = "release_dates"
+    case aggregatedRating = "aggregated_rating"
 }
 
 /// IGDB API에서 제공하는 장르 정보를 표현하는 DTO입니다.

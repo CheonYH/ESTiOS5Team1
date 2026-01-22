@@ -27,8 +27,8 @@ final class GameListSingleQueryViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            let batch = [
-                (name: "list", endpoint: IGDBEndpoint.games, query: query)
+            let batch: [IGDBBatchItem] = [
+                IGDBBatchItem(name: "list", endpoint: IGDBEndpoint.games, query: query)
             ]
             let sections = try await service.fetch(batch)
             if let raw = sections["list"] {

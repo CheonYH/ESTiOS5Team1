@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		25B45A1A2F1DEA790093740B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 25B45A192F1DEA790093740B /* GoogleSignIn */; };
+		25B45A1C2F1DEAC70093740B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 25B45A1B2F1DEAC70093740B /* FirebaseAuth */; };
 		25E2319D2F10854D00C0B57B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 25E2319C2F10854D00C0B57B /* Kingfisher */; };
 		25E231A12F10886400C0B57B /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A02F10886400C0B57B /* FirebaseCrashlytics */; };
 		25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A52F108F9200C0B57B /* FirebaseAnalytics */; };
@@ -43,7 +45,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
-				"GoogleService-Info.plist",
+				KeyChain/DeviceID.swift,
+				KeyChain/TokenStore.swift,
 				Model/DTO/IGDBGenreDTO.swift,
 				Model/ViewModel/GenreListViewModel.swift,
 				TestView/GenreListTestView.swift,
@@ -54,7 +57,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
-				"GoogleService-Info.plist",
+				KeyChain/DeviceID.swift,
+				KeyChain/TokenStore.swift,
 				Model/DTO/IGDBGenreDTO.swift,
 				Model/ViewModel/GenreListViewModel.swift,
 				TestView/GenreListTestView.swift,
@@ -64,7 +68,7 @@
 		3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Config.xcconfig,
+				.swiftlint.yml,
 				Info.plist,
 			);
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
@@ -105,6 +109,8 @@
 				25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */,
 				25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */,
 				25E231AA2F1090EF00C0B57B /* FirebaseInstallations in Frameworks */,
+				25B45A1A2F1DEA790093740B /* GoogleSignIn in Frameworks */,
+				25B45A1C2F1DEAC70093740B /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +131,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		25B121532F1713D8003499DA /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		25C032392F0C972400CA196B = {
 			isa = PBXGroup;
 			children = (
@@ -133,6 +146,7 @@
 				25C0325E2F0C972500CA196B /* ESTiOS5Team1UITests */,
 				25E231A42F108F9200C0B57B /* Frameworks */,
 				25C032432F0C972400CA196B /* Products */,
+				25B121532F1713D8003499DA /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -168,7 +182,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				25E231AC2F1092F000C0B57B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
@@ -257,6 +270,7 @@
 				25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */,
+				25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 25C032432F0C972400CA196B /* Products */;
@@ -312,7 +326,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+			shellScript = "\"${BUILD_DIR%Build/*}SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\" -no-build-id-generation\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -351,17 +365,13 @@
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
 			targetProxy = 25C0325C2F0C972500CA196B /* PBXContainerItemProxy */;
 		};
-		25E231AC2F1092F000C0B57B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 25E231AB2F1092F000C0B57B /* SwiftLintBuildToolPlugin */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		25C032632F0C972500CA196B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = 25C032442F0C972400CA196B /* ESTiOS5Team1 */;
-			baseConfigurationReferenceRelativePath = Config.xcconfig;
+			baseConfigurationReferenceRelativePath = IGDB.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -492,7 +502,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -526,7 +536,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -681,6 +691,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.1.0;
+			};
+		};
 		25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
@@ -716,6 +734,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		25B45A192F1DEA790093740B /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		25B45A1B2F1DEAC70093740B /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
 		25E2319C2F10854D00C0B57B /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */;
@@ -740,11 +768,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseInstallations;
-		};
-		25E231AB2F1092F000C0B57B /* SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 		25E236622F10EADF00C0B57B /* StreamChatSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
