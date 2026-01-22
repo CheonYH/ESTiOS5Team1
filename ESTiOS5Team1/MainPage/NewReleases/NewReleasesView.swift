@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct NewReleasesView: View {
-    @StateObject private var viewModel =
-    GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
+    @ObservedObject var viewModel: GameListSingleQueryViewModel
 
     @State private var showAll: Bool = false
     var body: some View {
@@ -30,7 +29,9 @@ struct NewReleasesView: View {
             )
         }
         .task {
-            await viewModel.load()
+            if viewModel.items.isEmpty {
+                await viewModel.load()
+            }
         }
         .navigationDestination(isPresented: $showAll) {
             GameListSeeAll(title: "신규 출시", query: IGDBQuery.newReleases)

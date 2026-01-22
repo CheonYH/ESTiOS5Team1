@@ -19,39 +19,44 @@ struct TabBarView: View {
                 HStack(spacing: 10) {
                     TabbarButton(
                         icon: "house.fill",
-                        iconName: "Home",
+                        iconName: "메인",
                         tab: .home,
                         selectedTab: $selectedTab
                     )
+                    .frame(maxWidth: .infinity)
 
                     Spacer()
 
                     TabbarButton(
                         icon: "safari.fill",
-                        iconName: "Discover",
+                        iconName: "게임 찾기",
                         tab: .discover,
                         selectedTab: $selectedTab
                     )
-
+                    .frame(maxWidth: .infinity)
+                    
                     Spacer()
 
                     TabbarButton(
-                        icon: "bookmark.fill",
-                        iconName: "Library",
+                        icon: "heart.fill",
+                        iconName: "내 게임",
                         tab: .library,
                         selectedTab: $selectedTab
                     )
-
+                    .frame(maxWidth: .infinity)
+                    
                     Spacer()
 
                     TabbarButton(
                         icon: "person.fill",
-                        iconName: "Person",
+                        iconName: "프로필",
                         tab: .profile,
                         selectedTab: $selectedTab
                     )
+                    .frame(maxWidth: .infinity)
                 }
                 .padding()
+                .contentShape(Rectangle())
             }
     }
 }
