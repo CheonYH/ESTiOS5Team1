@@ -99,14 +99,14 @@ struct AlanAPIClient {
             throw AlanAPIError.badStatus(statusCode, bodyText)
         }
 
-        // 1) "JSON string" 형태:  "hello"
+        // "JSON string" 형태:  "hello"
         if let decodedString = try? JSONDecoder().decode(String.self, from: data) {
             let trimmed = decodedString.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty { throw AlanAPIError.emptyResponse }
             return trimmed
         }
 
-        // 2) "JSON object" 형태: {"action": {...}, "content": "..."}
+        // "JSON object" 형태: {"action": {...}, "content": "..."}
         if let decodedObject = try? JSONDecoder().decode(AlanEnvelope.self, from: data) {
             let content = (decodedObject.content ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             if content.isEmpty == false {

@@ -64,8 +64,6 @@
 		3A9558902F0CFE5F000BEDC1 /* Exceptions for "ESTiOS5Team1" folder in "ESTiOS5Team1" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Chatbot/Services/StreamBotSession.swift,
-				Chatbot/Views/AIIntegrationScreen.swift,
 				Config.xcconfig,
 				Info.plist,
 			);

@@ -79,7 +79,7 @@ final class ChatRoomsViewModel: ObservableObject {
     func select(room: ChatRoom) {
         selectedRoomId = room.identifier
 
-        // 편집중이었다면 선택 동작 시 편집 해제(원하면 유지해도 됨)
+        // 편집중이었다면 선택 동작 시 편집 해제
         if isEditing {
             isEditing = false
             selectedRoomIds.removeAll()
@@ -93,10 +93,10 @@ final class ChatRoomsViewModel: ObservableObject {
         return rooms.first(where: { $0.identifier == selectedRoomId })
     }
 
-    // MARK: - GPT Style: Start new chat (+)
+    // MARK: - Start new chat (+)
 
-    // - 현재 기본 대화(진행 중)를 아카이브로 저장 (요약 제목 1줄)
-    // - 기본 대화는 초기화하여 새 대화를 시작
+    // 현재 기본 대화(진행 중)를 아카이브로 저장 (요약 제목 1줄)
+    // 기본 대화는 초기화하여 새 대화를 시작
     func startNewConversation() async {
         let defaultMessages = await store.loadMessages(roomIdentifier: defaultRoom.identifier)
 
@@ -149,7 +149,7 @@ final class ChatRoomsViewModel: ObservableObject {
 
     // MARK: - Auto archive default room when idle / too long
 
-    /// 기본 대화가 너무 오래되었거나(무활동 30분) 메시지가 너무 많으면 아카이브로 넘기고 초기화.
+    // 기본 대화가 너무 오래되었거나(무활동 30분) 메시지가 너무 많으면 아카이브로 넘기고 초기화.
     func autoArchiveDefaultRoomIfNeeded() async {
         let now = Date()
         let idleSeconds = now.timeIntervalSince(defaultRoom.updatedAt)
