@@ -26,9 +26,13 @@ final class RegisterViewModel: ObservableObject {
 
     // MARK: - Input (사용자 입력 필드)
 
+    /// 이메일 입력값입니다.
     @Published var email = ""
+    /// 비밀번호 입력값입니다.
     @Published var password = ""
+    /// 비밀번호 확인 입력값입니다.
     @Published var confirmPassword = ""
+    /// 닉네임 입력값입니다.
     @Published var nickname = ""
 
     // MARK: - UI State 표시용
@@ -38,9 +42,10 @@ final class RegisterViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    /// Auth 도메인 API 호출 담당 서비스
+    /// Auth 도메인 API 호출 담당 서비스입니다.
     private let authService: AuthService
 
+    /// 의존성을 주입해 초기화합니다.
     init(authService: AuthService) {
         self.authService = authService
     }

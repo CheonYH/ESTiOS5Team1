@@ -15,6 +15,7 @@ import Kingfisher
 @MainActor
 final class AppViewModel: ObservableObject {
 
+    /// 앱 전역 인증/라우팅 상태입니다.
     enum State {
         case launching            // 앱 처음 켜짐
         case signedOut            // 로그인 필요
@@ -22,15 +23,22 @@ final class AppViewModel: ObservableObject {
         case socialNeedsRegister
     }
 
+    /// 현재 앱 상태입니다.
     @Published var state: State = .launching
+    /// 소셜 로그인 후 입력 화면에 미리 채우는 이메일입니다.
     @Published var prefilledEmail: String?
+    /// 소셜 로그인 제공자 UID입니다.
     @Published var socialProviderUid: String?
 
+    /// Firebase 설정 완료 여부입니다.
     @Published var firebaseConfigured = false
 
+    /// 인증 서비스입니다.
     private let authService: AuthService
+    /// 토스트 메시지 관리자입니다.
     private let toast: ToastManager    // 주입 가능하게 할 수도 있음
 
+    /// 의존성을 주입해 초기화합니다.
     init(authService: AuthService, toast: ToastManager) {
         self.authService = authService
         self.toast = toast
@@ -41,6 +49,7 @@ final class AppViewModel: ObservableObject {
         configureImageCache()
     }
 
+    /// Firebase 설정과 세션 복구를 순서대로 수행합니다.
     private func initializeApp() async {
         do {
             // 1. Firebase 설정 완료 대기
@@ -91,6 +100,7 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    /// 서버에서 Firebase 설정을 받아 초기화합니다.
     func setupFirebase() async throws {
 
         guard let url = URL(string: "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app/firebase/config") else { return }
@@ -115,6 +125,7 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    /// 이미지 캐시 용량과 보존 기간을 설정합니다.
     private func configureImageCache() {
         let cache = ImageCache.default
         cache.memoryStorage.config.totalCostLimit = 200 * 1024 * 1024  // 200MB

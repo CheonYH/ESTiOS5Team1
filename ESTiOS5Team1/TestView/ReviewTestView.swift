@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ReviewTestView: View {
 
-    @StateObject private var viewModel = ReviewViewModel(service: ReviewServiceImpl())
+    @StateObject private var viewModel = ReviewViewModel(service: ReviewServiceManager())
 
     @State private var tempGameId: String = ""
     @State private var tempRating: String = ""

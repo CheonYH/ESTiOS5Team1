@@ -65,7 +65,7 @@ protocol ReviewService {
     func me() async throws -> [ReviewResponse]
 }
 
-final class ReviewServiceImpl: ReviewService {
+final class ReviewServiceManager: ReviewService {
 
     private let tokenStore: TokenStore
     private let decoder: JSONDecoder

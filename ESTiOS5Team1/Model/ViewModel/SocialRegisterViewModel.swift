@@ -11,14 +11,19 @@ import Combine
 @MainActor
 final class SocialRegisterViewModel: ObservableObject {
 
+    /// 소셜 로그인 이메일입니다. (없을 수 있음)
     @Published var email: String?
+    /// 닉네임 입력값입니다.
     @Published var nickname: String = ""
+    /// 인증 서비스입니다.
     private let service: AuthService = AuthServiceImpl()
 
+    /// 초기 이메일 값을 주입받습니다.
     init(email: String?) {
         self.email = email
     }
 
+    /// 소셜 가입 요청을 수행하고 결과 이벤트를 반환합니다.
     @discardableResult
     func submit(appViewModel: AppViewModel) async -> FeedbackEvent {
 

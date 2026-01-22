@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 스토어 분류를 나타내는 타입입니다.
 enum Store: Hashable {
     case steam
     case playstation
@@ -14,77 +15,100 @@ enum Store: Hashable {
     case epic
     case nintendo
     case gog
+    /// 기타 스토어입니다. (표시용 이름 포함)
     case other(String)
 }
 
+/// 스토어 링크 정보 모델입니다.
 struct StoreLink: Hashable {
+    /// 스토어 종류입니다.
     let store: Store
+    /// 이동 URL입니다.
     let url: URL
 }
 
 /// 게임 상세 화면에 필요한 필드를 모은 엔티티입니다.
 struct GameDetailEntity {
+    /// 게임 고유 ID입니다.
     let id: Int
+    /// 게임 제목입니다.
     let title: String
+    /// 커버 이미지 URL입니다. (없을 수 있음)
     let coverURL: URL?
+    /// 요약 텍스트입니다.
     let summary: String?
+    /// 스토리라인 텍스트입니다.
     let storyline: String?
+    /// IGDB 집계 메타 점수입니다. (0~100)
     let metaScore: Double?
+    /// 출시 연도입니다. (없을 수 있음)
     let releaseYear: Int?
+    /// 장르 목록입니다.
     let genres: [String]
+    /// 지원 플랫폼 목록입니다.
     let platforms: [GamePlatform]
+    /// 리뷰 기반 평점입니다. (0~5 범위)
     let rating: Double?
 
+    /// 스토어 링크 목록입니다.
     let storeLinks: [StoreLink]
+    /// 공식 웹사이트 URL입니다.
     let officialWebsite: URL?
+    /// 트레일러 URL 목록입니다.
     let trailerUrls: [URL]
+    /// 개발사 목록입니다.
     let developers: [String]
+    /// 배급사 목록입니다.
     let publishers: [String]
 }
 
 extension GameDetailEntity {
-    init(dto: IGDBGameListDTO) {
-        self.id = dto.id
-        self.title = dto.name
+    /// IGDB DTO와 리뷰 통계를 기반으로 상세 엔티티를 생성합니다.
+    init(gameListDTO: IGDBGameListDTO, reviewDTO: ReviewStatsResponse) {
+        self.id = gameListDTO.id
+        self.title = gameListDTO.name
 
-        self.coverURL = Self.makeCoverURL(from: dto)
+        self.coverURL = Self.makeCoverURL(from: gameListDTO)
 
-        self.summary = dto.summary
-        self.storyline = dto.storyline
-        self.metaScore = dto.aggregatedRating
+        self.summary = gameListDTO.summary
+        self.storyline = gameListDTO.storyline
+        self.metaScore = gameListDTO.aggregatedRating
 
-        self.releaseYear = Self.latestReleaseYear(from: dto)
+        self.releaseYear = Self.latestReleaseYear(from: gameListDTO)
 
-        self.genres = dto.genres?.map { $0.name } ?? []
-        self.platforms = dto.platforms?.map { GamePlatform(name: $0.name) } ?? []
-        self.rating = dto.rating
+        self.genres = gameListDTO.genres?.map { $0.name } ?? []
+        self.platforms = gameListDTO.platforms?.map { GamePlatform(name: $0.name) } ?? []
+        self.rating = reviewDTO.averageRating
 
-        self.officialWebsite = Self.officialWebsite(from: dto)
+        self.officialWebsite = Self.officialWebsite(from: gameListDTO)
 
         // 🔹 store links
-        self.storeLinks = Self.storeLinks(from: dto)
+        self.storeLinks = Self.storeLinks(from: gameListDTO)
 
         // 🔹 트레일러 (Youtube ID)
-        self.trailerUrls = Self.trailerURLs(from: dto)
+        self.trailerUrls = Self.trailerURLs(from: gameListDTO)
 
         // 🔹 개발사
-        self.developers = Self.companyNames(from: dto, matching: { $0.developer == true })
+        self.developers = Self.companyNames(from: gameListDTO, matching: { $0.developer == true })
 
         // 🔹 배급사 / 유통사
-        self.publishers = Self.companyNames(from: dto, matching: { $0.publisher == true })
+        self.publishers = Self.companyNames(from: gameListDTO, matching: { $0.publisher == true })
     }
 }
 
 private extension GameDetailEntity {
+    /// 커버 이미지 URL을 생성합니다.
     static func makeCoverURL(from dto: IGDBGameListDTO) -> URL? {
         guard let imageID = dto.cover?.imageID else { return nil }
         return makeIGDBImageURL(imageID: imageID)
     }
 
+    /// 최신 출시 연도를 추출합니다.
     static func latestReleaseYear(from dto: IGDBGameListDTO) -> Int? {
         dto.releaseDates?.compactMap { $0.year }.max()
     }
 
+    /// 공식 웹사이트 URL을 추출합니다.
     static func officialWebsite(from dto: IGDBGameListDTO) -> URL? {
         let official = dto.websites?
             .first(where: { $0.category == 1 })
@@ -125,6 +149,7 @@ private extension GameDetailEntity {
         }
     }
 
+    /// 스토어 링크 목록을 추출합니다.
     static func storeLinks(from dto: IGDBGameListDTO) -> [StoreLink] {
         dto.websites?
             .compactMap { site in
@@ -164,6 +189,7 @@ private extension GameDetailEntity {
             } ?? []
     }
 
+    /// 트레일러 URL 목록을 생성합니다.
     static func trailerURLs(from dto: IGDBGameListDTO) -> [URL] {
         dto.videos?
             .compactMap { video in
@@ -173,6 +199,7 @@ private extension GameDetailEntity {
             ?? []
     }
 
+    /// 조건에 맞는 회사 이름 목록을 반환합니다.
     static func companyNames(
         from dto: IGDBGameListDTO,
         matching predicate: (IGDBInvolvedCompanyDTO) -> Bool

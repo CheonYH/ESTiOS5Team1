@@ -79,10 +79,13 @@ struct IGDBGameListDTO: Codable, Hashable, Identifiable {
     /// 게임 스토리라인(서사) 텍스트
     let storyline: String?
 
+    /// 관련 웹사이트 목록입니다. (공식/스토어 등)
     let websites: [IGDBWebsiteDTO]?
 
+    /// 트레일러/영상 목록입니다.
     let videos: [IGDBVideoDTO]?
 
+    /// 개발사/배급사 연관 정보입니다.
     let involvedCompanies: [IGDBInvolvedCompanyDTO]?
 
     enum CodingKeys: String, CodingKey {

@@ -12,22 +12,31 @@ import Foundation
 @MainActor
 struct GameListItem: Identifiable, Hashable {
 
+    /// 게임 고유 ID입니다.
     let id: Int
+    /// 게임 제목입니다.
     let title: String
+    /// 커버 이미지 URL입니다. (없을 수 있음)
     let coverURL: URL?
+    /// 화면 표시용 평점 문자열입니다.
     let ratingText: String
+    /// 장르 목록입니다.
     let genre: [String]
+    /// 플랫폼 카테고리 목록입니다.
     let platformCategories: [Platform]
+    /// 출시 연도 표시 문자열입니다.
     let releaseYearText: String
+    /// 게임 요약 텍스트입니다.
     let summary: String?
 
+    /// `GameEntity`를 UI 전용 모델로 변환합니다.
     nonisolated init(entity: GameEntity) {
         self.id = entity.id
         self.title = entity.title
         self.coverURL = entity.coverURL
 
         self.ratingText = entity.rating
-            .map { String(format: "%.1f", $0 / 20.0) } ?? "N/A"
+            .map { String(format: "%.1f/5", $0) } ?? "N/A"
 
         self.genre = entity.genre
 

@@ -29,19 +29,27 @@ import Combine
 @MainActor
 final class GameListSingleQueryViewModel: ObservableObject {
 
+    /// 화면에 표시할 리스트 아이템입니다.
     @Published var items: [GameListItem] = []
+    /// 로딩 상태입니다.
     @Published var isLoading = false
+    /// 에러 상태입니다.
     @Published var error: Error?
 
+    /// 원본 엔티티 캐시입니다. (필터링용)
     private var entities: [GameEntity] = []
+    /// IGDB API 서비스입니다.
     private let service: IGDBService
+    /// 멀티쿼리 본문입니다.
     private let query: String
 
+    /// 서비스와 쿼리를 주입받습니다.
     init(service: IGDBService, query: String) {
         self.service = service
         self.query = query
     }
 
+    /// 단일 멀티쿼리로 게임 목록을 불러옵니다.
     func load() async {
         isLoading = true
         error = nil
