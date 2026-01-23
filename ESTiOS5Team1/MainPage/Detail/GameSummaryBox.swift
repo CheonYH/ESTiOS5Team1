@@ -34,7 +34,6 @@ struct GameSummaryBox: View {
                         .font(.caption.bold())
                         .foregroundStyle(.purplePrimary)
                 }
-                
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()

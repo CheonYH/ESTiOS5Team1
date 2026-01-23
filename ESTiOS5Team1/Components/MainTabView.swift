@@ -17,8 +17,7 @@ struct MainTabView: View {
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
     
     @StateObject private var ReleasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
-    //@StateObject private var searchVM = SearchViewModel(favoriteManager: FavoriteManager()) // init 구조에 맞게 조정
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -51,9 +50,6 @@ struct MainTabView: View {
                 }
             }
             .environmentObject(favoriteManager)
-            .transaction { trans in
-                trans.animation = nil
-            }
         }
     }
 }
