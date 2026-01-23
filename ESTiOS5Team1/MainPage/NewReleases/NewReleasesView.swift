@@ -14,7 +14,7 @@ struct NewReleasesView: View {
     var body: some View {
         VStack {
             TitleBox(title: "신규 출시", showsSeeAll: true, onSeeAllTap: { showAll = true})
-            
+
             LoadableList(
                 isLoading: viewModel.isLoading,
                 error: viewModel.error,

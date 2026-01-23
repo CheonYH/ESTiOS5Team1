@@ -33,28 +33,52 @@ struct RegisterView: View {
     @StateObject private var viewModel = RegisterViewModel(authService: AuthServiceImpl())
 
     @Environment(\.dismiss) var dismiss
+    @FocusState private var focusedField: RegisterField?
 
     // MARK: - Body
     var body: some View {
         ZStack {
-            VStack {
-                RegisterHeader { dismiss() }
-                RegisterForm(viewModel: viewModel)
-                SocialLoginSection()
-                BottomLoginSwitch { dismiss() }
+            Color.black
+                .ignoresSafeArea()
+
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack {
+                        RegisterHeader()
+                        RegisterForm(viewModel: viewModel, focusedField: $focusedField)
+                        BottomLoginSwitch { dismiss() }
+                    }
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: focusedField) { field in
+                    guard let field else { return }
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        // 포커스된 입력칸이 키보드에 가려지지 않도록 스크롤합니다.
+                        proxy.scrollTo(field, anchor: .bottom)
+                    }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black)
         }
         .overlay(alignment: toastManager.placement == .top ? .top : .bottom) {
             // ToastManager가 관리하는 이벤트를 구독하여 상/하단에 Toast 표시
             if let event = toastManager.event {
                 ToastView(event: event)
-                    // 위치에 따른 진입/퇴장 애니메이션 적용
+                // 위치에 따른 진입/퇴장 애니메이션 적용
                     .transition(.move(edge: toastManager.placement == .top ? .top : .bottom).combined(with: .opacity))
                     .padding()
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("계정 생성")
+                    .font(.title2)
+                    .bold()
+                    .foregroundColor(.white)
+            }
+        }
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar(.visible, for: .navigationBar)
     }
 }
 
@@ -64,7 +88,9 @@ struct RegisterView: View {
     let auth = AuthServiceImpl()
     let appVM = AppViewModel(authService: auth, toast: toast)
 
-    RegisterView()
-        .environmentObject(appVM)
-        .environmentObject(toast)
+    NavigationStack {
+        RegisterView()
+    }
+    .environmentObject(appVM)
+    .environmentObject(toast)
 }

@@ -16,34 +16,12 @@ import SwiftUI
 struct RegisterHeader: View {
     // MARK: - Properties
 
-    /// 상위에서 주입되는 화면 닫기 액션
-    let dismiss: () -> Void
-
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
 
-            HStack(spacing: 12) {
-
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .padding(Spacing.pv10)
-                        .background(Circle().stroke(.white.opacity(0.3), lineWidth: 1))
-                }
-
-                Text("계정 생성")
-                    .font(.largeTitle)
-                    .bold()
-                    .foregroundStyle(.white)
-            }
-
             Text("지금 가입하고 당신만의 여정을 시작하세요")
-                .font(.title3)
+                .font(.headline)
                 .bold()
                 .foregroundStyle(.gray)
         }
@@ -52,6 +30,7 @@ struct RegisterHeader: View {
         .padding(.leading, 10)
         .padding(.trailing, 10)
     }
+
 }
 
 // MARK: - Preview
