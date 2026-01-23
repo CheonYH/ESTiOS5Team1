@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StarRatingView: View {
     var maxStars: Int = 5
-    let rating: Double
+    @Binding var rating: Double
     var body: some View {
         VStack(spacing: 5) {
             Text("\(rating, specifier: "%.1f")")
@@ -50,6 +50,6 @@ struct StarRatingView: View {
     }
 }
 
-#Preview {
-    StarRatingView(rating: 4.5)
-}
+//#Preview {
+//    StarRatingView(rating: 4.5)
+//}

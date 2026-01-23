@@ -23,7 +23,7 @@ struct MainPoster: View {
                 .frame(height: 400)
                 .clipped()
                 .padding(.top, 20)
-
+                
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("FEATURED")
@@ -45,11 +45,6 @@ struct MainPoster: View {
                 Text(item.title)
                     .font(.largeTitle)
                     .foregroundStyle(.textPrimary)
-
-//                Text(item.id.description ?? "")
-//                    .font(.caption)
-//                    .foregroundStyle(.textPrimary)
-//                    .multilineTextAlignment(.leading)
 
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption2)

@@ -10,7 +10,7 @@ import SwiftUI
 struct DetailView: View {
 
     let gameId: Int
-
+    @State var rating: Double = 4
     @StateObject private var viewModel: GameDetailViewModel
 
     init(gameId: Int) {
@@ -22,15 +22,11 @@ struct DetailView: View {
         ZStack {
             Color.black
                 .ignoresSafeArea()
-            VStack {
+            VStack(spacing: 16) {
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
-
-                        VStack(alignment: .leading) {
-                            Text("Additional Info")
-                        }
-
+                        GameSummaryBox(item: item)
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")
                             .padding()
@@ -38,13 +34,10 @@ struct DetailView: View {
                         Text("오류 발생: \(error.localizedDescription)")
                             .foregroundColor(.red)
                     }
-
-                    if let item = viewModel.item {
-                        GameSummaryBox(item: item)
-                    }
+                    
                     TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
-
-                    StarRatingView(rating: 4.5)
+                    
+                    Review { _, _ in }
                 }
             }
         }
