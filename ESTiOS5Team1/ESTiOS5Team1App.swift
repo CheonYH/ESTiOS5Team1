@@ -38,7 +38,7 @@ struct ESTiOS5Team1App: App {
                 LoginView()
 
             case .signedIn:
-                LogoutTestView()
+               ProfileTestView()
 
             case .socialNeedsRegister:
                 SocialRegisterView(prefilledEmail: appViewModel.prefilledEmail)
