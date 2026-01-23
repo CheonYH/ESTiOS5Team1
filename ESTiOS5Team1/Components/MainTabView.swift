@@ -51,9 +51,9 @@ struct MainTabView: View {
                 }
             }
             .environmentObject(favoriteManager)
-            .transaction { trans in
-                trans.animation = nil
-            }
+//            .transaction { trans in
+//                trans.animation = nil
+//            }
         }
     }
 }
