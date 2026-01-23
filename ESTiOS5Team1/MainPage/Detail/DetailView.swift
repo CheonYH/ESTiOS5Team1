@@ -26,11 +26,11 @@ struct DetailView: View {
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
-                        
+
                         VStack(alignment: .leading) {
                             Text("Additional Info")
                         }
-                        
+
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")
                             .padding()
@@ -38,12 +38,12 @@ struct DetailView: View {
                         Text("오류 발생: \(error.localizedDescription)")
                             .foregroundColor(.red)
                     }
-                    
+
                     if let item = viewModel.item {
                         GameSummaryBox(item: item)
                     }
                     TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
-                    
+
                     StarRatingView(rating: 4.5)
                 }
             }

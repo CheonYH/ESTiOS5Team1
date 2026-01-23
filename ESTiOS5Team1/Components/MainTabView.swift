@@ -13,12 +13,12 @@ struct MainTabView: View {
     @StateObject var favoriteManager = FavoriteManager()
 
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
-    @StateObject private var ReleasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
-    //@StateObject private var searchVM = SearchViewModel(favoriteManager: FavoriteManager()) // init 구조에 맞게 조정
-    
+
+    @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
+    // @StateObject private var searchVM = SearchViewModel(favoriteManager: FavoriteManager()) // init 구조에 맞게 조정
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -30,7 +30,7 @@ struct MainTabView: View {
                             MainView(
                                 viewModel: mainVM,
                                 trendingVM: trendingVM,
-                                newReleasesVM: ReleasesVM
+                                newReleasesVM: releasesVM
                             )
                         case .discover:
                             SearchView(favoriteManager: favoriteManager)
@@ -40,7 +40,7 @@ struct MainTabView: View {
                             MainView(
                                 viewModel: mainVM,
                                 trendingVM: trendingVM,
-                                newReleasesVM: ReleasesVM
+                                newReleasesVM: releasesVM
                             )
                     }
                 }

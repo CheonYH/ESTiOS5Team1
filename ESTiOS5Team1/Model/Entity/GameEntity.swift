@@ -40,8 +40,10 @@ struct GameEntity: Identifiable, Hashable {
     /// 앱에서 사용하는 플랫폼 모델로 변환한 결과입니다.
     let platforms: [GamePlatform]
 
+    /// 출시 연도입니다. (없을 수 있음)
     let releaseYear: Int?
 
+    /// 게임 요약 텍스트입니다.
     let summary: String?
 
 }
@@ -57,36 +59,37 @@ extension GameEntity {
     /// - 플랫폼 DTO → 앱 내부 플랫폼 모델 변환
     ///
     /// - Parameter dto: IGDB에서 받아온 게임 데이터
-    nonisolated init(dto: IGDBGameListDTO) {
-        self.id = dto.id
-        self.title = dto.name
+    nonisolated init(gameListDTO: IGDBGameListDTO) {
+        self.id = gameListDTO.id
+        self.title = gameListDTO.name
 
         // 커버 이미지 URL 생성
-        if let imageID = dto.cover?.imageID {
+        if let imageID = gameListDTO.cover?.imageID {
             self.coverURL = makeIGDBImageURL(imageID: imageID)
         } else {
             self.coverURL = nil
         }
 
         // 원본 평점 값 유지
-        self.rating = dto.rating
+        self.rating = nil
 
         // 장르 처리
-        self.genre = dto.genres?.map { $0.name } ?? []
+        self.genre = gameListDTO.genres?.map { $0.name } ?? []
 
         // 플랫폼 매핑
-        self.platforms = dto.platforms?.map {
+        self.platforms = gameListDTO.platforms?.map {
             GamePlatform(name: $0.name)
         } ?? []
 
         // 요약/설명
-        self.summary = dto.summary
+        self.summary = gameListDTO.summary
 
         // 출시년도 (최신 값 기준)
-        if let years = dto.releaseDates?.compactMap({ $0.year }), let latestYear = years.max() {
+        if let years = gameListDTO.releaseDates?.compactMap({ $0.year }), let latestYear = years.max() {
             self.releaseYear = latestYear
         } else {
             self.releaseYear = nil
         }
+
     }
 }

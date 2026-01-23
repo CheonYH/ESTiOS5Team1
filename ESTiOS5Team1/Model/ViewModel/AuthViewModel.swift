@@ -36,12 +36,16 @@ final class AuthViewModel: ObservableObject {
 
     // MARK: - Input
 
+    /// 이메일 입력값입니다.
     @Published var email: String = ""
+    /// 비밀번호 입력값입니다.
     @Published var password: String = ""
+    /// 로딩 상태입니다.
     @Published var isLoading: Bool = false
 
     // MARK: - Dependencies
 
+    /// 인증 서비스입니다.
     private let service: AuthService
 
     /// 인증 서비스 의존성을 주입받습니다.
@@ -52,6 +56,7 @@ final class AuthViewModel: ObservableObject {
 
     // MARK: - API
 
+    /// 로그인 요청을 수행하고 결과 이벤트를 반환합니다.
     @discardableResult
     func login(appViewModel: AppViewModel) async -> FeedbackEvent {
 
@@ -183,8 +188,6 @@ final class AuthViewModel: ObservableObject {
         let email = signInResult.user.profile?.email
         print("[AuthVM] email =", email ?? "nil")
 
-        // Firebase Auth 연동
-        print("[AuthVM] Firebase credential sign-in START")
         return (idToken, email)
     }
 

@@ -27,6 +27,7 @@ enum SortType: String, CaseIterable, Identifiable {
 }
 
 // MARK: - Rating Filter (슬라이더용)
+
 /// 0.0 ~ 5.0 범위의 최소 평점 값
 /// 0.0이면 필터 비활성화 (모든 평점 표시)
 

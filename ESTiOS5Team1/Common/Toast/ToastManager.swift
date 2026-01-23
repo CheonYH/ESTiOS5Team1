@@ -22,7 +22,7 @@ import Combine
 ///     상태(`event`, `placement`)만 관리하고 UI는 SwiftUI View가 결정합니다.
 ///
 /// - Note:
-///     이 패턴은 실무에서도 많이 사용하는 Event-Driven UI 패턴입니다.
+///     이 패턴은 Event-Driven UI 패턴입니다.
 @MainActor
 final class ToastManager: ObservableObject {
 

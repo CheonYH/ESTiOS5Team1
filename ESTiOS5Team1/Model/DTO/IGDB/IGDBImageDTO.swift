@@ -12,7 +12,7 @@ import Combine
 /// - Important:
 /// IGDB는 이미지 전체 URL을 직접 제공하지 않습니다.
 /// 대신 `image_id`를 내려주며,
-/// 앱에서 이 값을 이용해 이미지 URL을 직접 만들어 사용해야 합니다.
+/// 앱에서는 이 값을 이용해 이미지 URL을 직접 만들어 사용합니다.
 struct IGDBImageDTO: Codable, Hashable {
 
     /// IGDB 이미지 서버에서 사용하는 이미지 식별자

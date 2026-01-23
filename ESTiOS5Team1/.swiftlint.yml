@@ -21,3 +21,7 @@ identifier_name:
 function_parameter_count:
   warning: 8  # 7개부터 경고
   error: 10   # 10개부터 에러
+
+function_body_length:
+  warning: 150
+  error: 200

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 /// 로그인 화면입니다.
 ///
@@ -26,30 +25,43 @@ struct LoginView: View {
 
     /// 로그인 로직과 입력 상태를 담당하는 ViewModel (DI 가능)
     @StateObject private var viewModel = AuthViewModel(service: AuthServiceImpl())
+    @FocusState private var focusedField: LoginField?
 
     // MARK: - Body
     var body: some View {
         NavigationStack {
+
             ZStack {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack {
+                            LoginHeader()
 
-                VStack {
-                    LoginHeader()
+                            LoginForm(viewModel: viewModel, focusedField: $focusedField)
 
-                    LoginForm(viewModel: viewModel)
-
-                    BottomRegisterSwitch()
-
+                            BottomRegisterSwitch()
+                        }
+                    }
+                    .scrollDismissesKeyboard(.interactively)
+                    .onChange(of: focusedField) { field in
+                        guard let field else { return }
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            // 포커스된 입력칸이 키보드에 가려지지 않도록 스크롤합니다.
+                            proxy.scrollTo(field, anchor: .bottom)
+                        }
+                    }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.BG)
 
             }
+            .background(Color.BG)
+            .toolbar(.hidden, for: .navigationBar)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .overlay(alignment: toastManager.placement == .top ? .top : .bottom) {
             // ToastManager가 관리하는 이벤트를 구독하여 상/하단에 Toast 표시
             if let event = toastManager.event {
                 ToastView(event: event)
-                    // 위치에 따른 진입/퇴장 애니메이션 적용
+                // 위치에 따른 진입/퇴장 애니메이션 적용
                     .transition(.move(edge: toastManager.placement == .top ? .top : .bottom).combined(with: .opacity))
                     .padding()
             }
@@ -70,7 +82,9 @@ struct LoginView: View {
     let auth = AuthServiceImpl()
     let appVM = AppViewModel(authService: auth, toast: toast)
 
-    LoginView()
-        .environmentObject(appVM)
-        .environmentObject(toast)
+    NavigationStack {
+        LoginView()
+    }
+    .environmentObject(appVM)
+    .environmentObject(toast)
 }
