@@ -8,28 +8,48 @@
 import Foundation
 import Combine
 
+/// 게임 상세 데이터를 로드하고 화면 표시용 모델로 변환하는 ViewModel입니다.
 @MainActor
 final class GameDetailViewModel: ObservableObject {
+    /// 화면에서 사용하는 상세 아이템
     @Published var item: GameDetailItem?
+    /// 로딩 상태 표시
     @Published var isLoading = false
+    /// 에러 상태
     @Published var error: Error?
 
+    /// 조회 대상 게임 ID입니다.
     private let gameId: Int
-    private let service: IGDBService
+    /// IGDB API 서비스입니다.
+    private let gameService: IGDBService
+    /// 리뷰 API 서비스입니다.
+    private let reviewService: ReviewService
 
-    init(gameId: Int, service: IGDBService = IGDBServiceManager()) {
+    /// 게임 ID와 서비스 의존성을 주입받습니다.
+    init(gameId: Int, service: IGDBService? = nil, reviewService: ReviewService? = nil) {
         self.gameId = gameId
-        self.service = service
+        self.gameService = service ?? IGDBServiceManager()
+        self.reviewService = reviewService ?? ReviewServiceManager()
     }
 
+    /// 단일 게임 상세 정보를 불러옵니다.
     func load() async {
         isLoading = true
         defer { isLoading = false }
 
         do {
-            let dto = try await service.fetchDetail(id: gameId)
-            let entity = GameDetailEntity(dto: dto)
-            self.item = GameDetailItem(detail: entity)
+            let dto = try await gameService.fetchDetail(id: gameId)
+
+            let stats = try await reviewService.stats(gameId: gameId)
+            let list =  try await reviewService.fetchByGame(gameId: gameId, sort: .latest)
+            // 내 리뷰는 전용 엔드포인트에서 가져와 분리합니다.
+            let myReviews = try? await reviewService.me()
+            let myReview = myReviews?.first(where: { $0.gameId == gameId })
+
+            let reviewEntity = GameReviewEntity(reviews: list, stats: stats, myReview: myReview)
+
+            let detailEntity = GameDetailEntity(gameListDTO: dto, reviewDTO: stats)
+            self.item = GameDetailItem(detail: detailEntity, review: reviewEntity)
         } catch {
             self.error = error
         }

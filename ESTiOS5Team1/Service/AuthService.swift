@@ -12,14 +12,9 @@ import FirebaseAuth
 
 // MARK: - API Environment
 
-/// 백엔드 서버 환경 설정
+/// Auth API의 베이스 URL을 한 곳에서 관리합니다.
 ///
-/// - Usage:
-///     APIEnvironment.baseURL
-///
-/// - Note:
-///     추후 개발/스테이징/프로덕션 환경이 분리될 수 있으므로
-///     Base URL은 별도 구조체로 관리한다.
+/// 환경 분리 시 이 값을 바꾸면 전체 요청이 함께 바뀝니다.
 enum APIEnvironment {
     /// 현재 사용하는 서버의 Base URL
     static let baseURL = URL(string: "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app")!
@@ -27,19 +22,14 @@ enum APIEnvironment {
 
 // MARK: - Auth Endpoints
 
-/// 인증(Auth) 관련 API Endpoint 모음
+/// Auth 엔드포인트를 모아둔 정의입니다.
 ///
-/// - API Spec:
-///     `POST /auth/login`
-///     `POST /auth/refresh`
-///     `POST /auth/register`
-///
-/// - Usage:
-///     let url = AuthEndpoint.login.url
+/// 실제 경로가 바뀌면 이 enum을 기준으로 변경합니다.
 enum AuthEndpoint {
     case login
     case refresh
     case register
+    case nicknameCheck
     case socialLogin
     case socialRegister
     case firebaseConfig
@@ -50,6 +40,7 @@ enum AuthEndpoint {
             case .login: return "/auth/login"
             case .refresh: return "/auth/refresh"
             case .register: return "/auth/register"
+            case .nicknameCheck: return "/auth/nickname-check"
             case .firebaseConfig: return "/firebase/config"
             case .socialLogin: return "/auth/social"
             case .socialRegister: return "/auth/social-register"
@@ -69,21 +60,10 @@ enum SocialLoginResult {
 
 // MARK: - Auth Service Protocol
 
-/// 인증(Auth) 도메인 서비스 인터페이스입니다.
+/// ViewModel이 의존하는 Auth API 계약입니다.
 ///
-/// - Purpose:
-///     ViewModel에서 인증 관련 작업을 수행하기 위한 추상화입니다.
-///
-/// - Responsibilities:
-///     - 로그인
-///     - 회원가입
-///     - Refresh 토큰 기반 재발급
-///
-/// - Important:
-///     상위 계층은 본 프로토콜에 의존하고, 실제 네트워크 구현은 `AuthServiceImpl`이 담당합니다.
-///
-/// - Token Handling:
-///     성공 시 Access/Refresh Token 저장 책임은 구현체에 있습니다.
+/// 실제 네트워크 구현은 `AuthServiceImpl`이 담당하고,
+/// 토큰 저장도 그 구현체가 맡습니다.
 protocol AuthService: Sendable {
 
     /// 로그인 요청
@@ -135,6 +115,8 @@ protocol AuthService: Sendable {
     ///     네트워크 오류 / 서버 오류 / 검증 실패(`AuthError.validation` 등)
     func register(email: String, password: String, nickname: String) async throws -> RegisterResponse
 
+    func checkNickname(_ nickname: String) async throws -> Bool
+
     func socialLogin(idToken: String, provider: String) async throws -> SocialLoginResult
 
     func socialRegister(provider: String, providerUid: String, nickname: String, email: String?) async throws -> TokenPair
@@ -142,18 +124,10 @@ protocol AuthService: Sendable {
 
 // MARK: - Auth Service Implementation
 
-/// 인증 API와 통신하는 구현체입니다.
+/// Auth API의 실제 네트워크 구현입니다.
 ///
-/// - Purpose:
-///     서버와의 통신 및 토큰 저장을 담당합니다.
-///
-/// - Responsibilities:
-///     - 로그인 요청 처리
-///     - Refresh 토큰 재발급
-///     - Keychain 토큰 저장
-///
-/// - Important:
-///     데이터 가공 없이 순수 네트워크/저장만 담당합니다.
+/// 네트워크 호출과 토큰 저장만 담당하고,
+/// 데이터 가공은 ViewModel/Entity 쪽에서 처리합니다.
 final class AuthServiceImpl: AuthService {
 
     /// 로그인 요청
@@ -181,6 +155,12 @@ final class AuthServiceImpl: AuthService {
             throw URLError(.badServerResponse)
         }
 
+        if http.statusCode != 200 {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+            print("[AuthService] login status:", http.statusCode)
+            print("[AuthService] login body:", bodyText)
+        }
+
         switch http.statusCode {
             case 200:
                 let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
@@ -203,6 +183,45 @@ final class AuthServiceImpl: AuthService {
                 throw AuthError.server
         }
 
+    }
+
+    func checkNickname(_ nickname: String) async throws -> Bool {
+        let url = AuthEndpoint.nicknameCheck.url
+        let requestBody = NicknameCheckRequest(nickname: nickname)
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(requestBody)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        if http.statusCode != 200 {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+            print("[AuthService] nickname-check status:", http.statusCode)
+            print("[AuthService] nickname-check body:", bodyText)
+        }
+
+        switch http.statusCode {
+        case 200:
+            let decoded = try JSONDecoder().decode(NicknameCheckResponse.self, from: data)
+            return decoded.available
+
+        case 409:
+            return false
+
+        case 422:
+            throw AuthError.validation("닉네임 형식을 확인해주세요.")
+
+        case 500...599:
+            throw AuthError.server
+
+        default:
+            throw AuthError.server
+        }
     }
 
     /// Refresh Token 기반 토큰 재발급
@@ -350,11 +369,23 @@ final class AuthServiceImpl: AuthService {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONEncoder().encode(body)
+        let encodedBody = try JSONEncoder().encode(body)
+        req.httpBody = encodedBody
+        if let bodyText = String(data: encodedBody, encoding: .utf8) {
+            print("[AuthService] social-register request body:", bodyText)
+        } else {
+            print("[AuthService] social-register request body: <non-utf8>")
+        }
 
         let (data, response) = try await URLSession.shared.data(for: req)
         guard let http = response as? HTTPURLResponse else {
             throw AuthError.server
+        }
+
+        if http.statusCode != 200 {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+            print("[AuthService] social-register status:", http.statusCode)
+            print("[AuthService] social-register body:", bodyText)
         }
 
         switch http.statusCode {

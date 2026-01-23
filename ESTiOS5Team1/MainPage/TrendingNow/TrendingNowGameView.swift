@@ -40,10 +40,9 @@ struct TrendingNowGameView: View {
                 await viewModel.load()
             }
         }
-        
+
         .navigationDestination(isPresented: $showAll) {
             GameListSeeAll(title: "인기 게임", query: IGDBQuery.trendingNow)
         }
     }
 }
-

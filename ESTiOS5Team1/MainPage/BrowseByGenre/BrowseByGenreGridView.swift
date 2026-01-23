@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BrowseByGenreGridView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     private let rows = [
         GridItem(.fixed(140), spacing: 16),
         GridItem(.fixed(140), spacing: 16)

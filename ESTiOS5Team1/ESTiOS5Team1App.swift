@@ -38,7 +38,7 @@ struct ESTiOS5Team1App: App {
                 LoginView()
 
             case .signedIn:
-               ProfileTestView()
+                ReviewTestView()
 
             case .socialNeedsRegister:
                 SocialRegisterView(prefilledEmail: appViewModel.prefilledEmail)
@@ -61,12 +61,14 @@ struct ESTiOS5Team1App: App {
 
     var body: some Scene {
         WindowGroup {
-            content
+            /* content
                 .environmentObject(toastManager)
                 .environmentObject(appViewModel)
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
-                }
+                } */
+
+            DetailInfoTestView()
         }
         .modelContainer(sharedModelContainer)
     }

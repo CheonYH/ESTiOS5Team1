@@ -13,7 +13,7 @@ struct MainTabView: View {
     @StateObject var favoriteManager = FavoriteManager()
 
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
     
     @StateObject private var ReleasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
@@ -29,7 +29,7 @@ struct MainTabView: View {
                             MainView(
                                 viewModel: mainVM,
                                 trendingVM: trendingVM,
-                                newReleasesVM: ReleasesVM
+                                newReleasesVM: releasesVM
                             )
                         case .discover:
                             SearchView(favoriteManager: favoriteManager)
@@ -39,7 +39,7 @@ struct MainTabView: View {
                             MainView(
                                 viewModel: mainVM,
                                 trendingVM: trendingVM,
-                                newReleasesVM: ReleasesVM
+                                newReleasesVM: releasesVM
                             )
                     }
                 }

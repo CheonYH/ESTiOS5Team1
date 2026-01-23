@@ -59,7 +59,6 @@ final class TokenStore {
         }
     }
 
-
     /// Access Token만 갱신할 때 사용합니다.
     ///
     /// 예: Refresh 요청 후 access만 rotation될 경우

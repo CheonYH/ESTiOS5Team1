@@ -26,9 +26,13 @@ final class RegisterViewModel: ObservableObject {
 
     // MARK: - Input (사용자 입력 필드)
 
+    /// 이메일 입력값입니다.
     @Published var email = ""
+    /// 비밀번호 입력값입니다.
     @Published var password = ""
+    /// 비밀번호 확인 입력값입니다.
     @Published var confirmPassword = ""
+    /// 닉네임 입력값입니다.
     @Published var nickname = ""
 
     // MARK: - UI State 표시용
@@ -38,9 +42,10 @@ final class RegisterViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    /// Auth 도메인 API 호출 담당 서비스
+    /// Auth 도메인 API 호출 담당 서비스입니다.
     private let authService: AuthService
 
+    /// 의존성을 주입해 초기화합니다.
     init(authService: AuthService) {
         self.authService = authService
     }
@@ -103,6 +108,11 @@ final class RegisterViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            let isAvailable = try await authService.checkNickname(nickname)
+            if !isAvailable {
+                return FeedbackEvent(.auth, .warning, "이미 사용 중인 닉네임입니다.")
+            }
+
             _ = try await authService.register(
                 email: email,
                 password: password,
@@ -174,6 +184,7 @@ final class RegisterViewModel: ObservableObject {
             case .validation(let message): return FeedbackEvent(.auth, .warning, message)
             case .network: return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
             case .server: return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
+            case .conflict(let field): return FeedbackEvent(.auth, .warning, "\(field)이 이미 사용 중입니다.")
             default: return FeedbackEvent(.auth, .error, "회원가입 중 오류가 발생했습니다.")
         }
     }

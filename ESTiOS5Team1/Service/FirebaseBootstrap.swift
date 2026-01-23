@@ -7,10 +7,13 @@
 import Foundation
 import Firebase
 
+/// 서버에서 내려온 Firebase 설정으로 SDK를 초기화합니다.
+///
+/// 앱 실행 시점에 동적으로 설정을 받아야 할 때 사용합니다.
 final class FirebaseBootstrap {
     static let shared = FirebaseBootstrap()
 
-    // 설정 완료 여부를 핸들러로 전달받도록 수정
+    /// 설정 성공/실패를 completion으로 전달합니다.
     func configure(completion: @escaping (Bool) -> Void) {
         Task {
             do {
@@ -46,7 +49,7 @@ final class FirebaseBootstrap {
         )
         options.apiKey = config.apiKey
         options.projectID = config.projectId
-        options.bundleID = Bundle.main.bundleIdentifier ?? "" // 필수 추가 권장
+        options.bundleID = Bundle.main.bundleIdentifier ?? "" // bundleID가 필요한 구성이라 함께 세팅합니다.
         options.storageBucket = config.storageBucket
         options.clientID = config.clientId
 

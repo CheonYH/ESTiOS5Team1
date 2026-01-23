@@ -11,7 +11,7 @@ import Kingfisher
 struct MainPoster: View {
     let item: GameListItem
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             KFImage(item.coverURL)
@@ -49,13 +49,13 @@ struct MainPoster: View {
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption2)
                     .foregroundColor(.textPrimary.opacity(0.7))
-                
+
                 ForEach(item.platformCategories, id: \.rawValue) { platform in
                     Image(systemName: platform.iconName)
                         .foregroundStyle(.textPrimary.opacity(0.6))
                         .font(.caption)
                 }
-                
+
                 HStack {
                     Button {
                         // 플레이 나우 기능
