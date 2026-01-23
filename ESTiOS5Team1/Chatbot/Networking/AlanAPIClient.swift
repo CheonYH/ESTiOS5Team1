@@ -11,10 +11,6 @@ struct AlanAPIClient {
     struct Configuration: Sendable {
         /// e.g. https://kdt-api-function.azurewebsites.net
         let baseUrl: URL
-
-        init(baseUrl: URL) {
-            self.baseUrl = baseUrl
-        }
     }
 
     enum AlanAPIError: LocalizedError {

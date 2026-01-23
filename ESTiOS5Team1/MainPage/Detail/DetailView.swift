@@ -34,9 +34,9 @@ struct DetailView: View {
                         Text("오류 발생: \(error.localizedDescription)")
                             .foregroundColor(.red)
                     }
-                    
+
                     TitleBox(title: "Ratings & Reviews", showsSeeAll: true, onSeeAllTap: nil)
-                    
+
                     Review { _, _ in }
                 }
             }

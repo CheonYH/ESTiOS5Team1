@@ -50,6 +50,6 @@ struct StarRatingView: View {
     }
 }
 
-//#Preview {
+// #Preview {
 //    StarRatingView(rating: 4.5)
-//}
+// }

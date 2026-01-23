@@ -23,7 +23,7 @@ struct MainPoster: View {
                 .frame(height: 400)
                 .clipped()
                 .padding(.top, 20)
-                
+
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("FEATURED")

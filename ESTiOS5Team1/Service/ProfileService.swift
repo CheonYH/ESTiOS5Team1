@@ -24,7 +24,6 @@ enum ProfileEndpoint {
     }
 }
 
-
 protocol ProfileService: Sendable {
     func create(nickname: String, avatarUrl: String) async throws -> ProfileResponse
     func fetch() async throws -> ProfileResponse
@@ -76,11 +75,16 @@ final class ProfileServiceManager: ProfileService {
     private func perform(_ request: URLRequest) async throws -> ProfileResponse {
         let (data, response) = try await URLSession.shared.data(for: request)
 
-        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            let body = String(data: data, encoding: .utf8) ?? "<empty>"
+            print("[ProfileService] status=\(httpResponse.statusCode) body=\(body)")
             throw URLError(.badServerResponse)
         }
 
         return try decoder.decode(ProfileResponse.self, from: data)
     }
 }
-

@@ -17,21 +17,21 @@ struct Review: View {
             Text("평가 남기기")
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
-            
+
             StarRatingView(rating: $rating)
-            
+
             TextField("게임의 평가를 남겨주세요.", text: $text, axis: .vertical)
                 .lineLimit(3...8)
                 .focused($focused)
                 .textFieldStyle(.plain)
                 .padding()
                 .foregroundStyle(.white)
-                
+
             HStack {
                 Spacer()
                 Button {
                     let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                    
+
                     guard !trimmed.isEmpty else { return }
                     onSubmit(rating, trimmed)
                     text = ""

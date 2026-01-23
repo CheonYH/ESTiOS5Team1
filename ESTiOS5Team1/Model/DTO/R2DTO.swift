@@ -15,6 +15,6 @@ struct R2PresignRequest: Codable, Hashable {
 struct R2PresignResponse: Codable, Hashable {
     let uploadUrl: String
     let key: String
-    let publicUrl: String
+    let publicUrl: String?
     let expiresIn: Int
 }

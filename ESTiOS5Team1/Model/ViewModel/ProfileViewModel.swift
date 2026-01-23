@@ -63,13 +63,38 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
-
     func presign(filename: String, expiresIn: Int = 900) async -> R2PresignResponse? {
+        print("[Presign] start filename=\(filename) expiresIn=\(expiresIn)")
         do {
-            return try await r2Service.presign(filename: filename, expiresIn: expiresIn)
-        }  catch {
+            let result = try await r2Service.presign(filename: filename, expiresIn: expiresIn)
+            print("[Presign] success key=\(result.key)")
+            return result
+        } catch {
+            print("[Presign] failed error=\(error)")
             errorMessage = "프리사인 실패"
             return nil
+        }
+    }
+
+    func uploadToPresignedUrl(_ uploadUrl: String, data: Data, contentType: String = "image/png") async -> Bool {
+        guard let url = URL(string: uploadUrl) else {
+            return false
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+        request.httpBody = data
+
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse else {
+                return false
+            }
+            return (200...299).contains(http.statusCode)
+        } catch {
+            print("[Upload] failed error=\(error)")
+            return false
         }
     }
 }

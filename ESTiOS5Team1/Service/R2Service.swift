@@ -21,7 +21,6 @@ protocol R2Service: Sendable {
     func presign(filename: String, expiresIn: Int) async throws -> R2PresignResponse
 }
 
-
 final class R2ServiceManager: R2Service {
 
     private let tokenStore: TokenStore
@@ -41,7 +40,13 @@ final class R2ServiceManager: R2Service {
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard (200...299).contains(http.statusCode) else {
+            let body = String(data: data, encoding: .utf8) ?? "<empty>"
+            print("[R2Service] status=\(http.statusCode) body=\(body)")
             throw URLError(.badServerResponse)
         }
 
