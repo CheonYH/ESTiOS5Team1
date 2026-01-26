@@ -142,7 +142,11 @@ final class AuthServiceImpl: AuthService {
     ///     Access/Refresh Token을 Keychain에 저장하여 자동 로그인 가능
     func login(email: String, password: String) async throws -> LoginResponse {
         let url = AuthEndpoint.login.url
-        let requestBody = LoginRequest(email: email, password: password)
+        let requestBody = LoginRequest(
+            email: email,
+            password: password,
+            deviceId: DeviceID.shared.value
+        )
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -328,7 +332,11 @@ final class AuthServiceImpl: AuthService {
     func socialLogin(idToken: String, provider: String) async throws -> SocialLoginResult {
 
         let url = AuthEndpoint.socialLogin.url
-        let body = SocialIdTokenLoginRequest(idToken: idToken, provider: provider)
+        let body = SocialIdTokenLoginRequest(
+            idToken: idToken,
+            provider: provider,
+            deviceId: DeviceID.shared.value
+        )
 
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
@@ -363,7 +371,8 @@ final class AuthServiceImpl: AuthService {
             provider: provider,
             providerUid: providerUid,
             nickname: nickname,
-            email: email
+            email: email,
+            deviceId: DeviceID.shared.value
         )
 
         var req = URLRequest(url: url)

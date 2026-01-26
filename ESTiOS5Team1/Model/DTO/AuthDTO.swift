@@ -25,6 +25,8 @@ struct LoginRequest: Codable, Hashable {
     let email: String
     /// 로그인 비밀번호입니다.
     let password: String
+    /// 기기 식별자입니다. (옵션)
+    let deviceId: String?
 }
 
 // MARK: - Login Response / Token Pair DTO
@@ -153,6 +155,8 @@ struct SocialIdTokenLoginRequest: Codable {
     let idToken: String
     /// 소셜 제공자 이름입니다.
     let provider: String
+    /// 기기 식별자입니다. (옵션)
+    let deviceId: String?
 }
 
 /// 소셜 회원가입 요청에 사용하는 모델입니다.
@@ -168,6 +172,8 @@ struct SocialRegisterRequest: Codable {
     let nickname: String
     /// 이메일입니다. (없을 수 있음)
     let email: String?
+    /// 기기 식별자입니다. (옵션)
+    let deviceId: String?
 }
 
 /// 소셜 로그인 후 추가 가입이 필요한 경우의 서버 응답입니다.

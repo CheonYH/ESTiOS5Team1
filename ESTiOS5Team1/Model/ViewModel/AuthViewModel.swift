@@ -117,6 +117,7 @@ final class AuthViewModel: ObservableObject {
     ///     toast.show(event)
     ///     ```
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
+        signOutFromSocialProviders()
         TokenStore.shared.clear()
         appViewModel.state = .signedOut
 
@@ -125,6 +126,15 @@ final class AuthViewModel: ObservableObject {
             status: .info,
             message: "로그아웃 되었습니다"
         )
+    }
+
+    private func signOutFromSocialProviders() {
+        GIDSignIn.sharedInstance.signOut()
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("[AuthVM] Firebase signOut failed:", error)
+        }
     }
 
     @discardableResult
