@@ -169,29 +169,31 @@ struct RegisterForm: View {
                     .foregroundStyle(.gray.opacity(0.4))
                     .layoutPriority(0)
             }
-            .padding(.top, Spacing.pv10)
+            .padding(Spacing.pv10)
 
-            HStack(spacing: 16) {
+            HStack(alignment: .center, spacing: 16) {
+
                 Button {
                     Task {
                         let event = await authViewModel.signInWithGoogle(appViewModel: appViewModel)
                         toastManager.show(event)
                     }
                 } label: {
-                    Image(systemName: "applelogo")
+                    Image("google")
+                        .renderingMode(.template)
                         .resizable()
                         .scaledToFit()
+                        .foregroundStyle(.white)
                         .frame(width: 28, height: 28)
-                        .padding(12)
-                        .frame(width: 120, height: 80)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 60)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
                                 .stroke(.white.opacity(0.3), lineWidth: 1)
                         )
-                        .foregroundStyle(.white)
                 }
 
-                Button { } label: {
+               /* Button { } label: {
                     Image(systemName: "playstation.logo")
                         .resizable()
                         .scaledToFit()
@@ -203,9 +205,9 @@ struct RegisterForm: View {
                                 .stroke(.white.opacity(0.3), lineWidth: 1)
                         )
                         .foregroundStyle(.white)
-                }
+                } */
 
-                Button { } label: {
+               /* Button { } label: {
                     Image(systemName: "xbox.logo")
                         .resizable()
                         .scaledToFit()
@@ -217,7 +219,7 @@ struct RegisterForm: View {
                                 .stroke(.white.opacity(0.3), lineWidth: 1)
                         )
                         .foregroundStyle(.white)
-                }
+                } */
 
             }
         }

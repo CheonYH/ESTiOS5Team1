@@ -2,7 +2,7 @@
 //  NicknameValidator.swift
 //  ESTiOS5Team1
 //
-//  Created by Codex on 2/3/26.
+//  Created by cheon on 2/3/26.
 //
 
 import Foundation

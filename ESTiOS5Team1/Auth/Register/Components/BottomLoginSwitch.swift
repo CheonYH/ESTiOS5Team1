@@ -37,7 +37,7 @@ struct BottomLoginSwitch: View {
                     .bold()
             }
         }
-        .padding()
+        .padding(Spacing.pv10)
     }
 }
 

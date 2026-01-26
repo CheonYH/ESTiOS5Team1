@@ -5,13 +5,6 @@
 //  Created by cheon on 1/15/26.
 //
 
-//
-//  RegisterTestView.swift
-//  ESTiOS5Team1
-//
-//  Created by cheon on 1/15/26.
-//
-
 import SwiftUI
 
 /// 회원가입 화면입니다.
