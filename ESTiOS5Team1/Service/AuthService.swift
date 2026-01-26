@@ -404,5 +404,4 @@ final class AuthServiceImpl: AuthService {
                 throw AuthError.server
         }
     }
-
 }

@@ -53,7 +53,7 @@ final class ToastManager: ObservableObject {
     ///     `toastManager.show(FeedbackEvent(.auth, .success, "로그인 성공!"))`
     func show(_ event: FeedbackEvent) {
         // UI에 표시할 이벤트 설정
-        withAnimation(.spring()) {
+        withAnimation(.easeOut(duration: 0.45)) {
             self.event = event
             self.placement = event.resolvedPlacement
         }
@@ -80,7 +80,7 @@ final class ToastManager: ObservableObject {
     ///     toastManager.dismiss()
     ///     ```
     func dismiss() {
-        withAnimation(.spring()) {
+        withAnimation(.easeIn(duration: 0.35)) {
             self.event = nil
         }
     }

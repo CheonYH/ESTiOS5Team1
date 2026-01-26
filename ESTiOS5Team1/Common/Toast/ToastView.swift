@@ -54,10 +54,7 @@ struct ToastView: View {
         .padding(.horizontal, 20)
         .padding(.top, event.resolvedPlacement == .top ? 16 : 0)
         .padding(.bottom, event.resolvedPlacement == .bottom ? 20 : 0)
-        .transition(
-            .move(edge: event.resolvedPlacement == .top ? .top : .bottom)
-            .combined(with: .opacity)
-        )
+        .transition(toastTransition)
     }
 }
 
@@ -82,5 +79,13 @@ extension ToastView {
         case .warning: "exclamationmark.triangle.fill"
         case .info: "info.circle.fill"
         }
+    }
+
+    private var toastTransition: AnyTransition {
+        let yOffset: CGFloat = event.resolvedPlacement == .top ? -10 : 10
+        return .asymmetric(
+            insertion: .opacity.combined(with: .offset(y: yOffset)),
+            removal: .opacity.combined(with: .offset(y: yOffset))
+        )
     }
 }

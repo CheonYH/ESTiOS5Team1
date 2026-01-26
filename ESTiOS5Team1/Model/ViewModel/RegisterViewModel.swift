@@ -71,11 +71,7 @@ final class RegisterViewModel: ObservableObject {
 
     /// 닉네임 규칙 검증 (길이 + 이모지 + 반복문자 체크)
     var isNicknameValid: Bool {
-        let trimmed = nickname.trimmingCharacters(in: .whitespaces)
-        return trimmed.count >= 2 &&
-        trimmed.count <= 12 &&
-        !containsEmoji(trimmed) &&
-        !hasTooManyRepeatingCharacters(trimmed)
+        NicknameValidator.validate(nickname) == .valid
     }
 
     /// 모든 항목이 유효한지 여부 (가입 버튼 활성화 조건)
@@ -108,7 +104,11 @@ final class RegisterViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            let start = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] register START")
             let isAvailable = try await authService.checkNickname(nickname)
+            let afterNickname = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] nickname check done in \(String(format: "%.3f", afterNickname - start))s")
             if !isAvailable {
                 return FeedbackEvent(.auth, .warning, "이미 사용 중인 닉네임입니다.")
             }
@@ -118,9 +118,13 @@ final class RegisterViewModel: ObservableObject {
                 password: password,
                 nickname: nickname
             )
+            let afterRegister = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] register network done in \(String(format: "%.3f", afterRegister - afterNickname))s total \(String(format: "%.3f", afterRegister - start))s")
 
             appViewModel.prefilledEmail = email
             appViewModel.state = .signedOut
+            let afterState = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] state updated in \(String(format: "%.3f", afterState - afterRegister))s total \(String(format: "%.3f", afterState - start))s")
             return FeedbackEvent(.auth, .success, "회원가입 완료! 로그인해주세요.")
 
         } catch {
@@ -129,49 +133,31 @@ final class RegisterViewModel: ObservableObject {
     }
 
     // MARK: - Validation Helpers
-
-    /// 텍스트에 이모지가 포함되어 있는지 검사합니다.
-    private func containsEmoji(_ text: String) -> Bool {
-        for scalar in text.unicodeScalars {
-            switch scalar.value {
-                case 0x1F600...0x1F64F,
-                    0x1F300...0x1F5FF,
-                    0x1F680...0x1F6FF,
-                    0x2600...0x26FF,
-                    0x2700...0x27BF:
-                    return true
-                default:
-                    continue
-            }
-        }
-        return false
-    }
-
-    /// 동일 문자 반복 여부 검사 (3회 이상)
-    private func hasTooManyRepeatingCharacters(_ text: String) -> Bool {
-        var last: Character?
-        var count = 1
-
-        for char in text {
-            if char == last {
-                count += 1
-                if count >= 3 { return true }
-            } else {
-                count = 1
-                last = char
-            }
-        }
-        return false
-    }
-
     // MARK: - Helper Methods (복잡도 분산)
     private func validateInputs() -> FeedbackEvent? {
         guard !email.isEmpty else { return FeedbackEvent(.auth, .warning, "이메일을 입력해주세요.") }
         guard isEmailValid else { return FeedbackEvent(.auth, .warning, "올바른 이메일 형식이 아닙니다.") }
         guard isPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호는 영문/숫자/특수문자 포함 8자 이상이어야 합니다.") }
         guard isConfirmPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호 확인이 일치하지 않습니다.") }
-        guard isNicknameValid else { return FeedbackEvent(.auth, .warning, "닉네임 형식을 확인해주세요.") }
+        if let nicknameError = nicknameValidationError() { return nicknameError }
         return nil
+    }
+
+    private func nicknameValidationError() -> FeedbackEvent? {
+        switch NicknameValidator.validate(nickname) {
+            case .valid:
+                return nil
+            case .empty:
+                return FeedbackEvent(.auth, .warning, "닉네임을 입력해주세요.")
+            case .length:
+                return FeedbackEvent(.auth, .warning, "닉네임은 2~12자로 입력해주세요.")
+            case .emoji:
+                return FeedbackEvent(.auth, .warning, "닉네임에는 이모지를 사용할 수 없습니다.")
+            case .repeating:
+                return FeedbackEvent(.auth, .warning, "동일 문자는 3회 이상 반복할 수 없습니다.")
+            case .numericOnly:
+                return FeedbackEvent(.auth, .warning, "닉네임은 숫자만 사용할 수 없습니다.")
+        }
     }
 
     /// 에러 처리 로직만 담당 (복잡도 분리)

@@ -122,6 +122,10 @@ struct RegisterForm: View {
                         .stroke(.gray.opacity(0.6), lineWidth: 1)
                 )
 
+            Text("닉네임은 2~12자, 이모지/숫자만 불가, 동일 문자 3회 이상 반복 불가")
+                .font(.caption)
+                .foregroundStyle(.textPrimary.opacity(0.7))
+
             Button {
                 Task {
                     // ViewModel을 통해 회원가입 요청 → UI로 전달할 FeedbackEvent 반환

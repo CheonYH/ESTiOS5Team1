@@ -44,6 +44,9 @@ final class IGDBServiceManager: IGDBService {
     private let baseURL = "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app"
 
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse {
+        let start = CFAbsoluteTimeGetCurrent()
+        let batchNames = batch.map { $0.name }.joined(separator: ",")
+        print("[IGDB] fetch START - \(batchNames)")
 
         let body = batch.map { block in
             """
@@ -63,6 +66,8 @@ final class IGDBServiceManager: IGDBService {
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
 
         let (data, response) = try await URLSession.shared.data(for: request)
+        let afterNetwork = CFAbsoluteTimeGetCurrent()
+        print("[IGDB] fetch network done in \(String(format: "%.3f", afterNetwork - start))s")
         guard let http = response as? HTTPURLResponse,
               (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
@@ -78,10 +83,14 @@ final class IGDBServiceManager: IGDBService {
             }
         }
 
+        let afterParse = CFAbsoluteTimeGetCurrent()
+        print("[IGDB] fetch parse done in \(String(format: "%.3f", afterParse - afterNetwork))s total \(String(format: "%.3f", afterParse - start))s")
         return result
     }
 
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO {
+        let start = CFAbsoluteTimeGetCurrent()
+        print("[IGDB] fetchDetail START - id=\(id)")
         let query = IGDBQuery.detail + "where id = \(id);"
 
         guard let url = URL(string: "\(baseURL)/v4/games") else {
@@ -94,6 +103,8 @@ final class IGDBServiceManager: IGDBService {
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
 
         let (data, response) = try await URLSession.shared.data(for: request)
+        let afterNetwork = CFAbsoluteTimeGetCurrent()
+        print("[IGDB] fetchDetail network done in \(String(format: "%.3f", afterNetwork - start))s")
         guard let http = response as? HTTPURLResponse,
               (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
@@ -104,7 +115,10 @@ final class IGDBServiceManager: IGDBService {
 
         let dtoData = try JSONSerialization.data(withJSONObject: raw, options: [])
         do {
-            return try JSONDecoder().decode(IGDBGameListDTO.self, from: dtoData)
+            let decoded = try JSONDecoder().decode(IGDBGameListDTO.self, from: dtoData)
+            let afterParse = CFAbsoluteTimeGetCurrent()
+            print("[IGDB] fetchDetail parse done in \(String(format: "%.3f", afterParse - afterNetwork))s total \(String(format: "%.3f", afterParse - start))s")
+            return decoded
         } catch {
             print("[IGDB] decode failed:", error)
             if let json = String(data: dtoData, encoding: .utf8) {

@@ -15,6 +15,7 @@ struct TrendingNowGameCard: View {
         ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 5) {
                 KFImage(item.coverURL)
+                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 200, height: 170)))
                     .cacheOriginalImage()
                     .loadDiskFileSynchronously()
                     .placeholder {
