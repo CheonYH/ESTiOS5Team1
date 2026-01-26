@@ -5,7 +5,7 @@
 //  Created by JaeYeongMAC on 1/8/26.
 //
 import SwiftUI
-
+import Kingfisher
 struct GenreCard: View {
 
     let genre: GameGenreModel

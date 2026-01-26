@@ -21,7 +21,8 @@ struct SearchView: View {
 
     @StateObject private var viewModel: SearchViewModel
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    
+    @Binding var openSearchRequested: Bool
     // MARK: - Initialization
 
     /// 통합 Initializer (기본값으로 3개 init 통합)
@@ -32,15 +33,18 @@ struct SearchView: View {
     init(
         favoriteManager: FavoriteManager,
         initialGenre: GenreFilterType = .all,
-        initialPlatform: PlatformFilterType = .all
+        initialPlatform: PlatformFilterType = .all,
+        openSearchRequested: Binding<Bool> = .constant(false)
     ) {
+        self._openSearchRequested = openSearchRequested
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: initialPlatform)
         _selectedGenre = State(initialValue: initialGenre)
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel) {
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false)) {
+        self._openSearchRequested = openSearchRequested
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: .all)
         _selectedGenre = State(initialValue: GenreFilterType.from(gameGenre: gameGenre))
@@ -152,7 +156,22 @@ struct SearchView: View {
         .sheet(isPresented: $showFilterSheet) {
             FilterSheet(filterState: $advancedFilterState)
         }
+        .onChange(of: openSearchRequested) { v in
+            guard v else { return }
+            withAnimation(.spring(response: 0.3)) {
+                isSearchActive = true
+            }
+            openSearchRequested = false // 한번 열었으면 리셋
+        }
+        .onAppear {
+            // 첫 렌더에서 이미 true로 들어온 경우 보정
+            if openSearchRequested {
+                isSearchActive = true
+                openSearchRequested = false
+            }
+        }
     }
+    
 
     // MARK: - Computed Properties
 

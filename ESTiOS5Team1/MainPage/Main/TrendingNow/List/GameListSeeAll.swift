@@ -12,7 +12,7 @@ struct GameListSeeAll: View {
     let query: String
 
     @StateObject private var viewModel: GameListSingleQueryViewModel
-
+    @EnvironmentObject var tabBarState: TabBarState
     init (title: String, query: String) {
         self.title = title
         self.query = query
@@ -45,6 +45,8 @@ struct GameListSeeAll: View {
         .background(Color.BG.ignoresSafeArea())
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { tabBarState.isHidden = true }
+        .onDisappear { tabBarState.isHidden = false }
         .task {
             await viewModel.load()
         }
