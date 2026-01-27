@@ -59,7 +59,8 @@ final class GameListSingleQueryViewModel: ObservableObject {
     var canLoadMore: Bool { hasMore }
 
     /// 서비스와 쿼리를 주입받습니다.
-    init(service: IGDBService, reviewService: ReviewService = ReviewServiceManager(), query: String, pageSize: Int = 300) {
+    /// [수정] pageSize 300 → 30으로 변경하여 초기 로딩 속도 개선
+    init(service: IGDBService, query: String, pageSize: Int = 100) {
         self.service = service
         self.query = query
         self.pageSize = pageSize
