@@ -63,6 +63,7 @@ final class SearchViewModel: ObservableObject {
     private var currentLoadedGenre: GenreFilterType = .all
 
     private var cancellables = Set<AnyCancellable>()
+    private var skipSortCount = 0
 
     // MARK: - Initialization
     init(service: IGDBService = IGDBServiceManager(), favoriteManager: FavoriteManager) {
@@ -250,6 +251,7 @@ final class SearchViewModel: ObservableObject {
         isSearchLoadingMore = true
         defer { isSearchLoadingMore = false }
 
+        skipSortCount = max(skipSortCount, 1)
         await vm.loadNextPage()
         self.searchItems = vm.items
         self.searchError = vm.error
@@ -274,12 +276,16 @@ final class SearchViewModel: ObservableObject {
 
         switch category {
         case .all:
+            skipSortCount = max(skipSortCount, 3)
             await loadNextAll()
         case .trending:
+            skipSortCount = max(skipSortCount, 1)
             await trendingViewModel?.loadNextPage()
         case .newReleases:
+            skipSortCount = max(skipSortCount, 1)
             await newReleasesViewModel?.loadNextPage()
         case .discover:
+            skipSortCount = max(skipSortCount, 1)
             await discoverViewModel?.loadNextPage()
         }
     }
@@ -326,6 +332,13 @@ final class SearchViewModel: ObservableObject {
         // 필터 다시 적용
         updateAllItems()
         updateFilteredItems()
+    }
+
+    /// 장르 전환 시 즉시 로딩 상태로 전환합니다.
+    func prepareGenreLoading(_ genre: GenreFilterType) {
+        guard genre != .all else { return }
+        isGenreLoading = true
+        genreItems = []
     }
 
     /// 장르별 다음 페이지 로드
@@ -425,7 +438,11 @@ final class SearchViewModel: ObservableObject {
         }
 
         // 정렬 적용
-        result = sortItems(result)
+        if skipSortCount > 0 {
+            skipSortCount -= 1
+        } else {
+            result = sortItems(result)
+        }
         filteredItems = result
     }
 

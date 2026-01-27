@@ -121,6 +121,7 @@ struct SearchView: View {
         .onChange(of: selectedPlatform) { _ in applyFilters() }
         .onChange(of: selectedGenre) { newGenre in
             // [추가] 장르 변경 시 서버에서 해당 장르 데이터 로드
+            viewModel.prepareGenreLoading(newGenre)
             Task {
                 await viewModel.loadGamesForGenre(newGenre)
             }
