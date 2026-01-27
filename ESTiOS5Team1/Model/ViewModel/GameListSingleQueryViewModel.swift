@@ -55,7 +55,7 @@ final class GameListSingleQueryViewModel: ObservableObject {
 
     /// 서비스와 쿼리를 주입받습니다.
     /// [수정] pageSize 300 → 30으로 변경하여 초기 로딩 속도 개선
-    init(service: IGDBService, query: String, pageSize: Int = 300) {
+    init(service: IGDBService, query: String, pageSize: Int = 100) {
         self.service = service
         self.query = query
         self.pageSize = pageSize
