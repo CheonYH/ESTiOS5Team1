@@ -22,13 +22,20 @@ struct Review: View {
             
             StarRatingPicker(rating: $rating)
             
-            TextField("게임의 평가를 남겨주세요.", text: $content, axis: .vertical)
+            TextField("", text: $content, prompt: Text("게임의 평가를 남겨주세요.").foregroundStyle(.white.opacity(0.4)), axis: .vertical)
                 .lineLimit(3...8)
                 .focused($focused)
-                .textFieldStyle(.plain)
                 .padding(5)
                 .foregroundStyle(.white)
-
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(.gray.opacity(0.6), lineWidth: 1)
+                )
+                
             HStack {
                 Spacer()
                 Button {
@@ -43,8 +50,9 @@ struct Review: View {
                     Text("등록")
                         .font(.headline)
                         .foregroundStyle(.white)
-                        .padding()
-                        .background(.purplePrimary, in: Capsule())
+                        .padding(.vertical)
+                        .padding(.horizontal, 25)
+                        .background(.purplePrimary, in: RoundedRectangle(cornerRadius: 6))
                 }
             }
         }

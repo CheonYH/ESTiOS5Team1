@@ -16,7 +16,7 @@ struct MainView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
     
     let onSearchTap: () -> Void
-    
+    let onGenreTap: (GameGenreModel) -> Void
     var body: some View {
         VStack {
             CustomNavigationHeader(
@@ -34,7 +34,7 @@ struct MainView: View {
                     
                     TrendingNowGameView(viewModel: trendingVM)
                     
-                    BrowseByGenreGridView()
+                    BrowseByGenreGridView(onGenreTap: onGenreTap)
                     
                     NewReleasesView(viewModel: newReleasesVM)
                 }
