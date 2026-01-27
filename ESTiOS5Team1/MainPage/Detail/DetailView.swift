@@ -76,6 +76,7 @@ struct DetailView: View {
                             .foregroundColor(.red)
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .task {

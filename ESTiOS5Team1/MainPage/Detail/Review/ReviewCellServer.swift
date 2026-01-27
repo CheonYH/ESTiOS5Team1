@@ -27,7 +27,7 @@ struct ReviewCellServer: View {
 
                 Text(review.createdAt.formatted())
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.textPrimary.opacity(0.5))
             }
 
             Text(review.content)
@@ -36,7 +36,7 @@ struct ReviewCellServer: View {
 
             Text("by \(review.userId)")
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.textPrimary.opacity(0.5))
         }
         .padding()
         .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 16))

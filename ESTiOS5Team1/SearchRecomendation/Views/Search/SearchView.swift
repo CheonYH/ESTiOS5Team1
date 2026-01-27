@@ -24,7 +24,7 @@ struct SearchView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
 
     @Binding var openSearchRequested: Bool
-
+    @Binding var pendingGenre: GameGenreModel?
     // MARK: - Initialization
 
     /// 통합 Initializer (기본값으로 3개 init 통합)
@@ -32,17 +32,20 @@ struct SearchView: View {
         favoriteManager: FavoriteManager,
         initialGenre: GenreFilterType = .all,
         initialPlatform: PlatformFilterType = .all,
-        openSearchRequested: Binding<Bool> = .constant(false)
+        openSearchRequested: Binding<Bool> = .constant(false),
+        pendingGenre: Binding<GameGenreModel?> = .constant(nil)
     ) {
         self._openSearchRequested = openSearchRequested
+        self._pendingGenre = pendingGenre
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: initialPlatform)
         _selectedGenre = State(initialValue: initialGenre)
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false)) {
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false),pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
         self._openSearchRequested = openSearchRequested
+        self._pendingGenre = pendingGenre
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: .all)
         _selectedGenre = State(initialValue: GenreFilterType.from(gameGenre: gameGenre))
@@ -105,13 +108,19 @@ struct SearchView: View {
         .sheet(isPresented: $showFilterSheet) {
             FilterSheet(filterState: $advancedFilterState)
         }
-        .onChange(of: openSearchRequested) { v in
-            guard v else { return }
+        .onChange(of: openSearchRequested) { value in
+            guard value else { return }
             withAnimation(.spring(response: 0.3)) {
                 isSearchActive = true
             }
             openSearchRequested = false
         }
+        .onChange(of: pendingGenre) { gener in
+            guard let gener else { return }
+            selectedGenre = GenreFilterType.from(gameGenre: gener)
+            pendingGenre = nil
+        }
+        
         .onChange(of: searchText) { newValue in
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 viewModel.clearSearchResults()
@@ -149,6 +158,12 @@ struct SearchView: View {
             isSearchActive = true
             openSearchRequested = false
         }
+        
+        if let genre = pendingGenre {
+            selectedGenre = GenreFilterType.from(gameGenre: genre)
+            pendingGenre = nil
+        }
+        
         // 초기 필터 적용
         applyFilters()
     }
