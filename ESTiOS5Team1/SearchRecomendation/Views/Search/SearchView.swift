@@ -23,6 +23,7 @@ struct SearchView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
     
     @Binding var openSearchRequested: Bool
+    @Binding var pendingGenre: GameGenreModel?   // ✅ CHANGED
     // MARK: - Initialization
 
     /// 통합 Initializer (기본값으로 3개 init 통합)
@@ -34,17 +35,20 @@ struct SearchView: View {
         favoriteManager: FavoriteManager,
         initialGenre: GenreFilterType = .all,
         initialPlatform: PlatformFilterType = .all,
-        openSearchRequested: Binding<Bool> = .constant(false)
+        openSearchRequested: Binding<Bool> = .constant(false),
+        pendingGenre: Binding<GameGenreModel?> = .constant(nil)   // ✅ CHANGED
     ) {
         self._openSearchRequested = openSearchRequested
+        self._pendingGenre = pendingGenre                          // ✅ CHANGED
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: initialPlatform)
         _selectedGenre = State(initialValue: initialGenre)
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false)) {
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false),pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
         self._openSearchRequested = openSearchRequested
+        self._pendingGenre = pendingGenre                         // ✅ 추가
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: .all)
         _selectedGenre = State(initialValue: GenreFilterType.from(gameGenre: gameGenre))
@@ -151,6 +155,16 @@ struct SearchView: View {
             if viewModel.discoverItems.isEmpty {
                 Task { await viewModel.loadAllGames() }
             }
+            
+            if let g = pendingGenre {
+                selectedGenre = GenreFilterType.from(gameGenre: g)
+                pendingGenre = nil
+            }
+            // 첫 렌더에서 이미 true로 들어온 경우 보정
+            if openSearchRequested {
+                isSearchActive = true
+                openSearchRequested = false
+            }
         }
         // 필터 시트 표시
         .sheet(isPresented: $showFilterSheet) {
@@ -163,13 +177,12 @@ struct SearchView: View {
             }
             openSearchRequested = false // 한번 열었으면 리셋
         }
-        .onAppear {
-            // 첫 렌더에서 이미 true로 들어온 경우 보정
-            if openSearchRequested {
-                isSearchActive = true
-                openSearchRequested = false
-            }
+        .onChange(of: pendingGenre) { g in           // ✅ CHANGED
+            guard let g else { return }
+            selectedGenre = GenreFilterType.from(gameGenre: g)
+            pendingGenre = nil                       // ✅ CHANGED (한번 쓰고 비움)
         }
+        .navigationBarBackButtonHidden(true)
     }
     
 

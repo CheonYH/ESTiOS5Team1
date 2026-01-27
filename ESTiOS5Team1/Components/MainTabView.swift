@@ -27,6 +27,8 @@ struct MainTabView: View {
     @State private var openSearchRequested = false
     @StateObject private var tabBarState = TabBarState()
     private let tabBarHeight: CGFloat = 86
+    
+    @State private var pendingGenre: GameGenreModel? = nil   // ✅ 추가
     var body: some View {
             ZStack {
                 Color("BGColor")
@@ -43,6 +45,11 @@ struct MainTabView: View {
                                         openSearchRequested = true
                                         selectedTab = .discover
                                         loadedTabs.insert(.discover)
+                                    },
+                                    onGenreTap: { genre in
+                                        pendingGenre = genre
+                                        selectedTab = .discover        // ✅ CHANGED
+                                        loadedTabs.insert(.discover)   // ✅ CHANGED
                                     }
                                 )
                             }
@@ -54,7 +61,8 @@ struct MainTabView: View {
                             tabStack(isActive: selectedTab == .discover) {
                                 SearchView(
                                     favoriteManager: favoriteManager,
-                                    openSearchRequested: $openSearchRequested
+                                    openSearchRequested: $openSearchRequested,
+                                    pendingGenre: $pendingGenre
                                 )
                                     .opacity(selectedTab == .discover ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .discover)
