@@ -43,7 +43,11 @@ struct SearchView: View {
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
+<<<<<<< HEAD
     init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
+=======
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false),pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
+>>>>>>> 33702dd4c7b5278e3fa8adc8cb421cada42e504b
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))

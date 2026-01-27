@@ -16,7 +16,7 @@ struct MainView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
     
     let onSearchTap: () -> Void
-    
+    let onGenreTap: (GameGenreModel) -> Void
     var body: some View {
         VStack {
             CustomNavigationHeader(
@@ -25,7 +25,7 @@ struct MainView: View {
                 isSearchActive: false,
                 onSearchTap: { onSearchTap() }
             )
-
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
                     if let item = viewModel.items.first {
@@ -34,7 +34,7 @@ struct MainView: View {
                     
                     TrendingNowGameView(viewModel: trendingVM)
                     
-                    BrowseByGenreGridView()
+                    BrowseByGenreGridView(onGenreTap: onGenreTap)
                     
                     NewReleasesView(viewModel: newReleasesVM)
                 }

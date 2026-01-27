@@ -13,19 +13,64 @@ struct MainTabView: View {
     @State private var selectedTab: Tab = .home
     @State private var loadedTabs: Set<Tab> = [.home]
     @State private var openSearchRequested = false
+    @State private var pendingGenre: GameGenreModel? = nil
     
     @StateObject var favoriteManager = FavoriteManager()
-    @StateObject private var tabBarState = TabBarState()
+    
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
+    
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
+    
     @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
+    
+    @StateObject private var tabBarState = TabBarState()
     
     private var isPageLoading: Bool {
         trendingVM.isLoading || releasesVM.isLoading
     }
     
     private let tabBarHeight: CGFloat = 86
-
+<<<<<<< HEAD
+    
+    var body: some View {
+        ZStack {
+            Color("BGColor")
+                .ignoresSafeArea()
+            VStack(spacing: 0) {
+                ZStack {
+                    if loadedTabs.contains(.home) {
+                        tabStack(isActive: selectedTab == .home) {
+                            MainView(
+                                viewModel: mainVM,
+                                trendingVM: trendingVM,
+                                newReleasesVM: releasesVM,
+                                onSearchTap: {
+                                    openSearchRequested = true
+                                    selectedTab = .discover
+                                    loadedTabs.insert(.discover)
+                                },
+                                onGenreTap: { genre in
+                                    pendingGenre = genre
+                                    selectedTab = .discover
+                                    loadedTabs.insert(.discover)
+                                }
+                            )
+                        }
+                        .opacity(selectedTab == .home ? 1 : 0)
+                        .allowsHitTesting(selectedTab == .home)
+                    }
+                    
+                    if loadedTabs.contains(.discover) {
+                        tabStack(isActive: selectedTab == .discover) {
+                            SearchView(
+                                favoriteManager: favoriteManager,
+                                openSearchRequested: $openSearchRequested,
+                                pendingGenre: $pendingGenre
+                            )
+                            .opacity(selectedTab == .discover ? 1 : 0)
+                            .allowsHitTesting(selectedTab == .discover)
+=======
+ 
     var body: some View {
             ZStack {
                 Color("BGColor")
@@ -42,6 +87,11 @@ struct MainTabView: View {
                                         openSearchRequested = true
                                         selectedTab = .discover
                                         loadedTabs.insert(.discover)
+                                    },
+                                    onGenreTap: { genre in
+                                        pendingGenre = genre
+                                        selectedTab = .discover
+                                        loadedTabs.insert(.discover)
                                     }
                                 )
                             }
@@ -53,7 +103,8 @@ struct MainTabView: View {
                             tabStack(isActive: selectedTab == .discover) {
                                 SearchView(
                                     favoriteManager: favoriteManager,
-                                    openSearchRequested: $openSearchRequested
+                                    openSearchRequested: $openSearchRequested,
+                                    pendingGenre: $pendingGenre
                                 )
                                     .opacity(selectedTab == .discover ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .discover)
@@ -66,29 +117,40 @@ struct MainTabView: View {
                                     .opacity(selectedTab == .library ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .library)
                             }
+>>>>>>> 33702dd4c7b5278e3fa8adc8cb421cada42e504b
+                        }
+                    }
+                    
+                    if loadedTabs.contains(.library) {
+                        tabStack(isActive: selectedTab == .library) {
+                            LibraryView()
+                                .opacity(selectedTab == .library ? 1 : 0)
+                                .allowsHitTesting(selectedTab == .library)
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    if !tabBarState.isHidden {
-                        TabBarView(selectedTab: $selectedTab)
-                    }
-                }
-                .allowsHitTesting(!isPageLoading)
-                
-                if isPageLoading {
-                    loadingOverlay
-                        .transition(.opacity)
-                        .zIndex(999)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if !tabBarState.isHidden {
+                    TabBarView(selectedTab: $selectedTab)
                 }
             }
-            .environmentObject(favoriteManager)
-            .environmentObject(tabBarState)
-            .animation(.easeInOut(duration: 0.2), value: isPageLoading)
-            .onChange(of: selectedTab) { loadedTabs.insert($0) }
+            .allowsHitTesting(!isPageLoading)
+            
+            if isPageLoading {
+                loadingOverlay
+                    .transition(.opacity)
+                    .zIndex(999)
+            }
+        }
+        .environmentObject(favoriteManager)
+        .environmentObject(tabBarState)
+        .animation(.easeInOut(duration: 0.2), value: isPageLoading)
+        .onChange(of: selectedTab) { loadedTabs.insert($0) }
     }
+    
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {
         NavigationStack {
             ZStack {
@@ -102,6 +164,7 @@ struct MainTabView: View {
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)
     }
+    
     private var loadingOverlay: some View {
         ZStack {
             Color("BGColor")
