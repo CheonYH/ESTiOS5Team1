@@ -42,11 +42,6 @@ struct DetailInfoBox: View {
                     Text(item.title)
                         .font(.title)
 
-                    Text("개발사")
-                        .font(.caption)
-                        .foregroundStyle(.gray.opacity(0.8))
-                    Text(item.releaseYear)
-                        .font(.caption)
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)
                         .foregroundStyle(.pink.opacity(0.75))
@@ -68,9 +63,9 @@ struct DetailInfoBox: View {
                 .frame(height: 1)
                 .background(.textPrimary.opacity(0.2))
             HStack {
-
                 StatView(value: item.ratingText, title: "User Score", color: .mint)
                     .frame(maxWidth: .infinity)
+                
                 Divider()
                     .frame(height: 40)
                     .background(.textPrimary.opacity(0.2))

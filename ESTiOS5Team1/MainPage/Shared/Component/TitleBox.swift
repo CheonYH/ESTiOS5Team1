@@ -15,7 +15,7 @@ struct TitleBox: View {
         HStack {
             Text(title)
                 .font(.title2.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(.textPrimary)
 
             Spacer()
 

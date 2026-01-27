@@ -19,7 +19,7 @@ struct TabBarView: View {
                 HStack(spacing: 10) {
                     TabbarButton(
                         icon: "house.fill",
-                        iconName: "메인",
+                        iconName: "홈",
                         tab: .home,
                         selectedTab: $selectedTab
                     )

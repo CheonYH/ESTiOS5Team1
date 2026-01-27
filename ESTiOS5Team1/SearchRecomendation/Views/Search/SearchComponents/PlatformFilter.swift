@@ -37,6 +37,7 @@ enum PlatformFilterType: String, CaseIterable {
     case nintendo = "Nintendo"
     case mobile = "Mobile"
 
+    /// UI 표시용 색상
     var iconColor: Color {
         switch self {
         case .all: return .purple
@@ -46,6 +47,25 @@ enum PlatformFilterType: String, CaseIterable {
         case .nintendo: return .red
         case .mobile: return .cyan
         }
+    }
+
+    /// Platform enum으로 변환 (필터링 로직에서 사용)
+    /// - Returns: 대응하는 Platform, all인 경우 nil
+    var toPlatform: Platform? {
+        switch self {
+        case .all: return nil
+        case .pc: return .pc
+        case .playstation: return .playstation
+        case .xbox: return .xbox
+        case .nintendo: return .nintendo
+        case .mobile: return .mobile
+        }
+    }
+
+    /// Platform이 이 필터에 매칭되는지 확인
+    func matches(_ platform: Platform) -> Bool {
+        guard let targetPlatform = toPlatform else { return true }  // .all은 모든 플랫폼 매칭
+        return platform == targetPlatform
     }
 }
 

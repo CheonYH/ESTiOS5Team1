@@ -15,15 +15,14 @@ struct MainPoster: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             KFImage(item.coverURL)
-                .cacheOriginalImage()
-                .loadDiskFileSynchronously()
+                .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 600, height: 333)))
                 .placeholder { Color.gray.opacity(0.3) }
                 .resizable()
                 .scaledToFill()
                 .frame(height: 400)
                 .clipped()
                 .padding(.top, 20)
-
+                
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("FEATURED")
@@ -60,7 +59,7 @@ struct MainPoster: View {
                     Button {
                         // 플레이 나우 기능
                     } label: {
-                        Label("Play Now", systemImage: "play.fill")
+                        Label("게임 정보 확인", systemImage: "play.fill")
                             .font(.headline)
                             .foregroundStyle(.textPrimary)
                             .frame(maxWidth: 250)
