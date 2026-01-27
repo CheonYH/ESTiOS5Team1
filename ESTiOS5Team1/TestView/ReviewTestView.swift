@@ -10,6 +10,7 @@ import SwiftUI
 struct ReviewTestView: View {
 
     @StateObject private var viewModel = ReviewViewModel(service: ReviewServiceManager())
+    @EnvironmentObject var toastManager: ToastManager
 
     @State private var tempGameId: String = ""
     @State private var tempRating: String = ""
@@ -53,7 +54,10 @@ struct ReviewTestView: View {
             GroupBox("Actions") {
                 VStack(alignment: .leading, spacing: 8) {
                     Button("Post Review") {
-                        Task { await viewModel.postReview() }
+                        Task {
+                            let event = await viewModel.postReview()
+                            toastManager.show(event)
+                        }
                     }
 
                     Button("Fetch Reviews") {
@@ -130,6 +134,7 @@ struct ReviewTestView: View {
 }
 
 #Preview {
+    let toast = ToastManager()
     ReviewTestView()
-
+        .environmentObject(toast)
 }

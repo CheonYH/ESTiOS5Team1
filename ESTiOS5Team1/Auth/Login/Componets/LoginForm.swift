@@ -42,7 +42,7 @@ struct LoginForm: View {
 
             TextField("", text: $viewModel.email, prompt: Text("이메일을 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
                 .font(.callout)
-                .padding(10)
+                .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
                 .focused(focusedField, equals: .email)
                 .id(LoginField.email)
@@ -61,7 +61,7 @@ struct LoginForm: View {
 
             SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
                 .font(.callout)
-                .padding(10)
+                .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
                 .focused(focusedField, equals: .password)
                 .id(LoginField.password)
@@ -92,10 +92,10 @@ struct LoginForm: View {
                             .fill(Color.purplePrimary)
                     )
             }
-            .padding(.top, 10)
+            .padding(.top, Spacing.pv10)
 
         }
-        .padding(10)
+        .padding(Spacing.pv10)
 
         HStack {
             Rectangle()
@@ -115,28 +115,30 @@ struct LoginForm: View {
                 .foregroundStyle(.gray.opacity(0.4))
                 .layoutPriority(0)
         }
-        .padding(10)
+        .padding(Spacing.pv10)
 
         HStack(spacing: 16) {
+
             Button {
                 Task {
                     await viewModel.signInWithGoogle(appViewModel: appViewModel)
                 }
             } label: {
-                Image(systemName: "applelogo")
+                Image("google")
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
+                    .foregroundStyle(.white)
                     .frame(width: 28, height: 28)
-                    .padding(12)
-                    .frame(width: 120, height: 80)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 60)
                     .background(
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(.white.opacity(0.3), lineWidth: 1)
                     )
-                    .foregroundStyle(.white)
             }
 
-            Button {
+            /* Button {
 
             } label: {
                 Image(systemName: "playstation.logo")
@@ -168,8 +170,10 @@ struct LoginForm: View {
                     .foregroundStyle(.white)
             }
 
-        }
+             */
 
+        }
+        .padding(Spacing.pv10)
     }
 }
 

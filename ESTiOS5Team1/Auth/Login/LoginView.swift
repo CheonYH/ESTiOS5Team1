@@ -56,14 +56,25 @@ struct LoginView: View {
             .background(Color.BG)
             .toolbar(.hidden, for: .navigationBar)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .overlay(alignment: toastManager.placement == .top ? .top : .bottom) {
-            // ToastManager가 관리하는 이벤트를 구독하여 상/하단에 Toast 표시
-            if let event = toastManager.event {
-                ToastView(event: event)
-                // 위치에 따른 진입/퇴장 애니메이션 적용
-                    .transition(.move(edge: toastManager.placement == .top ? .top : .bottom).combined(with: .opacity))
-                    .padding()
+            .overlay {
+                if viewModel.isLoading {
+                    Color.black.opacity(0.35)
+                        .ignoresSafeArea()
+                    VStack(spacing: 12) {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.white)
+                        Text("로그인 중...")
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                    }
+                    .padding(20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.black.opacity(0.6))
+                    )
+                    .transition(.opacity)
+                }
             }
         }
         .onAppear {

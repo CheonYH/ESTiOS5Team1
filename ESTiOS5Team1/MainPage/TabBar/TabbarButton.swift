@@ -14,7 +14,7 @@ struct TabbarButton: View {
     let iconName: String
     let tab: Tab
     @Binding var selectedTab: Tab
-    
+
     var isSelected: Bool { selectedTab == tab }
     var body: some View {
         Button {
@@ -25,7 +25,7 @@ struct TabbarButton: View {
                     .resizable()
                     .scaledToFit()
                     .frame(height: 20)
-                
+
                 Text(iconName)
             }
             .foregroundStyle(isSelected ? .purple : .gray)

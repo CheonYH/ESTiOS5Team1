@@ -28,7 +28,7 @@ struct Review: View {
                 .textFieldStyle(.plain)
                 .padding(5)
                 .foregroundStyle(.white)
-                
+
             HStack {
                 Spacer()
                 Button {

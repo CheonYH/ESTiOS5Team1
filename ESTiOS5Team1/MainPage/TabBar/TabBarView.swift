@@ -34,7 +34,7 @@ struct TabBarView: View {
                         selectedTab: $selectedTab
                     )
                     .frame(maxWidth: .infinity)
-                    
+
                     Spacer()
 
                     TabbarButton(
@@ -44,7 +44,7 @@ struct TabBarView: View {
                         selectedTab: $selectedTab
                     )
                     .frame(maxWidth: .infinity)
-                    
+
                     Spacer()
 
                     TabbarButton(
