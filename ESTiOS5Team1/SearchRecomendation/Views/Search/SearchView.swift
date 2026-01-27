@@ -119,13 +119,20 @@ struct SearchView: View {
         }
         // 필터 변경 시 ViewModel에 적용
         .onChange(of: selectedPlatform) { _ in applyFilters() }
-        .onChange(of: selectedGenre) { _ in applyFilters() }
+        .onChange(of: selectedGenre) { newGenre in
+            // [추가] 장르 변경 시 서버에서 해당 장르 데이터 로드
+            Task {
+                await viewModel.loadGamesForGenre(newGenre)
+            }
+            applyFilters()
+        }
         .onChange(of: searchText) { _ in applyFilters() }
         .onChange(of: advancedFilterState) { _ in applyFilters() }
         .onChange(of: viewModel.discoverItems) { _ in applyFilters() }
         .onChange(of: viewModel.trendingItems) { _ in applyFilters() }
         .onChange(of: viewModel.newReleaseItems) { _ in applyFilters() }
         .onChange(of: viewModel.searchItems) { _ in applyFilters() }
+        .onChange(of: viewModel.genreItems) { _ in applyFilters() }  // [추가] 장르 데이터 변경 감지
     }
 
     // MARK: - Private Methods
