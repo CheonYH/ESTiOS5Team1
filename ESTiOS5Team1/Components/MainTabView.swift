@@ -12,21 +12,20 @@ struct MainTabView: View {
     @State var iconColor: Color = .gray
     @State private var selectedTab: Tab = .home
     @State private var loadedTabs: Set<Tab> = [.home]
+    @State private var openSearchRequested = false
+    
     @StateObject var favoriteManager = FavoriteManager()
-    
+    @StateObject private var tabBarState = TabBarState()
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
     @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
     
     private var isPageLoading: Bool {
         trendingVM.isLoading || releasesVM.isLoading
     }
     
-    @State private var openSearchRequested = false
-    @StateObject private var tabBarState = TabBarState()
     private let tabBarHeight: CGFloat = 86
+
     var body: some View {
             ZStack {
                 Color("BGColor")
