@@ -34,7 +34,7 @@ struct BottomRegisterSwitch: View {
                 }
 
             }
-            .padding()
+            .padding(Spacing.pv10)
         }
     }
 }

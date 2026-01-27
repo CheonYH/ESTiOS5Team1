@@ -74,8 +74,14 @@ final class AuthViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            let start = CFAbsoluteTimeGetCurrent()
+            print("[AuthVM] login START")
             _ = try await service.login(email: email, password: password)
+            let afterNetwork = CFAbsoluteTimeGetCurrent()
+            print("[AuthVM] login network done in \(String(format: "%.3f", afterNetwork - start))s")
             appViewModel.state = .signedIn
+            let afterState = CFAbsoluteTimeGetCurrent()
+            print("[AuthVM] login state updated in \(String(format: "%.3f", afterState - afterNetwork))s total \(String(format: "%.3f", afterState - start))s")
 
             return FeedbackEvent(.auth, .success, "로그인 성공")
 
@@ -111,6 +117,7 @@ final class AuthViewModel: ObservableObject {
     ///     toast.show(event)
     ///     ```
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
+        signOutFromSocialProviders()
         TokenStore.shared.clear()
         appViewModel.state = .signedOut
 
@@ -119,6 +126,15 @@ final class AuthViewModel: ObservableObject {
             status: .info,
             message: "로그아웃 되었습니다"
         )
+    }
+
+    private func signOutFromSocialProviders() {
+        GIDSignIn.sharedInstance.signOut()
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("[AuthVM] Firebase signOut failed:", error)
+        }
     }
 
     @discardableResult

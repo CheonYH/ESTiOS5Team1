@@ -10,12 +10,12 @@ import Kingfisher
 
 struct NewReleasesGameCard: View {
     let item: GameListItem
+    @EnvironmentObject var favoriteManager: FavoriteManager
 
     var body: some View {
             HStack {
                 KFImage(item.coverURL)
-                    .cacheOriginalImage()
-                    .loadDiskFileSynchronously()
+                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 160, height: 93)))
                     .placeholder {
                         ProgressView()
                     }
@@ -25,7 +25,7 @@ struct NewReleasesGameCard: View {
                     .clipped()
                     .cornerRadius(Radius.card)
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text(item.title)
                         .font(.title2)
 
@@ -44,13 +44,9 @@ struct NewReleasesGameCard: View {
 
                         Spacer()
 
-                        Button {
-                            // 추가 버튼
-                        } label: {
-                            Image(systemName: "plus")
-                                .padding(10)
-                                .background(Color("PurplePrimary"), in: RoundedRectangle(cornerRadius: Radius.cr8))
-                        }
+                        GameFavoriteButton(isFavorite: favoriteManager.isFavorite(itemId: item.id), onToggle: {
+                            favoriteManager.toggleFavorite(item: item)
+                        }, frameWH: 36)
 
                     }
                 }

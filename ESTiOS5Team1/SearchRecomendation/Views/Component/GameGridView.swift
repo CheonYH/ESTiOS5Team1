@@ -11,6 +11,7 @@ import SwiftUI
 // MARK: - Game Grid View (2열 세로 스크롤)
 struct GameGridView: View {
     let items: [GameListItem]
+    var onReachedEnd: (() -> Void)?
     @EnvironmentObject var favoriteManager: FavoriteManager
 
     private let columns = [
@@ -31,6 +32,11 @@ struct GameGridView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .onAppear {
+                    if item.id == items.last?.id {
+                        onReachedEnd?()
+                    }
+                }
             }
         }
         .padding(.horizontal)

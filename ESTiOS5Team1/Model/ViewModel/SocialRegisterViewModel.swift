@@ -29,9 +29,9 @@ final class SocialRegisterViewModel: ObservableObject {
 
         print("[SocialRegister] submit START - nickname=\(nickname)")
 
-        guard !nickname.isEmpty else {
-            print("[SocialRegister] nickname empty")
-            return FeedbackEvent(.auth, .warning, "닉네임을 입력해주세요.")
+        if let validationError = nicknameValidationError() {
+            print("[SocialRegister] nickname invalid")
+            return validationError
         }
 
         guard let providerUid = appViewModel.socialProviderUid, !providerUid.isEmpty else {
@@ -40,9 +40,13 @@ final class SocialRegisterViewModel: ObservableObject {
         }
 
         do {
+            let start = CFAbsoluteTimeGetCurrent()
+            print("[SocialRegister] submit START timing")
 
             print("[SocialRegister] checking nickname")
             let isAvailable = try await service.checkNickname(nickname)
+            let afterNickname = CFAbsoluteTimeGetCurrent()
+            print("[SocialRegister] nickname check done in \(String(format: "%.3f", afterNickname - start))s")
             if !isAvailable {
                 print("[SocialRegister] nickname duplicate")
                 return FeedbackEvent(.auth, .warning, "이미 사용 중인 닉네임입니다.")
@@ -56,11 +60,15 @@ final class SocialRegisterViewModel: ObservableObject {
                 nickname: nickname,
                 email: appViewModel.prefilledEmail
             )
+            let afterRegister = CFAbsoluteTimeGetCurrent()
+            print("[SocialRegister] register network done in \(String(format: "%.3f", afterRegister - afterNickname))s total \(String(format: "%.3f", afterRegister - start))s")
 
             print("[SocialRegister] server returned token")
             TokenStore.shared.updateTokens(pair: token)
 
             appViewModel.state = .signedIn
+            let afterState = CFAbsoluteTimeGetCurrent()
+            print("[SocialRegister] state updated in \(String(format: "%.3f", afterState - afterRegister))s total \(String(format: "%.3f", afterState - start))s")
             print("[SocialRegister] appVM.state = signedIn")
 
             return FeedbackEvent(.auth, .success, "가입 완료!")
@@ -68,6 +76,26 @@ final class SocialRegisterViewModel: ObservableObject {
         } catch {
             print("[SocialRegister] ERROR:", error)
             return FeedbackEvent(.auth, .error, "가입 실패")
+        }
+    }
+
+    // MARK: - Validation Helpers
+    /// 닉네임 검증 결과를 메시지로 반환합니다.
+    private func nicknameValidationError() -> FeedbackEvent? {
+        switch NicknameValidator.validate(nickname) {
+            case .valid:
+                return nil
+            case .empty:
+                print("[SocialRegister] nickname empty")
+                return FeedbackEvent(.auth, .warning, "닉네임을 입력해주세요.")
+            case .length:
+                return FeedbackEvent(.auth, .warning, "닉네임은 2~12자로 입력해주세요.")
+            case .emoji:
+                return FeedbackEvent(.auth, .warning, "닉네임에는 이모지를 사용할 수 없습니다.")
+            case .repeating:
+                return FeedbackEvent(.auth, .warning, "동일 문자는 3회 이상 반복할 수 없습니다.")
+            case .numericOnly:
+                return FeedbackEvent(.auth, .warning, "닉네임은 숫자만 사용할 수 없습니다.")
         }
     }
 

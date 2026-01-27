@@ -38,10 +38,11 @@ struct ESTiOS5Team1App: App {
                 LoginView()
 
             case .signedIn:
-                ReviewTestView()
+                 MainTabView()
+               // LogoutTestView()
 
             case .socialNeedsRegister:
-                SocialRegisterView(prefilledEmail: appViewModel.prefilledEmail)
+                NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)
         }
     }
 
@@ -61,14 +62,25 @@ struct ESTiOS5Team1App: App {
 
     var body: some Scene {
         WindowGroup {
-            /* content
-                .environmentObject(toastManager)
-                .environmentObject(appViewModel)
-                .onOpenURL { url in
-                    GIDSignIn.sharedInstance.handle(url)
-                } */
+             ZStack {
+                 content
 
-            DetailInfoTestView()
+             }
+             .frame(maxWidth: .infinity, maxHeight: .infinity)
+             .environmentObject(toastManager)
+             .environmentObject(appViewModel)
+             .onOpenURL { url in
+                 GIDSignIn.sharedInstance.handle(url)
+             }
+             .overlay(alignment: toastManager.placement == .top ? .top : .bottom) {
+                 if let event = toastManager.event {
+                     ToastView(event: event)
+                         .transition(.move(edge: toastManager.placement == .top ? .top : .bottom).combined(with: .opacity))
+                         .padding()
+                 }
+             }
+
+            // DetailInfoTestView()
         }
         .modelContainer(sharedModelContainer)
     }

@@ -18,10 +18,7 @@ struct TabbarButton: View {
     var isSelected: Bool { selectedTab == tab }
     var body: some View {
         Button {
-            withAnimation(.easeInOut) {
-                selectedTab = tab
-            }
-
+            selectedTab = tab
         } label: {
             VStack {
                 Image(systemName: icon)

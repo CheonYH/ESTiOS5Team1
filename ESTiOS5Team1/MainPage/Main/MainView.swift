@@ -14,51 +14,39 @@ struct MainView: View {
     @ObservedObject var newReleasesVM: GameListSingleQueryViewModel
     // [수정] FavoriteManager 연동을 위해 추가
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    
+    let onSearchTap: () -> Void
+    
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 30) {
-                if let item = viewModel.items.first {
-                    MainPoster(item: item)
-                }
+        VStack {
+            CustomNavigationHeader(
+                title: "게임 창고",
+                showSearchButton: true,
+                isSearchActive: false,
+                onSearchTap: { onSearchTap() }
+            )
 
-                TrendingNowGameView(viewModel: trendingVM)
-
-                BrowseByGenreGridView()
-
-                NewReleasesView(viewModel: newReleasesVM)
-            }
-        }
-        .scrollIndicators(.hidden)
-        .padding(Spacing.pv10)
-        .task {
-            if viewModel.items.isEmpty {
-                await viewModel.load()
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-
-                } label: {
-                    Image(systemName: "line.3.horizontal")
-                        .foregroundColor(.white)
-                        .font(.title3)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 30) {
+                    if let item = viewModel.items.first {
+                        MainPoster(item: item)
+                    }
+                    
+                    TrendingNowGameView(viewModel: trendingVM)
+                    
+                    BrowseByGenreGridView()
+                    
+                    NewReleasesView(viewModel: newReleasesVM)
                 }
             }
-
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.white)
-                        .font(.title3)
+            .scrollIndicators(.hidden)
+            .padding(Spacing.pv10)
+            .task {
+                if viewModel.items.isEmpty {
+                    await viewModel.load()
                 }
             }
-        }
-        .overlay(alignment: .top) {
-            Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 0.5)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
