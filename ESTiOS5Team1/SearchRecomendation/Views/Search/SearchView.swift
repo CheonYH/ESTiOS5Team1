@@ -115,6 +115,12 @@ struct SearchView: View {
             }
             openSearchRequested = false
         }
+        .onChange(of: pendingGenre) { gener in
+            guard let gener else { return }
+            selectedGenre = GenreFilterType.from(gameGenre: gener)
+            pendingGenre = nil
+        }
+        
         .onChange(of: searchText) { newValue in
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 viewModel.clearSearchResults()
@@ -144,6 +150,12 @@ struct SearchView: View {
             isSearchActive = true
             openSearchRequested = false
         }
+        
+        if let genre = pendingGenre {
+            selectedGenre = GenreFilterType.from(gameGenre: genre)
+            pendingGenre = nil
+        }
+        
         // 초기 필터 적용
         applyFilters()
     }
