@@ -15,22 +15,9 @@ struct GenreFilter: View {
     // [수정] games → items, Game → GameListItem
     var items: [GameListItem] = []
 
-    // 게임 수에 따라 정렬된 장르 목록 ("전체"는 항상 첫 번째)
+    // 고정된 장르 목록 ("전체"는 항상 첫 번째)
     private var sortedGenres: [GenreFilterType] {
-        let otherGenres = GenreFilterType.allCases.filter { $0 != .all }
-
-        // [수정] 각 장르별 게임 수 계산 - genre가 배열이므로 any로 매칭
-        let sorted = otherGenres.sorted { genre1, genre2 in
-            let count1 = items.filter { item in
-                item.genre.contains { genre1.matches(genre: $0) }
-            }.count
-            let count2 = items.filter { item in
-                item.genre.contains { genre2.matches(genre: $0) }
-            }.count
-            return count1 > count2
-        }
-
-        return [.all] + sorted
+        GenreFilterType.allCases
     }
 
     var body: some View {

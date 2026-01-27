@@ -55,7 +55,15 @@ final class SearchViewModel: ObservableObject {
     private var newReleasesViewModel: GameListSingleQueryViewModel?
     private var searchViewModel: GameListSingleQueryViewModel?
 
+    // [추가] 장르별 ViewModel (서버 사이드 필터링)
+    private var genreViewModel: GameListSingleQueryViewModel?
+    @Published var genreItems: [GameListItem] = []
+    @Published var isGenreLoading: Bool = false
+    @Published var isGenreLoadingMore: Bool = false
+    private var currentLoadedGenre: GenreFilterType = .all
+
     private var cancellables = Set<AnyCancellable>()
+    private var skipSortCount = 0
 
     // MARK: - Initialization
     init(service: IGDBService = IGDBServiceManager(), favoriteManager: FavoriteManager) {
@@ -243,6 +251,7 @@ final class SearchViewModel: ObservableObject {
         isSearchLoadingMore = true
         defer { isSearchLoadingMore = false }
 
+        skipSortCount = max(skipSortCount, 1)
         await vm.loadNextPage()
         self.searchItems = vm.items
         self.searchError = vm.error
@@ -259,14 +268,24 @@ final class SearchViewModel: ObservableObject {
 
     /// 스크롤 하단 도달 시 다음 페이지 로드
     func loadNext(for category: CategoryFilter) async {
+        // [수정] 장르가 선택된 경우 장르별 다음 페이지 로드
+        if currentGenre != .all {
+            await loadNextGenrePage()
+            return
+        }
+
         switch category {
         case .all:
+            skipSortCount = max(skipSortCount, 3)
             await loadNextAll()
         case .trending:
+            skipSortCount = max(skipSortCount, 1)
             await trendingViewModel?.loadNextPage()
         case .newReleases:
+            skipSortCount = max(skipSortCount, 1)
             await newReleasesViewModel?.loadNextPage()
         case .discover:
+            skipSortCount = max(skipSortCount, 1)
             await discoverViewModel?.loadNextPage()
         }
     }
@@ -277,6 +296,64 @@ final class SearchViewModel: ObservableObject {
         async let t: ()? = trendingViewModel?.loadNextPage()
         async let n: ()? = newReleasesViewModel?.loadNextPage()
         _ = await (d, t, n)
+    }
+
+    // MARK: - [추가] 장르별 서버 사이드 필터링
+
+    /// 특정 장르의 게임을 서버에서 로드
+    func loadGamesForGenre(_ genre: GenreFilterType) async {
+        // 전체인 경우 기존 데이터 사용
+        guard genre != .all, let genreId = genre.igdbGenreId else {
+            currentLoadedGenre = .all
+            genreItems = []
+            genreViewModel = nil
+            return
+        }
+
+        // 이미 같은 장르가 로드되어 있으면 스킵
+        if currentLoadedGenre == genre && !genreItems.isEmpty {
+            return
+        }
+
+        isGenreLoading = true
+        currentLoadedGenre = genre
+
+        let vm = GameListSingleQueryViewModel(
+            service: service,
+            query: IGDBQuery.genre(genreId)
+        )
+        await vm.load()
+
+        genreViewModel = vm
+        genreItems = vm.items
+        favoriteManager.updateItems(vm.items)
+        isGenreLoading = false
+
+        // 필터 다시 적용
+        updateAllItems()
+        updateFilteredItems()
+    }
+
+    /// 장르 전환 시 즉시 로딩 상태로 전환합니다.
+    func prepareGenreLoading(_ genre: GenreFilterType) {
+        guard genre != .all else { return }
+        isGenreLoading = true
+        genreItems = []
+    }
+
+    /// 장르별 다음 페이지 로드
+    func loadNextGenrePage() async {
+        guard let vm = genreViewModel else { return }
+        isGenreLoadingMore = true
+
+        await vm.loadNextPage()
+        genreItems = vm.items
+        favoriteManager.updateItems(vm.items)
+        isGenreLoadingMore = false
+
+        // 필터 다시 적용
+        updateAllItems()
+        updateFilteredItems()
     }
 
     // MARK: - [수정] 필터링 로직 (View에서 ViewModel로 이동)
@@ -303,12 +380,19 @@ final class SearchViewModel: ObservableObject {
     }
 
     /// 원본 데이터 업데이트 (카테고리 기반)
+    /// [수정] 장르 선택 시 서버에서 로드한 genreItems 사용
     private func updateAllItems() {
         let isRemoteSearch = !lastSearchQuery.isEmpty &&
             lastSearchQuery == currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if isRemoteSearch {
             allItems = searchItems
+            return
+        }
+
+        // [수정] 장르가 선택된 경우 서버에서 로드한 데이터 사용
+        if currentGenre != .all && !genreItems.isEmpty {
+            allItems = genreItems
             return
         }
 
@@ -354,7 +438,11 @@ final class SearchViewModel: ObservableObject {
         }
 
         // 정렬 적용
-        result = sortItems(result)
+        if skipSortCount > 0 {
+            skipSortCount -= 1
+        } else {
+            result = sortItems(result)
+        }
         filteredItems = result
     }
 

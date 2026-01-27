@@ -27,6 +27,10 @@ struct SearchContentSection: View {
         if isRemoteSearchActive {
             return viewModel.isSearching && viewModel.searchItems.isEmpty
         }
+        // [수정] 장르 로딩 상태도 포함
+        if selectedGenre != .all {
+            return viewModel.isGenreLoading && viewModel.genreItems.isEmpty
+        }
         return viewModel.isLoading && viewModel.discoverItems.isEmpty
     }
 
@@ -40,6 +44,10 @@ struct SearchContentSection: View {
     private var isLoadingMoreVisible: Bool {
         if isRemoteSearchActive {
             return viewModel.isSearchLoadingMore
+        }
+        // [수정] 장르 로딩 상태도 포함
+        if selectedGenre != .all {
+            return viewModel.isGenreLoadingMore
         }
         return viewModel.isLoadingMore
     }
