@@ -25,11 +25,12 @@ struct LoginForm: View {
 
     /// 사용자 입력 바인딩 및 `login()` 호출을 담당하는 ViewModel
     @ObservedObject var viewModel: AuthViewModel
-    var focusedField: FocusState<LoginField?>.Binding
     /// 전역 앱 상태(App 상태 전환 등)에 접근합니다.
     @EnvironmentObject var appViewModel: AppViewModel
     /// 로그인 결과를 Toast로 표시하기 위한 매니저
     @EnvironmentObject var toast: ToastManager
+
+    var focusedField: FocusState<LoginField?>.Binding
 
     // MARK: - Body
     var body: some View {
@@ -40,7 +41,7 @@ struct LoginForm: View {
                 .font(.headline)
                 .foregroundStyle(.white)
 
-            TextField("", text: $viewModel.email, prompt: Text("이메일을 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+            TextField("", text: $viewModel.email, prompt: Text("이메일을 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
                 .font(.callout)
                 .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
@@ -59,7 +60,7 @@ struct LoginForm: View {
                 .font(.headline)
                 .foregroundStyle(.white)
 
-            SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+            SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
                 .font(.callout)
                 .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)

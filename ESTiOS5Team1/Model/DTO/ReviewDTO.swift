@@ -23,6 +23,8 @@ struct ReviewResponse: Codable, Identifiable, Sendable {
     let createdAt: Date
     /// 수정 시각입니다.
     let updatedAt: Date
+
+    let nickname: String
 }
 
 /// 리뷰 통계 응답 모델입니다.
