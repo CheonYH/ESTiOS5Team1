@@ -33,6 +33,8 @@ final class GameListSingleQueryViewModel: ObservableObject {
     @Published var items: [GameListItem] = []
     /// 로딩 상태입니다.
     @Published var isLoading = false
+    /// 추가 페이지 로딩 상태입니다.
+    @Published var isLoadingMore = false
     /// 에러 상태입니다.
     @Published var error: Error?
 
@@ -42,11 +44,20 @@ final class GameListSingleQueryViewModel: ObservableObject {
     private let service: IGDBService
     /// 멀티쿼리 본문입니다.
     private let query: String
+    /// 페이지 당 요청 크기입니다.
+    private let pageSize: Int
+    /// 페이징 오프셋입니다.
+    private var currentOffset = 0
+    /// 다음 페이지가 있는지 여부입니다.
+    private var hasMore = true
+    /// 추가 페이지가 있는지 여부입니다.
+    var canLoadMore: Bool { hasMore }
 
     /// 서비스와 쿼리를 주입받습니다.
-    init(service: IGDBService, query: String) {
+    init(service: IGDBService, query: String, pageSize: Int = 300) {
         self.service = service
         self.query = query
+        self.pageSize = pageSize
     }
 
     /// 단일 멀티쿼리로 게임 목록을 불러옵니다.
@@ -56,23 +67,69 @@ final class GameListSingleQueryViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            let batch = [
-                IGDBBatchItem(name: "list", endpoint: .games, query: query)
-            ]
-
-            let sections = try await service.fetch(batch)
-
-            if let raw = sections["list"] {
-                let data = try JSONSerialization.data(withJSONObject: raw)
-                let dto = try JSONDecoder().decode([IGDBGameListDTO].self, from: data)
-                self.entities = dto.map(GameEntity.init)
-
-                self.items = entities.map(GameListItem.init)
-            }
-
+            currentOffset = 0
+            hasMore = true
+            let pageEntities = try await fetchPage(offset: currentOffset)
+            self.entities = pageEntities
+            self.items = pageEntities.map(GameListItem.init)
+            hasMore = pageEntities.count == pageSize
         } catch {
             self.error = error
         }
+    }
+
+    /// 다음 페이지를 불러옵니다.
+    func loadNextPage() async {
+        guard hasMore, !isLoading, !isLoadingMore else { return }
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+
+        do {
+            let nextOffset = currentOffset + pageSize
+            let pageEntities = try await fetchPage(offset: nextOffset)
+            currentOffset = nextOffset
+            hasMore = pageEntities.count == pageSize
+
+            self.entities.append(contentsOf: pageEntities)
+            self.items = entities.map(GameListItem.init)
+        } catch {
+            self.error = error
+        }
+    }
+
+    private func fetchPage(offset: Int) async throws -> [GameEntity] {
+        let pagedQuery = queryWithPagination(offset: offset)
+        let batch = [
+            IGDBBatchItem(name: "list", endpoint: .games, query: pagedQuery)
+        ]
+
+        let sections = try await service.fetch(batch)
+        guard let raw = sections["list"] else { return [] }
+
+        let data = try JSONSerialization.data(withJSONObject: raw)
+        let dto = try JSONDecoder().decode([IGDBGameListDTO].self, from: data)
+        return dto.map(GameEntity.init)
+    }
+
+    private func queryWithPagination(offset: Int) -> String {
+        // Strip any existing limit/offset to avoid duplicates.
+        let stripped = query
+            .replacingOccurrences(
+                of: #"(?m)^\s*limit\s+\d+\s*;\s*$"#,
+                with: "",
+                options: .regularExpression
+            )
+            .replacingOccurrences(
+                of: #"(?m)^\s*offset\s+\d+\s*;\s*$"#,
+                with: "",
+                options: .regularExpression
+            )
+
+        return """
+        \(stripped)
+        limit \(pageSize);
+        offset \(offset);
+        """
     }
 
 }

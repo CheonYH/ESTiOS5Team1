@@ -38,8 +38,8 @@ struct ESTiOS5Team1App: App {
                 LoginView()
 
             case .signedIn:
-                // MainTabView()
-                LogoutTestView()
+                 MainTabView()
+               // LogoutTestView()
 
             case .socialNeedsRegister:
                 NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)

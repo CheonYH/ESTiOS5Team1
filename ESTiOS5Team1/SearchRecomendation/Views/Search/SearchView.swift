@@ -75,7 +75,11 @@ struct SearchView: View {
 
                     // 검색바 (조건부 표시)
                     if isSearchActive {
-                        SearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
+                        SearchBar(searchText: $searchText, isSearchActive: $isSearchActive) {
+                            Task {
+                                await viewModel.performSearch(query: searchText)
+                            }
+                        }
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
 
@@ -102,12 +106,20 @@ struct SearchView: View {
                                 .id("top")
 
                             // 로딩 또는 에러 상태
-                            if viewModel.isLoading && viewModel.discoverItems.isEmpty {
+                            if isInitialLoading {
                                 LoadingView()
-                            } else if let error = viewModel.error, viewModel.discoverItems.isEmpty {
+                            } else if let error = currentError, filteredItems.isEmpty {
                                 ErrorView(error: error) {
-                                    Task { await viewModel.loadAllGames() }
+                                    Task {
+                                        if isRemoteSearchActive {
+                                            await viewModel.performSearch(query: searchText)
+                                        } else {
+                                            await viewModel.loadAllGames()
+                                        }
+                                    }
                                 }
+                            } else if isSearchActive && !isRemoteSearchActive {
+                                EmptyView()
                             } else {
                                 // 결과 헤더
                                 ResultHeader(
@@ -122,7 +134,23 @@ struct SearchView: View {
                                         genre: selectedGenre
                                     )
                                 } else {
-                                    GameGridView(items: filteredItems)
+                                    GameGridView(items: filteredItems) {
+                                        Task {
+                                            if isRemoteSearchActive {
+                                                await viewModel.loadNextSearchPage()
+                                            } else {
+                                                await viewModel.loadNext(for: advancedFilterState.category)
+                                            }
+                                        }
+                                    }
+                                    if isLoadingMoreVisible {
+                                        HStack {
+                                            Spacer()
+                                            ProgressView()
+                                                .padding(.vertical, 12)
+                                            Spacer()
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -163,6 +191,11 @@ struct SearchView: View {
             }
             openSearchRequested = false // 한번 열었으면 리셋
         }
+        .onChange(of: searchText) { newValue in
+            if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                viewModel.clearSearchResults()
+            }
+        }
         .onAppear {
             // 첫 렌더에서 이미 true로 들어온 경우 보정
             if openSearchRequested {
@@ -177,6 +210,31 @@ struct SearchView: View {
 
     private var hasActiveFilters: Bool {
         selectedPlatform != .all || selectedGenre != .all || !searchText.isEmpty
+    }
+
+    private var isRemoteSearchActive: Bool {
+        !viewModel.lastSearchQuery.isEmpty && viewModel.lastSearchQuery == searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var isInitialLoading: Bool {
+        if isRemoteSearchActive {
+            return viewModel.isSearching && viewModel.searchItems.isEmpty
+        }
+        return viewModel.isLoading && viewModel.discoverItems.isEmpty
+    }
+
+    private var currentError: Error? {
+        if isRemoteSearchActive {
+            return viewModel.searchError
+        }
+        return viewModel.error
+    }
+
+    private var isLoadingMoreVisible: Bool {
+        if isRemoteSearchActive {
+            return viewModel.isSearchLoadingMore
+        }
+        return viewModel.isLoadingMore
     }
 
     private var headerTitle: String {
@@ -200,6 +258,9 @@ struct SearchView: View {
     // [수정] 모든 게임 (중복 제거, 순서 유지) - Game → GameListItem
     // 카테고리 필터 적용
     private var allItems: [GameListItem] {
+        if isRemoteSearchActive {
+            return viewModel.searchItems
+        }
         // 카테고리에 따라 데이터 소스 선택
         let items: [GameListItem]
         switch advancedFilterState.category {
@@ -228,9 +289,11 @@ struct SearchView: View {
         var result = allItems.filter { item in
             let matchesPlatform = filterByPlatform(item: item, platform: selectedPlatform)
             let matchesGenre = filterByGenre(item: item, genre: selectedGenre)
-            let matchesSearch = searchText.isEmpty ||
-                item.title.localizedCaseInsensitiveContains(searchText) ||
-                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(searchText)
+            let matchesSearch = isRemoteSearchActive
+                ? true
+                : (searchText.isEmpty ||
+                    item.title.localizedCaseInsensitiveContains(searchText) ||
+                    item.genre.joined(separator: " ").localizedCaseInsensitiveContains(searchText))
 
             // 평점 필터
             let matchesRating = filterByRating(item: item)
