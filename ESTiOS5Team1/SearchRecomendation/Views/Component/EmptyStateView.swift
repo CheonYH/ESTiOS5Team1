@@ -75,6 +75,15 @@ extension EmptyStateView {
             message: "다른 검색어로 시도해보세요"
         )
     }
+
+    /// 검색 대기 상태 (검색바 활성화, 검색어 미입력)
+    static var searchPrompt: EmptyStateView {
+        EmptyStateView(
+            icon: "magnifyingglass",
+            title: "게임을 검색해 보세요",
+            message: "찾고 싶은 게임의 제목이나\n장르를 입력해 주세요"
+        )
+    }
 }
 
 // MARK: - Preview

@@ -16,7 +16,7 @@ import SwiftUI
 struct LoginHeader: View {
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Spacing.pv10) {
 
             Image(systemName: "gamecontroller.fill")
                 .resizable()
@@ -36,7 +36,7 @@ struct LoginHeader: View {
         }
         .frame(maxWidth: .infinity)
 
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Spacing.pv10) {
             Text("환영합니다")
                 .font(.largeTitle)
                 .bold()
@@ -49,7 +49,7 @@ struct LoginHeader: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.white)
-        .padding(10)
+        .padding(Spacing.pv10)
     }
 }
 

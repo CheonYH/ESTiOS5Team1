@@ -41,7 +41,7 @@ final class ChatRoomViewModel: ObservableObject {
         self.store = store
         self.alanEndpointOverride = alanEndpointOverride
         self.alanClientKeyOverride = alanClientKeyOverride
-        
+
         // 1차 필터 : 휴리스틱 기반 필터(초단문 분류에 어려움을 겪는 것을 대비하여 추가함) + 그 외의 경우 1차필터(IntentClassifier)를 사용해 Non-Game을 다시 분류
         let classifier = CreateMLTextClassifierAdapter(modelName: "GameNonGame_baseline")
         self.messageGate = MessageGate(

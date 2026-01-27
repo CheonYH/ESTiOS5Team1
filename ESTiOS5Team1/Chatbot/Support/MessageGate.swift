@@ -5,7 +5,6 @@
 //  Created by 김대현 on 1/22/26.
 //
 
-
 import Foundation
 
 enum MessageGateDecision: Equatable {

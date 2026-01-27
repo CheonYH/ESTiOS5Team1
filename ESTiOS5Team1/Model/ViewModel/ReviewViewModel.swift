@@ -83,51 +83,62 @@ final class ReviewViewModel: ObservableObject {
         isLoading = false
     }
 
-    func postReview() async {
-        guard let gameId, let rating, let content else { return }
+    @discardableResult
+    func postReview() async -> FeedbackEvent {
+        guard let gameId, let rating, let content else {
+            return FeedbackEvent(.review, .warning, "게임/평점/내용을 입력해주세요.")
+        }
 
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
 
         do {
             _ = try await service.create(gameId: gameId, rating: rating, content: content)
             await loadReviews()
             await loadStats()
+            return FeedbackEvent(.review, .success, "리뷰가 등록되었습니다.")
         } catch {
             errorMessage = "\(error)"
+            return FeedbackEvent(.review, .error, "리뷰 등록에 실패했습니다.")
         }
-
-        isLoading = false
     }
 
-    func updateReview(id: Int) async {
-        guard let rating, let content else { return }
+    @discardableResult
+    func updateReview(id: Int) async -> FeedbackEvent {
+        guard let rating, let content else {
+            return FeedbackEvent(.review, .warning, "평점과 내용을 입력해주세요.")
+        }
 
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
 
         do {
             try await service.update(id: id, rating: rating, content: content)
             await loadReviews()
             await loadStats()
+            return FeedbackEvent(.review, .success, "리뷰가 수정되었습니다.")
         } catch {
             errorMessage = "\(error)"
+            return FeedbackEvent(.review, .error, "리뷰 수정에 실패했습니다.")
         }
-
-        isLoading = false
     }
 
-    func deleteReview(id: Int) async {
-        isLoading = true; errorMessage = nil
+    @discardableResult
+    func deleteReview(id: Int) async -> FeedbackEvent {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
 
         do {
             try await service.delete(id: id)
             await loadReviews()
             await loadStats()
+            return FeedbackEvent(.review, .success, "리뷰가 삭제되었습니다.")
         } catch {
             errorMessage = "\(error)"
+            return FeedbackEvent(.review, .error, "리뷰 삭제에 실패했습니다.")
         }
-
-        isLoading = false
     }
 }

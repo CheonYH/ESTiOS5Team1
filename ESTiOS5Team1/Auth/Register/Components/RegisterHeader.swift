@@ -18,7 +18,7 @@ struct RegisterHeader: View {
 
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Spacing.pv10) {
 
             Text("지금 가입하고 당신만의 여정을 시작하세요")
                 .font(.headline)
@@ -27,8 +27,8 @@ struct RegisterHeader: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.white)
-        .padding(.leading, 10)
-        .padding(.trailing, 10)
+        .padding(.leading, Spacing.pv10)
+        .padding(.trailing, Spacing.pv10)
     }
 
 }
