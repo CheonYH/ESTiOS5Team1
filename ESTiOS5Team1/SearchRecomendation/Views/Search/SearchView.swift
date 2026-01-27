@@ -24,7 +24,7 @@ struct SearchView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
 
     @Binding var openSearchRequested: Bool
-
+    @Binding var pendingGenre: GameGenreModel?
     // MARK: - Initialization
 
     /// 통합 Initializer (기본값으로 3개 init 통합)
