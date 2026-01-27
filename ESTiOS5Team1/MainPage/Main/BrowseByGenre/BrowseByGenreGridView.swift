@@ -1,4 +1,3 @@
-
 //
 //  SwiftUIView.swift
 //  ESTiOS5Team1
@@ -20,16 +19,12 @@ struct BrowseByGenreGridView: View {
             Text("장르")
                 .font(.title2.bold())
                 .foregroundStyle(Color("TextPrimary"))
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
-                
+
                 LazyHGrid(rows: rows, spacing: 15) {
                     ForEach(GameGenreModel.allCases) { genre in
-<<<<<<< HEAD
-                        Button {                   
-=======
                         Button {                         // ✅ CHANGED
->>>>>>> 33702dd4c7b5278e3fa8adc8cb421cada42e504b
                             onGenreTap(genre)
                         } label: {
                             GenreCard(genre: genre)

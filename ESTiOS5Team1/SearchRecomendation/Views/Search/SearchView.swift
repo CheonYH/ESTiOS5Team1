@@ -24,7 +24,7 @@ struct SearchView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
 
     @Binding var openSearchRequested: Bool
-    @Binding var pendingGenre: GameGenreModel?
+
     // MARK: - Initialization
 
     /// 통합 Initializer (기본값으로 3개 init 통합)
@@ -43,11 +43,7 @@ struct SearchView: View {
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
-<<<<<<< HEAD
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
-=======
     init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false),pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
->>>>>>> 33702dd4c7b5278e3fa8adc8cb421cada42e504b
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
@@ -119,13 +115,6 @@ struct SearchView: View {
             }
             openSearchRequested = false
         }
-        
-        .onChange(of: pendingGenre) { genre in
-            guard let genre else { return }
-            selectedGenre = GenreFilterType.from(gameGenre: genre)
-            pendingGenre = nil
-        }
-        
         .onChange(of: searchText) { newValue in
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 viewModel.clearSearchResults()
@@ -140,7 +129,6 @@ struct SearchView: View {
         .onChange(of: viewModel.trendingItems) { _ in applyFilters() }
         .onChange(of: viewModel.newReleaseItems) { _ in applyFilters() }
         .onChange(of: viewModel.searchItems) { _ in applyFilters() }
-        .navigationBarBackButtonHidden(true)
     }
 
     // MARK: - Private Methods
@@ -151,12 +139,6 @@ struct SearchView: View {
         if viewModel.discoverItems.isEmpty {
             Task { await viewModel.loadAllGames() }
         }
-        // 장르 선택시 장르 전달
-        if let genre = pendingGenre {
-            selectedGenre = GenreFilterType.from(gameGenre: genre)
-            pendingGenre = nil
-        }
-        
         // 홈화면에서 검색 요청 시 처리
         if openSearchRequested {
             isSearchActive = true

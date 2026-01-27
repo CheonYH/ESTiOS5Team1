@@ -30,46 +30,6 @@ struct MainTabView: View {
     }
     
     private let tabBarHeight: CGFloat = 86
-<<<<<<< HEAD
-    
-    var body: some View {
-        ZStack {
-            Color("BGColor")
-                .ignoresSafeArea()
-            VStack(spacing: 0) {
-                ZStack {
-                    if loadedTabs.contains(.home) {
-                        tabStack(isActive: selectedTab == .home) {
-                            MainView(
-                                viewModel: mainVM,
-                                trendingVM: trendingVM,
-                                newReleasesVM: releasesVM,
-                                onSearchTap: {
-                                    openSearchRequested = true
-                                    selectedTab = .discover
-                                    loadedTabs.insert(.discover)
-                                },
-                                onGenreTap: { genre in
-                                    pendingGenre = genre
-                                    selectedTab = .discover
-                                    loadedTabs.insert(.discover)
-                                }
-                            )
-                        }
-                        .opacity(selectedTab == .home ? 1 : 0)
-                        .allowsHitTesting(selectedTab == .home)
-                    }
-                    
-                    if loadedTabs.contains(.discover) {
-                        tabStack(isActive: selectedTab == .discover) {
-                            SearchView(
-                                favoriteManager: favoriteManager,
-                                openSearchRequested: $openSearchRequested,
-                                pendingGenre: $pendingGenre
-                            )
-                            .opacity(selectedTab == .discover ? 1 : 0)
-                            .allowsHitTesting(selectedTab == .discover)
-=======
  
     var body: some View {
             ZStack {
@@ -117,38 +77,28 @@ struct MainTabView: View {
                                     .opacity(selectedTab == .library ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .library)
                             }
->>>>>>> 33702dd4c7b5278e3fa8adc8cb421cada42e504b
-                        }
-                    }
-                    
-                    if loadedTabs.contains(.library) {
-                        tabStack(isActive: selectedTab == .library) {
-                            LibraryView()
-                                .opacity(selectedTab == .library ? 1 : 0)
-                                .allowsHitTesting(selectedTab == .library)
                         }
                     }
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .clipped()
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                if !tabBarState.isHidden {
-                    TabBarView(selectedTab: $selectedTab)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    if !tabBarState.isHidden {
+                        TabBarView(selectedTab: $selectedTab)
+                    }
+                }
+                .allowsHitTesting(!isPageLoading)
+                
+                if isPageLoading {
+                    loadingOverlay
+                        .transition(.opacity)
+                        .zIndex(999)
                 }
             }
-            .allowsHitTesting(!isPageLoading)
-            
-            if isPageLoading {
-                loadingOverlay
-                    .transition(.opacity)
-                    .zIndex(999)
-            }
-        }
-        .environmentObject(favoriteManager)
-        .environmentObject(tabBarState)
-        .animation(.easeInOut(duration: 0.2), value: isPageLoading)
-        .onChange(of: selectedTab) { loadedTabs.insert($0) }
+            .environmentObject(favoriteManager)
+            .environmentObject(tabBarState)
+            .animation(.easeInOut(duration: 0.2), value: isPageLoading)
+            .onChange(of: selectedTab) { loadedTabs.insert($0) }
     }
     
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {
