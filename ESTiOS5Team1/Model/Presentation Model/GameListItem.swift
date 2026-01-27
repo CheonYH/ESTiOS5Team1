@@ -30,12 +30,14 @@ struct GameListItem: Identifiable, Hashable {
     let summary: String?
 
     /// `GameEntity`를 UI 전용 모델로 변환합니다.
-    nonisolated init(entity: GameEntity) {
+     init(entity: GameEntity, review: GameReviewEntity) {
+
         self.id = entity.id
         self.title = entity.title
         self.coverURL = entity.coverURL
 
-        self.ratingText = entity.rating
+        let avg = review.stats?.averageRating
+        self.ratingText = avg
             .map { String(format: "%.1f/5", $0) } ?? "N/A"
 
         self.genre = entity.genre

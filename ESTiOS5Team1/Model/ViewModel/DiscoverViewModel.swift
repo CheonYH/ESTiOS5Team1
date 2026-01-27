@@ -36,10 +36,13 @@ final class DiscoverViewModel: ObservableObject {
     /// IGDB API와 통신하는 서비스
     private let service: IGDBService
 
+    private let reviewService: ReviewService
+
     // MARK: - Init
 
-    init(service: IGDBService) {
+    init(service: IGDBService, reviewService: ReviewService = ReviewServiceManager()) {
         self.service = service
+        self.reviewService = reviewService
     }
 
     // MARK: - Public API
@@ -87,15 +90,57 @@ final class DiscoverViewModel: ObservableObject {
 
             }.value
 
+            let trendingStatsById = await fetchStatsMap(for: trendingEntities)
+            let discoverStatsById = await fetchStatsMap(for: discoverEntities)
+            let emptyReview = GameReviewEntity(reviews: [], stats: nil, myReview: nil)
+
             // MARK: - UI 업데이트 (메인스레드)
 
             await MainActor.run {
-                self.trendingItems = trendingEntities.map(GameListItem.init)
-                self.discoverItems = discoverEntities.map(GameListItem.init)
+                self.trendingItems = trendingEntities.map {
+                    GameListItem(entity: $0, review: trendingStatsById[$0.id] ?? emptyReview)
+                }
+                self.discoverItems = discoverEntities.map {
+                    GameListItem(entity: $0, review: discoverStatsById[$0.id] ?? emptyReview)
+                }
             }
 
         } catch {
             self.error = error
         }
+    }
+
+    private func fetchStatsMap(for entities: [GameEntity]) async -> [Int: GameReviewEntity] {
+        let ids = entities.map { $0.id }
+        guard !ids.isEmpty else { return [:] }
+
+        let maxConcurrent = 10
+        var results: [Int: GameReviewEntity] = [:]
+
+        await withTaskGroup(of: (Int, GameReviewEntity?).self) { group in
+            var iterator = ids.makeIterator()
+
+            func addNext() {
+                guard let id = iterator.next() else { return }
+                group.addTask {
+                    do {
+                        let stats = try await self.reviewService.stats(gameId: id)
+                        let review = GameReviewEntity(reviews: [], stats: stats, myReview: nil)
+                        return (id, review)
+                    } catch {
+                        return (id, nil)
+                    }
+                }
+            }
+
+            for _ in 0..<maxConcurrent { addNext() }
+
+            while let (id, review) = await group.next() {
+                if let review { results[id] = review }
+                addNext()
+            }
+        }
+
+        return results
     }
 }
