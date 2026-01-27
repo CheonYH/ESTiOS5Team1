@@ -115,4 +115,48 @@ enum IGDBQuery {
         involved_companies.company.name;
     """
 
+    /// 검색어 기반 게임 검색 쿼리
+    static func search(_ text: String) -> String {
+        let escaped = text
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+
+        return """
+        search \"\(escaped)\";
+        fields
+            id,
+            name,
+            cover.image_id,
+            summary,
+            aggregated_rating,
+            release_dates.y,
+            genres.name,
+            platforms.name,
+            platforms.platform_logo.image_id;
+        sort popularity desc;
+        """
+    }
+
+    /// 검색어 포함 매칭 (대체 경로)
+    static func searchFallback(_ text: String) -> String {
+        let escaped = text
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+
+        return """
+        where name ~ *\"\(escaped)\"* | alternative_names.name ~ *\"\(escaped)\"*;
+        fields
+            id,
+            name,
+            cover.image_id,
+            summary,
+            aggregated_rating,
+            release_dates.y,
+            genres.name,
+            platforms.name,
+            platforms.platform_logo.image_id;
+        sort popularity desc;
+        """
+    }
+
 }

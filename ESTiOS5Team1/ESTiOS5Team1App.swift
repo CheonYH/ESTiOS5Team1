@@ -38,8 +38,8 @@ struct ESTiOS5Team1App: App {
                 LoginView()
 
             case .signedIn:
-                // MainTabView()
-                LogoutTestView()
+                 MainTabView()
+               // LogoutTestView()
 
             case .socialNeedsRegister:
                 NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)
@@ -63,7 +63,8 @@ struct ESTiOS5Team1App: App {
     var body: some Scene {
         WindowGroup {
              ZStack {
-                 content
+//                 content
+                 MainTabView()
 
              }
              .frame(maxWidth: .infinity, maxHeight: .infinity)

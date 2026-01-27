@@ -12,6 +12,7 @@ struct SearchBar: View {
     @Binding var searchText: String
     @Binding var isSearchActive: Bool
     var placeholder: String = "게임 제목, 장르, 태그 검색..."
+    var onSubmit: (() -> Void)?
 
     var body: some View {
         HStack {
@@ -23,6 +24,9 @@ struct SearchBar: View {
                 .placeholder(when: searchText.isEmpty) {
                     Text(placeholder)
                         .foregroundColor(.gray)
+                }
+                .onSubmit {
+                    onSubmit?()
                 }
 
             if !searchText.isEmpty {
