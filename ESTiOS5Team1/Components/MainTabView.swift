@@ -14,6 +14,8 @@ struct MainTabView: View {
     @State private var loadedTabs: Set<Tab> = [.home]
     @State private var openSearchRequested = false
     @State private var pendingGenre: GameGenreModel? = nil
+    // [추가] 검색 상태 초기화용 (탭 전환 시 검색 비활성화)
+    @State private var shouldResetSearch = false
     
     @StateObject var favoriteManager = FavoriteManager()
     
@@ -64,7 +66,8 @@ struct MainTabView: View {
                                 SearchView(
                                     favoriteManager: favoriteManager,
                                     openSearchRequested: $openSearchRequested,
-                                    pendingGenre: $pendingGenre
+                                    pendingGenre: $pendingGenre,
+                                    shouldResetSearch: $shouldResetSearch
                                 )
                                     .opacity(selectedTab == .discover ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .discover)
@@ -98,7 +101,13 @@ struct MainTabView: View {
             .environmentObject(favoriteManager)
             .environmentObject(tabBarState)
             .animation(.easeInOut(duration: 0.2), value: isPageLoading)
-            .onChange(of: selectedTab) { loadedTabs.insert($0) }
+            .onChange(of: selectedTab) { newTab in
+                loadedTabs.insert(newTab)
+                // [추가] discover 탭에서 다른 탭으로 이동 시 검색 상태 초기화
+                if newTab != .discover {
+                    shouldResetSearch = true
+                }
+            }
     }
     
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {

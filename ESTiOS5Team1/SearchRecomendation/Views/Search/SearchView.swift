@@ -25,6 +25,9 @@ struct SearchView: View {
 
     @Binding var openSearchRequested: Bool
     @Binding var pendingGenre: GameGenreModel?
+    // [추가] 탭 전환 시 검색 상태 초기화용
+    @Binding var shouldResetSearch: Bool
+
     // MARK: - Initialization
 
     /// 통합 Initializer (기본값으로 3개 init 통합)
@@ -33,19 +36,22 @@ struct SearchView: View {
         initialGenre: GenreFilterType = .all,
         initialPlatform: PlatformFilterType = .all,
         openSearchRequested: Binding<Bool> = .constant(false),
-        pendingGenre: Binding<GameGenreModel?> = .constant(nil)
+        pendingGenre: Binding<GameGenreModel?> = .constant(nil),
+        shouldResetSearch: Binding<Bool> = .constant(false)
     ) {
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
+        self._shouldResetSearch = shouldResetSearch
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: initialPlatform)
         _selectedGenre = State(initialValue: initialGenre)
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false),pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil), shouldResetSearch: Binding<Bool> = .constant(false)) {
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
+        self._shouldResetSearch = shouldResetSearch
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: .all)
         _selectedGenre = State(initialValue: GenreFilterType.from(gameGenre: gameGenre))
@@ -105,6 +111,12 @@ struct SearchView: View {
         .onAppear {
             handleOnAppear()
         }
+        // [추가] 화면 전환 시 검색 상태 초기화
+        .onDisappear {
+            isSearchActive = false
+            searchText = ""
+            viewModel.clearSearchResults()
+        }
         .sheet(isPresented: $showFilterSheet) {
             FilterSheet(filterState: $advancedFilterState)
         }
@@ -120,7 +132,14 @@ struct SearchView: View {
             selectedGenre = GenreFilterType.from(gameGenre: gener)
             pendingGenre = nil
         }
-        
+        // [추가] 탭 전환 시 검색 상태 초기화 (실무 방식: 부모에서 신호 전달)
+        .onChange(of: shouldResetSearch) { value in
+            guard value else { return }
+            isSearchActive = false
+            searchText = ""
+            viewModel.clearSearchResults()
+            shouldResetSearch = false
+        }
         .onChange(of: searchText) { newValue in
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 viewModel.clearSearchResults()
