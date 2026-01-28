@@ -84,16 +84,33 @@ enum TextCleaner {
     static func sanitizeMarkdownLinksAndSources(_ input: String) -> String {
         var output = input
 
+        // URL이 줄바꿈으로 깨진 형태를 먼저 복원
         output = normalizeBrokenUrls(output)
 
+        // [title](https://...) -> https://...
         output = output.replacingOccurrences(
             of: #"\[[^\]]*\]\((https?://[^)\s]+)\)"#,
             with: "$1",
             options: .regularExpression
         )
 
+        // www.* 형태에 scheme 부여 (detector 안정화)
         output = normalizeBrokenUrls(output)
         output = addSchemeToWwwLinks(output)
+
+        // (https://...) 또는 (https://...).  형태에서 괄호/마침표 제거
+        output = output.replacingOccurrences(
+            of: #"\(\s*(https?://[^\s)]+)\s*\)\s*\.?"#,
+            with: "$1",
+            options: .regularExpression
+        )
+
+        // 링크 뒤에 괄호만 남는 케이스를 사전에 정리: "... https://x ) ." 같은 조합
+        output = output.replacingOccurrences(
+            of: #"(?m)(https?://\S+)\s*\)\s*\.?"#,
+            with: "$1",
+            options: .regularExpression
+        )
 
         let sourcePatterns: [String] = [
             #"\(출처\s*\d+\)"#,
@@ -106,8 +123,14 @@ enum TextCleaner {
             output = output.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
         }
 
+        // 빈 마크/빈 괄호 제거
         output = output.replacingOccurrences(of: #"\[\s*\]"#, with: "", options: .regularExpression)
         output = output.replacingOccurrences(of: #"\(\s*\)"#, with: "", options: .regularExpression)
+
+        // 고아 문장부호 라인/깨진 조합 정리
+        output = removeOrphanPunctuationLines(output)
+
+        // 공백 정리
         output = output.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
 
         return output.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -187,20 +210,72 @@ enum TextCleaner {
     private static func removeOrphanPunctuationLines(_ input: String) -> String {
         var output = input
 
+        // 링크가 버튼으로 분리된 뒤 남는 고아 괄호 라인 제거: "(" / ")" / ")." / "(."
+        output = output.replacingOccurrences(
+            of: #"(?m)^\s*[\(\)]\s*\.?\s*$\n?"#,
+            with: "",
+            options: .regularExpression
+        )
+
+        // ".", "•", "-" 같은 고아 문장부호 라인 제거
         output = output.replacingOccurrences(
             of: #"(?m)^\s*[\.\u00B7•\-–—]+\s*$\n?"#,
             with: "",
             options: .regularExpression
         )
 
+        // ") \n ." 패턴 보정
         output = output.replacingOccurrences(
             of: #"\)\s*\n\s*\."#,
             with: ")",
             options: .regularExpression
         )
 
+        // 연속 개행 정리
         output = output.replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
 
         return output
+    }
+}
+
+extension TextCleaner {
+    static func stripSearchResultArtifacts(_ input: String) -> String {
+        var output = input
+
+        output = normalizeBrokenUrls(output)
+
+        output = output.replacingOccurrences(
+            of: #"(?m)^\s*https?://\S+\s*$\n?"#,
+            with: "",
+            options: .regularExpression
+        )
+
+        output = output.replacingOccurrences(
+            of: #"(?m)^\s*www\.\S+\s*$\n?"#,
+            with: "",
+            options: .regularExpression
+        )
+
+        output = output.replacingOccurrences(
+            of: #"(?m)^\s*(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:/[^\s]*)?\s*$\n?"#,
+            with: "",
+            options: .regularExpression
+        )
+
+        output = output.replacingOccurrences(
+            of: #"(?m)^\s*-?(?:%[0-9A-Fa-f]{2}){3,}[^\s]*\s*$\n?"#,
+            with: "",
+            options: .regularExpression
+        )
+
+        output = output.replacingOccurrences(
+            of: #"(?m)^\s*출처\s*[:：]?\s*$\n?"#,
+            with: "",
+            options: .regularExpression
+        )
+
+        output = output.replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+
+        return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
