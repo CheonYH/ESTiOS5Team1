@@ -25,7 +25,7 @@ struct DetailInfoBox: View {
             .cornerRadius(Radius.card)
 
         VStack(alignment: .leading) {
-            HStack {
+            HStack(spacing: 10) {
                 KFImage(item.coverURL)
                     .cacheOriginalImage()
                     .loadDiskFileSynchronously()
@@ -33,14 +33,14 @@ struct DetailInfoBox: View {
                         ProgressView()
                     }
                     .resizable()
-                    .scaledToFit()
-                    .frame(height: 130)
+                    .scaledToFill()
+                    .frame(width: 100, height: 130)
                     .clipped()
                     .cornerRadius(Radius.cr8)
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text(item.title)
-                        .font(.title)
+                        .font(.title2.bold())
 
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)

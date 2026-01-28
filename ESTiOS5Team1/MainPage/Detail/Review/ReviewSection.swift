@@ -15,12 +15,15 @@ struct ReviewSection: View {
     private var latestThree: [ReviewResponse] {
         Array(viewModel.reviews.prefix(3))
     }
+    private var reviewList: [ReviewResponse] {
+        Array(viewModel.reviews)
+    }
+    @State private var showAll: Bool = false
     
     var body: some View {
         VStack(alignment: .leading) {
-            TitleBox(title: "리뷰", showsSeeAll: true) {
-                
-            }
+            TitleBox(title: "리뷰", showsSeeAll: true, onSeeAllTap: { showAll = true })
+            
             // 리스트(최신 3개)
             ForEach(latestThree) { review in
                 ReviewCellServer(review: review)
@@ -53,7 +56,19 @@ struct ReviewSection: View {
             await viewModel.loadReviews(sort: .latest)
             await viewModel.loadStats()
         }
-
+        .navigationDestination(isPresented: $showAll) {
+            ZStack {
+                Color.BG.ignoresSafeArea()
+                
+                ScrollView {
+                    ForEach(latestThree) { review in
+                        ReviewCellServer(review: review)
+                    }
+                }
+            }
+        }
+        
+        
     }
 }
 

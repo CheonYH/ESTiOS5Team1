@@ -22,7 +22,8 @@ struct SearchView: View {
 
     @StateObject private var viewModel: SearchViewModel
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    @EnvironmentObject var tabBarState: TabBarState
+    
     @Binding var openSearchRequested: Bool
     @Binding var pendingGenre: GameGenreModel?
     // MARK: - Initialization
@@ -156,6 +157,7 @@ struct SearchView: View {
             pendingGenre = nil
         }
         
+        tabBarState.isHidden = false
         // 초기 필터 적용
         applyFilters()
     }

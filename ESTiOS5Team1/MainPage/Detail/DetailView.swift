@@ -15,7 +15,7 @@ struct DetailView: View {
     @StateObject private var viewModel: GameDetailViewModel
     @EnvironmentObject var tabBarState: TabBarState
     @State private var content: String = ""
-    
+    @State private var showRoot = false
     init(gameId: Int) {
         self.gameId = gameId
         self._viewModel = StateObject(wrappedValue: GameDetailViewModel(gameId: gameId))
@@ -25,7 +25,7 @@ struct DetailView: View {
         ZStack {
             Color.black
                 .ignoresSafeArea()
-            VStack(spacing: 16) {
+            VStack(alignment: .leading ,spacing: 16) {
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
@@ -39,14 +39,15 @@ struct DetailView: View {
                             infoRow(label: "출시년도", value: item.releaseYear)
                             
                             if let website = item.officialWebsite {
-                                infoLink(label: "공식 사이트", url: website)
+                                infoLink(label: "공식 사이트", title: "홈페이지로 이동",url: website)
                             }
                             
                             let visibleStores = item.stores.filter { $0.name.lowercased() != "unknown" }
                             if !visibleStores.isEmpty {
-                                VStack(alignment: .leading, spacing: 6) {
+                                HStack(alignment: .top, spacing: 8) {
                                     Text("스토어")
                                         .foregroundStyle(.gray.opacity(0.7))
+                                        .frame(width: 80, alignment: .leading)
                                     ForEach(visibleStores) { store in
                                         Link(store.name, destination: store.url)
                                             .foregroundStyle(.purplePrimary)
@@ -68,23 +69,8 @@ struct DetailView: View {
                             .padding(.bottom, 24)
                         }
                         
-                        Button {
-                            
-                        } label: {
-                            Text("게임의 정보가 더 궁금하다면 챗봇에게 물어보세요.")
-                                .foregroundStyle(.textPrimary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(5)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(.gray.opacity(0.6), lineWidth: 1)
-                                )
-                        }
-                        
+                        GoChatBotBox(showRoot: $showRoot)
+
                         ReviewSection(gameId: item.id)
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")
@@ -95,13 +81,16 @@ struct DetailView: View {
                     }
                 }
                 .scrollIndicators(.hidden)
+
             }
         }
         .task {
             await viewModel.load()
         }
+        .navigationDestination(isPresented: $showRoot) {
+            RootTabView()
+        }
         .onAppear { tabBarState.isHidden = true }
-        .onDisappear { tabBarState.isHidden = false }
         .toolbar {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 4) {
@@ -131,14 +120,15 @@ struct DetailView: View {
         }
     }
     
-    private func infoLink(label: String, url: URL) -> some View {
+    private func infoLink(label: String, title: String, url: URL) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Text(label)
                 .foregroundStyle(.gray.opacity(0.7))
                 .frame(width: 80, alignment: .leading)
-            Link(url.absoluteString, destination: url)
+            Link(title, destination: url)
                 .foregroundStyle(.purplePrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
         }
     }
     

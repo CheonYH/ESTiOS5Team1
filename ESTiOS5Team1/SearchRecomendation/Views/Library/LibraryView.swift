@@ -102,6 +102,7 @@ struct LibraryView: View {
                     .onAppear { tabBarState.isHidden = true }
                     .onDisappear { tabBarState.isHidden = false }
             }
+            .onAppear { tabBarState.isHidden = false }
         }
     }
 }
