@@ -66,8 +66,8 @@ final class SearchViewModel: ObservableObject {
     private var skipSortCount = 0
 
     // MARK: - Initialization
-    init(service: IGDBService = IGDBServiceManager(), favoriteManager: FavoriteManager) {
-        self.service = service
+    init(service: IGDBService? = nil, favoriteManager: FavoriteManager) {
+        self.service = service ?? IGDBServiceManager()
         self.favoriteManager = favoriteManager
         setupViewModels()
     }

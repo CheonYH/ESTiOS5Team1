@@ -14,7 +14,7 @@ struct DetailView: View {
     @State var rating: Double = 4
     @StateObject private var viewModel: GameDetailViewModel
     @EnvironmentObject var tabBarState: TabBarState
-    
+
     init(gameId: Int) {
         self.gameId = gameId
         self._viewModel = StateObject(wrappedValue: GameDetailViewModel(gameId: gameId))
@@ -32,15 +32,15 @@ struct DetailView: View {
 
                         VStack(alignment: .leading, spacing: 12) {
                             TitleBox(title: "추가 정보", showsSeeAll: false, onSeeAllTap: nil)
-                            
+
                             infoRow(label: "개발사", value: joinedOrDash(item.developers))
                             infoRow(label: "퍼블리셔", value: joinedOrDash(item.publishers))
                             infoRow(label: "출시년도", value: item.releaseYear)
-                            
+
                             if let website = item.officialWebsite {
                                 infoLink(label: "공식 사이트", url: website)
                             }
-                            
+
                             let visibleStores = item.stores.filter { $0.name.lowercased() != "unknown" }
                             if !visibleStores.isEmpty {
                                 VStack(alignment: .leading, spacing: 6) {
@@ -55,7 +55,7 @@ struct DetailView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
-                        
+
                         if let trailer = item.trailers.first {
                             VStack(alignment: .leading, spacing: 12) {
                                 TitleBox(title: "영상", showsSeeAll: false, onSeeAllTap: nil)
@@ -100,7 +100,7 @@ struct DetailView: View {
                 .frame(height: 0.5)
         }
     }
-    
+
     @ViewBuilder
     private func infoRow(label: String, value: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
@@ -112,7 +112,7 @@ struct DetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-    
+
     private func infoLink(label: String, url: URL) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Text(label)
@@ -123,7 +123,7 @@ struct DetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-    
+
     private func joinedOrDash(_ values: [String]) -> String {
         values.isEmpty ? "–" : values.joined(separator: ", ")
     }
@@ -131,25 +131,25 @@ struct DetailView: View {
 
 private struct WebVideoPlayer: UIViewRepresentable {
     let url: URL
-    
+
     final class Coordinator: NSObject, WKNavigationDelegate {
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             print("[WebVideoPlayer] didFail:", error)
         }
-        
+
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
             print("[WebVideoPlayer] didFailProvisional:", error)
         }
-        
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             print("[WebVideoPlayer] didFinish load")
         }
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
-    
+
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.defaultWebpagePreferences.allowsContentJavaScript = true
@@ -164,7 +164,7 @@ private struct WebVideoPlayer: UIViewRepresentable {
         webView.backgroundColor = .clear
         return webView
     }
-    
+
     func updateUIView(_ uiView: WKWebView, context: Context) {
         let embed = embedURL(from: url).absoluteString
         let html = """
@@ -189,14 +189,14 @@ private struct WebVideoPlayer: UIViewRepresentable {
         """
         uiView.loadHTMLString(html, baseURL: nil)
     }
-    
+
     private func embedURL(from url: URL) -> URL {
         if let videoId = youtubeVideoId(from: url) {
             return URL(string: "https://www.youtube-nocookie.com/embed/\(videoId)") ?? url
         }
         return url
     }
-    
+
     private func youtubeVideoId(from url: URL) -> String? {
         if url.host?.contains("youtu") == true {
             if url.host?.contains("youtu.be") == true {

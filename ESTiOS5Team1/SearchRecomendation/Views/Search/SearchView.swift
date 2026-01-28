@@ -177,12 +177,12 @@ struct SearchView: View {
             isSearchActive = true
             openSearchRequested = false
         }
-        
+
         if let genre = pendingGenre {
             selectedGenre = GenreFilterType.from(gameGenre: genre)
             pendingGenre = nil
         }
-        
+
         // 초기 필터 적용
         applyFilters()
     }

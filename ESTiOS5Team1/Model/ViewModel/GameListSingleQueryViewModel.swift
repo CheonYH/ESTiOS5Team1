@@ -40,8 +40,13 @@ final class GameListSingleQueryViewModel: ObservableObject {
 
     /// 원본 엔티티 캐시입니다. (필터링용)
     private var entities: [GameEntity] = []
+    /// 리뷰 통계 캐시입니다. (id -> review)
+    private var reviewById: [Int: GameReviewEntity] = [:]
     /// IGDB API 서비스입니다.
     private let service: IGDBService
+
+    private let reviewService: ReviewService
+
     /// 멀티쿼리 본문입니다.
     private let query: String
     /// 페이지 당 요청 크기입니다.
@@ -55,10 +60,11 @@ final class GameListSingleQueryViewModel: ObservableObject {
 
     /// 서비스와 쿼리를 주입받습니다.
     /// [수정] pageSize 300 → 30으로 변경하여 초기 로딩 속도 개선
-    init(service: IGDBService, query: String, pageSize: Int = 100) {
+    init(service: IGDBService, reviewService: ReviewService? = nil, query: String, pageSize: Int = 100) {
         self.service = service
         self.query = query
         self.pageSize = pageSize
+        self.reviewService =  reviewService ?? ReviewServiceManager()
     }
 
     /// 단일 멀티쿼리로 게임 목록을 불러옵니다.
@@ -71,8 +77,15 @@ final class GameListSingleQueryViewModel: ObservableObject {
             currentOffset = 0
             hasMore = true
             let pageEntities = try await fetchPage(offset: currentOffset)
+
+            let statsById = await fetchStatsMap(for: pageEntities)
+            let emptyReview = GameReviewEntity(reviews: [], stats: nil, myReview: nil)
+
             self.entities = pageEntities
-            self.items = pageEntities.map(GameListItem.init)
+            self.reviewById = statsById
+            self.items = pageEntities.map {
+                GameListItem(entity: $0, review: reviewById[$0.id] ?? emptyReview)
+            }
             hasMore = pageEntities.count == pageSize
         } catch {
             self.error = error
@@ -88,11 +101,17 @@ final class GameListSingleQueryViewModel: ObservableObject {
         do {
             let nextOffset = currentOffset + pageSize
             let pageEntities = try await fetchPage(offset: nextOffset)
+
+            let statsById = await fetchStatsMap(for: pageEntities)
+            let emptyReview = GameReviewEntity(reviews: [], stats: nil, myReview: nil)
             currentOffset = nextOffset
             hasMore = pageEntities.count == pageSize
 
             self.entities.append(contentsOf: pageEntities)
-            self.items = entities.map(GameListItem.init)
+            self.reviewById.merge(statsById) { _, new in new }
+            self.items = entities.map {
+                GameListItem(entity: $0, review: reviewById[$0.id] ?? emptyReview)
+            }
         } catch {
             self.error = error
         }
@@ -131,6 +150,40 @@ final class GameListSingleQueryViewModel: ObservableObject {
         limit \(pageSize);
         offset \(offset);
         """
+    }
+
+    private func fetchStatsMap(for entities: [GameEntity]) async -> [Int: GameReviewEntity] {
+        let ids = entities.map { $0.id }
+        guard !ids.isEmpty else { return [:] }
+
+        let maxConcurrent = 10
+        var results: [Int: GameReviewEntity] = [:]
+
+        await withTaskGroup(of: (Int, GameReviewEntity?).self) { group in
+            var iterator = ids.makeIterator()
+
+            func addNext() {
+                guard let id = iterator.next() else { return }
+                group.addTask {
+                    do {
+                        let stats = try await self.reviewService.stats(gameId: id)
+                        let review = await GameReviewEntity(reviews: [], stats: stats, myReview: nil)
+                        return (id, review)
+                    } catch {
+                        return (id, nil)
+                    }
+                }
+            }
+
+            for _ in 0..<maxConcurrent { addNext() }
+
+            while let (id, review) = await group.next() {
+                if let review { results[id] = review }
+                addNext()
+            }
+        }
+
+        return results
     }
 
 }

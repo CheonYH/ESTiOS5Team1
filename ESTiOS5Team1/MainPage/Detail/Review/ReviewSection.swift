@@ -10,7 +10,7 @@ import UIKit
 
 struct ReviewSection: View {
     let gameId: Int
-    
+
     @StateObject private var viewModel = ReviewViewModel(service: ReviewServiceManager())
     @State private var isEditingMyReview = false
     @EnvironmentObject private var toastManager: ToastManager
@@ -28,7 +28,7 @@ struct ReviewSection: View {
         let filtered = viewModel.reviews.filter { $0.id != myReview?.id }
         return Array(filtered.prefix(3))
     }
-    
+
     var body: some View {
         ScrollViewReader { proxy in
             VStack(alignment: .leading) {
@@ -157,6 +157,6 @@ struct ReviewSection: View {
     }
 }
 
-//#Preview {
+// #Preview {
 //    ReviewSection()
-//}
+// }

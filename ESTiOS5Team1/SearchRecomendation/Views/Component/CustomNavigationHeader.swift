@@ -14,7 +14,7 @@ struct CustomNavigationHeader: View {
     let title: String
     var showSearchButton: Bool = false
     var isSearchActive: Bool = false
-    var onSearchTap: (() -> Void)? = nil
+    var onSearchTap: (() -> Void)?
 
     var body: some View {
         HStack {
