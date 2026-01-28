@@ -31,6 +31,11 @@ final class ChatRoomViewModel: ObservableObject {
     // MessageGate (CreateML 모델 연결)
     private let messageGate: MessageGate
 
+    // 2차 필터 (4-class: game_guide/game_info/game_recommend/non_game)
+    private let secondPassClassifier: MessageIntentClassifying
+    private let secondPassNonGameLabel = "non_game"
+    private let secondPassConfidenceThreshold: Double = 0.70
+
     init(
         room: ChatRoom,
         store: ChatLocalStore,
@@ -43,7 +48,7 @@ final class ChatRoomViewModel: ObservableObject {
         self.alanClientKeyOverride = alanClientKeyOverride
         
         // 1차 필터 : 휴리스틱 기반 필터(초단문 분류에 어려움을 겪는 것을 대비하여 추가함) + 그 외의 경우 1차필터(IntentClassifier)를 사용해 Non-Game을 다시 분류
-        let classifier = CreateMLTextClassifierAdapter(modelName: "GameNonGame_baseline")
+        let classifier = CreateMLTextClassifierAdapter(modelName: "GameNonGame_bert")
         self.messageGate = MessageGate(
             config: MessageGateConfig(
                 gameLabel: "game",
@@ -52,6 +57,9 @@ final class ChatRoomViewModel: ObservableObject {
             ),
             classifier: classifier
         )
+
+        let secondClassifier = CreateMLTextClassifierAdapter(modelName: "GameSort_bert")
+        self.secondPassClassifier = secondClassifier
     }
 
     func reload(room: ChatRoom) async {
@@ -70,6 +78,12 @@ final class ChatRoomViewModel: ObservableObject {
     func markNeedsServerReset() {
         activeServerRoomIdentifier = nil
         isFirstUserMessageAfterRoomSwitch = true
+    }
+
+    private func simulatedGateReplyDelay() async {
+        let seconds = Double.random(in: 1.0...2.0)
+        let nanos = UInt64(seconds * 1_000_000_000)
+        try? await Task.sleep(nanoseconds: nanos)
     }
 
     func sendGuestMessage() async {
@@ -96,7 +110,23 @@ final class ChatRoomViewModel: ObservableObject {
             break
 
         case .blockNonGame(_, let reply):
+            // 생각하는척 시뮬레이션해서(1-2초 사이 랜덤값 설정) 실제 AI대화랑 갭이 적게 느껴지도록 처리
+            await simulatedGateReplyDelay()
+            
             let botMessage = ChatMessage(author: .bot, text: reply)
+            messages.append(botMessage)
+            await store.saveMessages(messages, roomIdentifier: room.identifier)
+            await store.touchRoomUpdatedAt(roomIdentifier: room.identifier)
+            return
+        }
+
+        if let prediction = secondPassClassifier.predictLabel(text: trimmedText),
+           prediction.label == secondPassNonGameLabel,
+           prediction.confidence >= secondPassConfidenceThreshold {
+
+            await simulatedGateReplyDelay()
+
+            let botMessage = ChatMessage(author: .bot, text: MessageGate.defaultNonGameReply())
             messages.append(botMessage)
             await store.saveMessages(messages, roomIdentifier: room.identifier)
             await store.touchRoomUpdatedAt(roomIdentifier: room.identifier)
@@ -146,7 +176,9 @@ final class ChatRoomViewModel: ObservableObject {
             }
 
             let rawAnswer = try await client.ask(content: payload, clientId: clientKeyText)
-            let answerText = Self.extractDisplayText(from: rawAnswer)
+            let answerText = TextCleaner.stripSourceMarkers(
+                Self.extractDisplayText(from: rawAnswer)
+            )
 
             let botMessage = ChatMessage(author: .bot, text: answerText)
             messages.append(botMessage)
@@ -366,69 +398,19 @@ final class ChatRoomViewModel: ObservableObject {
         """
     }
 
-    // MARK: - Local Context Summary (규칙 기반 / 짧게 / URL 제거)
-
     private func makeLocalContextSummary(from messages: [ChatMessage]) -> String {
-        // 최근 6개 메시지만
-        let recent = messages.suffix(6)
-
-        let perLineLimit = 100
-        let totalLimit = 500
-
-        var lines: [String] = []
-        lines.reserveCapacity(recent.count)
-
-        for item in recent {
-            let role = (item.author == .guest) ? "User" : "Bot"
-            let cleaned = Self.compactForSummary(item.text)
-            guard cleaned.isEmpty == false else { continue }
-
-            let short = String(cleaned.prefix(perLineLimit))
-            lines.append("- \(role): \(short)")
+        let trimmed = messages.suffix(12).map { msg -> String in
+            let role = (msg.author == .guest) ? "User" : "Bot"
+            let content = msg.text.replacingOccurrences(of: "\n", with: " ")
+            return "\(role): \(content)"
         }
-
-        let joined = lines.joined(separator: "\n")
-        return String(joined.prefix(totalLimit))
+        return trimmed.joined(separator: "\n")
     }
-
-    private static func compactForSummary(_ input: String) -> String {
-        var output = input
-
-        // URL 제거
-        output = output.replacingOccurrences(
-            of: #"https?://\S+"#,
-            with: "",
-            options: .regularExpression
-        )
-
-        // 줄바꿈/탭을 공백으로
-        output = output.replacingOccurrences(of: "\n", with: " ")
-        output = output.replacingOccurrences(of: "\t", with: " ")
-
-        // 공백 정리
-        output = output.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
-        return output.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    // MARK: - Response Cleanup
 
     private static func extractDisplayText(from raw: String) -> String {
-        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.isEmpty == false else { return raw }
-
-        guard trimmed.first == "{", trimmed.last == "}" else { return raw }
-
-        struct AlanEnvelope: Decodable {
-            let content: String?
+        if raw.hasPrefix("\"") && raw.hasSuffix("\"") {
+            return String(raw.dropFirst().dropLast())
         }
-
-        if let data = trimmed.data(using: .utf8),
-           let decoded = try? JSONDecoder().decode(AlanEnvelope.self, from: data),
-           let content = decoded.content?.trimmingCharacters(in: .whitespacesAndNewlines),
-           content.isEmpty == false {
-            return content
-        }
-
         return raw
     }
 }
