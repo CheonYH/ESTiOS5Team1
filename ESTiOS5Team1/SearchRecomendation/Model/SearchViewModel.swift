@@ -420,17 +420,14 @@ final class SearchViewModel: ObservableObject {
 
     /// 필터링된 결과 업데이트
     private func updateFilteredItems() {
-        let isRemoteSearch = !lastSearchQuery.isEmpty &&
-            lastSearchQuery == currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedSearchText = currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         var result = allItems.filter { item in
             let matchesPlatform = filterByPlatform(item: item, platform: currentPlatform)
             let matchesGenre = filterByGenre(item: item, genre: currentGenre)
-            let matchesSearch = isRemoteSearch
-                ? true
-                : (currentSearchText.isEmpty ||
-                    item.title.localizedCaseInsensitiveContains(currentSearchText) ||
-                    item.genre.joined(separator: " ").localizedCaseInsensitiveContains(currentSearchText))
+            let matchesSearch = trimmedSearchText.isEmpty ||
+                item.title.localizedCaseInsensitiveContains(trimmedSearchText) ||
+                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(trimmedSearchText)
             let matchesRating = filterByRating(item: item)
             let matchesReleasePeriod = currentAdvancedFilter.releasePeriod.matches(releaseYear: item.releaseYearText)
 

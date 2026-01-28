@@ -97,6 +97,7 @@ final class ReviewViewModel: ObservableObject {
             _ = try await service.create(gameId: gameId, rating: rating, content: content)
             await loadReviews()
             await loadStats()
+            await loadMine()
             return FeedbackEvent(.review, .success, "리뷰가 등록되었습니다.")
         } catch {
             errorMessage = "\(error)"
@@ -118,6 +119,7 @@ final class ReviewViewModel: ObservableObject {
             try await service.update(id: id, rating: rating, content: content)
             await loadReviews()
             await loadStats()
+            await loadMine()
             return FeedbackEvent(.review, .success, "리뷰가 수정되었습니다.")
         } catch {
             errorMessage = "\(error)"
@@ -135,6 +137,7 @@ final class ReviewViewModel: ObservableObject {
             try await service.delete(id: id)
             await loadReviews()
             await loadStats()
+            await loadMine()
             return FeedbackEvent(.review, .success, "리뷰가 삭제되었습니다.")
         } catch {
             errorMessage = "\(error)"

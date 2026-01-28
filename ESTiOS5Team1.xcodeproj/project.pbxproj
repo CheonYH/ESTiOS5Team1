@@ -14,7 +14,6 @@
 		25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A52F108F9200C0B57B /* FirebaseAnalytics */; };
 		25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A72F1090EF00C0B57B /* FirebaseCore */; };
 		25E231AA2F1090EF00C0B57B /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A92F1090EF00C0B57B /* FirebaseInstallations */; };
-		25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 25E236622F10EADF00C0B57B /* StreamChatSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,7 +102,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */,
 				25E2319D2F10854D00C0B57B /* Kingfisher in Frameworks */,
 				25E231A12F10886400C0B57B /* FirebaseCrashlytics in Frameworks */,
 				25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */,
@@ -269,7 +267,6 @@
 				25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */,
 				25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -723,14 +720,6 @@
 				minimumVersion = 12.7.0;
 			};
 		};
-		25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/getstream/stream-chat-swiftui";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.95.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -768,11 +757,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseInstallations;
-		};
-		25E236622F10EADF00C0B57B /* StreamChatSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */;
-			productName = StreamChatSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
