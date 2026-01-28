@@ -27,7 +27,7 @@ struct ChatRoomView: View {
                 room: room,
                 store: store,
                 alanEndpointOverride: "https://kdt-api-function.azurewebsites.net",
-                alanClientKeyOverride: "e8c9e9ca-92ba-408b-8272-0505933a649f"
+                alanClientKeyOverride: "3833f10d-f734-4ee3-8ec3-a94897a1d9b4"
             )
         )
         self.roomsViewModel = roomsViewModel
@@ -49,27 +49,39 @@ struct ChatRoomView: View {
             .navigationTitle(roomViewModel.room.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        Task {
-                            await roomsViewModel.startNewConversation()
-                            await roomViewModel.reload(room: roomsViewModel.defaultRoom)
-                            focusComposerSoon()
-                        }
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .tint(playNowTint)
-                    .accessibilityLabel("Start new chat")
-                }
-
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        isPresentingRooms = true
-                    } label: {
-                        Image(systemName: "text.bubble")
+                    HStack(spacing: 0) {
+                        Button {
+                            Task {
+                                await roomsViewModel.startNewConversation()
+                                await roomViewModel.reload(room: roomsViewModel.defaultRoom)
+                                focusComposerSoon()
+                            }
+                        } label: {
+                            Image(systemName: "plus")
+                                .frame(width: 44, height: 44)
+                        }
+                        .accessibilityLabel("Start new chat")
+
+                        Rectangle()
+                            .fill(Color.white.opacity(0.12))
+                            .frame(width: 1, height: 22)
+
+                        Button {
+                            isPresentingRooms = true
+                        } label: {
+                            Image(systemName: "text.bubble")
+                                .frame(width: 44, height: 44)
+                        }
+                        .accessibilityLabel("Open chat rooms")
                     }
                     .tint(playNowTint)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Capsule())
+                    .overlay {
+                        Capsule()
+                            .stroke(Color.white.opacity(0.10), lineWidth: 1)
+                    }
                 }
             }
             .sheet(isPresented: $isPresentingRooms) {
@@ -176,6 +188,7 @@ struct ChatRoomView: View {
                 }
 
             Button {
+                isComposerFocused = false
                 Task { await roomViewModel.sendGuestMessage() }
             } label: {
                 Image(systemName: "paperplane.fill")

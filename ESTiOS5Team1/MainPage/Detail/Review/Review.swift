@@ -9,10 +9,23 @@ import SwiftUI
 
 struct Review: View {
     let onSubmit: (_ rating: Int, _ text: String) -> Void
-    @State private var rating: Int = 1
-    @State private var content: String = ""
+    let submitTitle: String
+    @State private var rating: Int
+    @State private var content: String
     @FocusState private var focused: Bool
 
+    init(
+        initialRating: Int = 1,
+        initialContent: String = "",
+        submitTitle: String = "등록",
+        onSubmit: @escaping (_ rating: Int, _ text: String) -> Void
+    ) {
+        self.onSubmit = onSubmit
+        self.submitTitle = submitTitle
+        _rating = State(initialValue: initialRating)
+        _content = State(initialValue: initialContent)
+    }
+    
     var body: some View {
         VStack {
             Text("평가 남기기")
@@ -46,7 +59,7 @@ struct Review: View {
                     rating = 1
                     focused = false
                 } label: {
-                    Text("등록")
+                    Text(submitTitle)
                         .font(.headline)
                         .foregroundStyle(.white)
                         .padding(.vertical)
