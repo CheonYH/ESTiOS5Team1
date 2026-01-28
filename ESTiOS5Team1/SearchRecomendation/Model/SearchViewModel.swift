@@ -421,13 +421,13 @@ final class SearchViewModel: ObservableObject {
     /// 필터링된 결과 업데이트
     private func updateFilteredItems() {
         let trimmedSearchText = currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedSearchText = trimmedSearchText.lowercased()
 
         var result = allItems.filter { item in
             let matchesPlatform = filterByPlatform(item: item, platform: currentPlatform)
             let matchesGenre = filterByGenre(item: item, genre: currentGenre)
-            let matchesSearch = trimmedSearchText.isEmpty ||
-                item.title.localizedCaseInsensitiveContains(trimmedSearchText) ||
-                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(trimmedSearchText)
+            let matchesSearch = normalizedSearchText.isEmpty ||
+                matchesSearchText(item: item, searchText: normalizedSearchText)
             let matchesRating = filterByRating(item: item)
             let matchesReleasePeriod = currentAdvancedFilter.releasePeriod.matches(releaseYear: item.releaseYearText)
 
@@ -441,6 +441,29 @@ final class SearchViewModel: ObservableObject {
             result = sortItems(result)
         }
         filteredItems = result
+    }
+
+    /// 검색어와 타이틀/장르/초성(약어) 매칭을 함께 고려합니다.
+    private func matchesSearchText(item: GameListItem, searchText: String) -> Bool {
+        let title = item.title.lowercased()
+        let genreText = item.genre.joined(separator: " ").lowercased()
+
+        if title.contains(searchText) || genreText.contains(searchText) {
+            return true
+        }
+
+        let titleAlnum = title.components(separatedBy: CharacterSet.alphanumerics.inverted).joined()
+        if titleAlnum.contains(searchText) {
+            return true
+        }
+
+        let initials = title
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .compactMap { $0.first }
+            .map { String($0) }
+            .joined()
+        return initials.contains(searchText)
     }
 
     /// 플랫폼 필터 적용

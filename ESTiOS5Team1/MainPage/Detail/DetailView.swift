@@ -68,6 +68,8 @@ struct DetailView: View {
                         }
 
                         ReviewSection(gameId: item.id)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 24)
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")
                             .padding()
