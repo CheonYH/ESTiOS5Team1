@@ -18,6 +18,14 @@ struct ReviewSection: View {
     
     var body: some View {
         VStack(alignment: .leading) {
+            TitleBox(title: "리뷰", showsSeeAll: true) {
+                
+            }
+            // 리스트(최신 3개)
+            ForEach(latestThree) { review in
+                ReviewCellServer(review: review)
+            }
+            
             Review { rating, content in
                 viewModel.gameId = gameId
                 viewModel.rating = rating
@@ -37,11 +45,6 @@ struct ReviewSection: View {
             if let error = viewModel.errorMessage {
                 Text("Error: \(error)")
                     .foregroundStyle(.red)
-            }
-            
-            // 리스트(최신 3개)
-            ForEach(latestThree) { review in
-                ReviewCellServer(review: review)
             }
         }
         // 처음 진입 시 서버에서 불러오기

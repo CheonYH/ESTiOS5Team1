@@ -14,6 +14,7 @@ struct DetailView: View {
     @State var rating: Double = 4
     @StateObject private var viewModel: GameDetailViewModel
     @EnvironmentObject var tabBarState: TabBarState
+    @State private var content: String = ""
     
     init(gameId: Int) {
         self.gameId = gameId
@@ -53,7 +54,7 @@ struct DetailView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, Spacing.pv10)
                         .padding(.vertical, 12)
                         
                         if let trailer = item.trailers.first {
@@ -66,7 +67,24 @@ struct DetailView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 24)
                         }
-
+                        
+                        Button {
+                            
+                        } label: {
+                            Text("게임의 정보가 더 궁금하다면 챗봇에게 물어보세요.")
+                                .foregroundStyle(.textPrimary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(5)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(.gray.opacity(0.6), lineWidth: 1)
+                                )
+                        }
+                        
                         ReviewSection(gameId: item.id)
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")

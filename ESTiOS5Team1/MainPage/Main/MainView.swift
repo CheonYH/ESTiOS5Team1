@@ -14,7 +14,8 @@ struct MainView: View {
     @ObservedObject var newReleasesVM: GameListSingleQueryViewModel
     // [수정] FavoriteManager 연동을 위해 추가
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+    @EnvironmentObject var tabBarState: TabBarState
+    @State private var showRoot = false
     let onSearchTap: () -> Void
     let onGenreTap: (GameGenreModel) -> Void
     var body: some View {
@@ -23,7 +24,8 @@ struct MainView: View {
                 title: "게임 창고",
                 showSearchButton: true,
                 isSearchActive: false,
-                onSearchTap: { onSearchTap() }
+                onSearchTap: { onSearchTap() },
+                showRoot: $showRoot
             )
             
             ScrollView {
@@ -47,6 +49,11 @@ struct MainView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+        }
+        .navigationDestination(isPresented: $showRoot) {
+            RootTabView()
+                .onAppear { tabBarState.isHidden = true }
+                .onDisappear { tabBarState.isHidden = false }
         }
     }
 }
