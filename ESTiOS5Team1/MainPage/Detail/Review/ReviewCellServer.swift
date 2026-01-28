@@ -5,7 +5,6 @@
 //  Created by JaeYeongMAC on 1/26/26.
 //
 
-
 import SwiftUI
 
 struct ReviewCellServer: View {
@@ -34,7 +33,7 @@ struct ReviewCellServer: View {
                 .font(.callout)
                 .foregroundStyle(.textPrimary.opacity(0.9))
 
-            Text("by \(review.userId)")
+            Text("by \(review.nickname)")
                 .font(.caption2)
                 .foregroundStyle(.textPrimary.opacity(0.5))
         }

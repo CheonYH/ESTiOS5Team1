@@ -18,21 +18,21 @@ struct MainTabView: View {
     @State private var shouldResetSearch = false
     
     @StateObject var favoriteManager = FavoriteManager()
-    
+
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
-    
+
     @StateObject private var tabBarState = TabBarState()
-    
+
     private var isPageLoading: Bool {
         trendingVM.isLoading || releasesVM.isLoading
     }
-    
+
     private let tabBarHeight: CGFloat = 86
- 
+
     var body: some View {
             ZStack {
                 Color("BGColor")
@@ -60,7 +60,7 @@ struct MainTabView: View {
                             .opacity(selectedTab == .home ? 1 : 0)
                             .allowsHitTesting(selectedTab == .home)
                         }
-                        
+
                         if loadedTabs.contains(.discover) {
                             tabStack(isActive: selectedTab == .discover) {
                                 SearchView(
@@ -73,7 +73,7 @@ struct MainTabView: View {
                                     .allowsHitTesting(selectedTab == .discover)
                             }
                         }
-                        
+
                         if loadedTabs.contains(.library) {
                             tabStack(isActive: selectedTab == .library) {
                                 LibraryView()
@@ -91,7 +91,7 @@ struct MainTabView: View {
                     }
                 }
                 .allowsHitTesting(!isPageLoading)
-                
+
                 if isPageLoading {
                     loadingOverlay
                         .transition(.opacity)
@@ -109,7 +109,7 @@ struct MainTabView: View {
                 }
             }
     }
-    
+
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {
         NavigationStack {
             ZStack {
@@ -123,24 +123,24 @@ struct MainTabView: View {
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)
     }
-    
+
     private var loadingOverlay: some View {
         ZStack {
             Color("BGColor")
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 12) {
                 ProgressView()
                     .scaleEffect(2.2)
                     .padding()
-                
+
                 Text("불러오는 중…")
                     .font(.caption)
                     .foregroundStyle(.textPrimary.opacity(0.7))
             }
         }
     }
-    
+
 }
 
 #Preview {

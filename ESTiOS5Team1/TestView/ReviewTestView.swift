@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 리뷰 API/뷰모델 동작을 수동으로 테스트하는 화면입니다.
 struct ReviewTestView: View {
 
     @StateObject private var viewModel = ReviewViewModel(service: ReviewServiceManager())

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// R2 업로드 관련 엔드포인트 정의입니다.
 enum R2Endpoint {
     case presign
 
@@ -17,10 +18,12 @@ enum R2Endpoint {
     }
 }
 
+/// R2 프리사인 URL 발급 API 계약입니다.
 protocol R2Service: Sendable {
     func presign(filename: String, expiresIn: Int) async throws -> R2PresignResponse
 }
 
+/// R2 API의 실제 네트워크 구현체입니다.
 final class R2ServiceManager: R2Service {
 
     private let tokenStore: TokenStore
@@ -34,6 +37,7 @@ final class R2ServiceManager: R2Service {
     }
 
     func presign(filename: String, expiresIn: Int) async throws -> R2PresignResponse {
+        // 프리사인 요청은 인증 토큰이 필요
         var request = try authorizedRequest(url: R2Endpoint.presign.url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(R2PresignRequest(filename: filename, expiresIn: expiresIn))

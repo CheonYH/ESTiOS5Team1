@@ -63,8 +63,8 @@ struct ESTiOS5Team1App: App {
     var body: some Scene {
         WindowGroup {
              ZStack {
-//                 content
-                 MainTabView()
+                 content
+                // MainTabView()
 
              }
              .frame(maxWidth: .infinity, maxHeight: .infinity)

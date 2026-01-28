@@ -10,17 +10,34 @@ import SwiftUI
 struct MessageBubbleView: View {
     let message: ChatMessage
 
+    private static let timestampFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd HH:mm"
+        return formatter
+    }()
+
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
             if message.author == .bot {
-                bubble
+                bubbleWithTimestamp
                 Spacer(minLength: 40)
             } else {
                 Spacer(minLength: 40)
-                bubble
+                bubbleWithTimestamp
             }
         }
         .frame(maxWidth: .infinity, alignment: message.author == .bot ? .leading : .trailing)
+    }
+
+    private var bubbleWithTimestamp: some View {
+        let stackAlignment: HorizontalAlignment = (message.author == .bot) ? .leading : .trailing
+
+        return VStack(alignment: stackAlignment, spacing: 4) {
+            bubble
+            Text(Self.timestampFormatter.string(from: message.createdAt))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
     }
 
     private var bubble: some View {
@@ -71,7 +88,7 @@ struct MessageBubbleView: View {
 
     private var bubbleBackground: Color {
         if message.author == .bot { return Color.white.opacity(0.12) }
-        return Color.white.opacity(0.10)
+        return Color.purple.opacity(0.50)
     }
 
     private func linkTitle(for url: URL) -> String {

@@ -43,7 +43,7 @@ struct RegisterForm: View {
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
 
-            TextField("", text: $viewModel.email, prompt: Text("이메일를 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+            TextField("", text: $viewModel.email, prompt: Text("이메일를 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
                 .font(.callout)
                 .autocapitalization(.none)
                 .foregroundStyle(.textPrimary)
@@ -63,7 +63,7 @@ struct RegisterForm: View {
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
 
-            SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+            SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
                 .font(.callout)
                 .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
@@ -85,7 +85,7 @@ struct RegisterForm: View {
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
 
-            SecureField("", text: $viewModel.confirmPassword, prompt: Text("비밀번호를 다시 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+            SecureField("", text: $viewModel.confirmPassword, prompt: Text("비밀번호를 다시 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
                 .font(.callout)
                 .padding(Spacing.pv10)
                 .textContentType(.newPassword)
@@ -107,7 +107,7 @@ struct RegisterForm: View {
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
 
-            TextField("", text: $viewModel.nickname, prompt: Text("닉네임을 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
+            TextField("", text: $viewModel.nickname, prompt: Text("닉네임을 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
                 .font(.callout)
                 .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)

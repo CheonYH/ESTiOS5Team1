@@ -26,28 +26,37 @@ struct LoginView: View {
     /// 로그인 로직과 입력 상태를 담당하는 ViewModel (DI 가능)
     @StateObject private var viewModel = AuthViewModel(service: AuthServiceImpl())
     @FocusState private var focusedField: LoginField?
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     // MARK: - Body
     var body: some View {
         NavigationStack {
 
             ZStack {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        VStack {
-                            LoginHeader()
+                GeometryReader { proxy in
+                    let contentWidth = min(720, proxy.size.width - 48)
+                    ScrollViewReader { scrollProxy in
+                        ScrollView {
+                            VStack {
+                                LoginHeader()
 
-                            LoginForm(viewModel: viewModel, focusedField: $focusedField)
+                                LoginForm(viewModel: viewModel, focusedField: $focusedField)
 
-                            BottomRegisterSwitch()
+                                BottomRegisterSwitch()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: horizontalSizeClass == .regular ? proxy.size.height : 0,
+                                   alignment: .center)
+                            .frame(width: contentWidth)
+                            .frame(maxWidth: .infinity, alignment: .center)
                         }
-                    }
-                    .scrollDismissesKeyboard(.interactively)
-                    .onChange(of: focusedField) { field in
-                        guard let field else { return }
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            // 포커스된 입력칸이 키보드에 가려지지 않도록 스크롤합니다.
-                            proxy.scrollTo(field, anchor: .bottom)
+                        .scrollDismissesKeyboard(.interactively)
+                        .onChange(of: focusedField) { _, field in
+                            guard let field else { return }
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                // 포커스된 입력칸이 키보드에 가려지지 않도록 스크롤합니다.
+                                scrollProxy.scrollTo(field, anchor: .bottom)
+                            }
                         }
                     }
                 }

@@ -10,15 +10,15 @@ import SwiftUI
 struct StarRatingView: View {
     var maxStars: Int = 5
     let rating: Int
-    
+
     var body: some View {
         VStack(spacing: 5) {
             Text("\(rating)")
                 .font(.largeTitle)
                 .foregroundStyle(.textPrimary)
                 .bold()
-            
-            HStack() {
+
+            HStack {
                 ForEach(1...maxStars, id: \.self) { index in
                     Image(systemName: StarRatingStyle.symbolName(index: index, rating: rating))
                         .font(.footnote)
@@ -35,8 +35,6 @@ struct StarRatingView: View {
     }
 }
 
-//#Preview {
+// #Preview {
 //    StarRatingView(rating: 4.5)
-//}
-
-
+// }
