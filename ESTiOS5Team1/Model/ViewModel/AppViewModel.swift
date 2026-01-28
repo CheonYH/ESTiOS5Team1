@@ -25,6 +25,8 @@ final class AppViewModel: ObservableObject {
 
     /// 현재 앱 상태입니다.
     @Published var state: State = .launching
+    /// 초기화 완료 여부입니다. (스플래시 제어용)
+    @Published var isInitialized: Bool = false
     /// 소셜 로그인 후 입력 화면에 미리 채우는 이메일입니다.
     @Published var prefilledEmail: String?
     /// 소셜 로그인 제공자 UID입니다.
@@ -57,11 +59,13 @@ final class AppViewModel: ObservableObject {
 
             // 2. Firebase가 준비된 후 세션 확인
             await restoreSession()
+            isInitialized = true
         } catch {
             print("Initialization Error: \(error)")
             // 설정 실패 시 앱 진입을 막거나 에러 메시지 출력
             state = .signedOut
             toast.show(FeedbackEvent(.auth, .error, "서버 설정 로드 실패"))
+            isInitialized = true
         }
     }
 

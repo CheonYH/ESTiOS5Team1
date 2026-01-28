@@ -65,7 +65,8 @@ extension GameEntity {
 
         // 커버 이미지 URL 생성
         if let imageID = gameListDTO.cover?.imageID {
-            self.coverURL = makeIGDBImageURL(imageID: imageID)
+            // 목록 화면은 중간 사이즈로 로딩 비용을 줄입니다.
+            self.coverURL = makeIGDBImageURL(imageID: imageID, size: .coverMed)
         } else {
             self.coverURL = nil
         }

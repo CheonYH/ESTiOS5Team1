@@ -14,16 +14,22 @@ struct NewReleasesGameCard: View {
 
     var body: some View {
             HStack {
-                KFImage(item.coverURL)
-                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 160, height: 93)))
-                    .placeholder {
-                        ProgressView()
-                    }
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 100)
-                    .clipped()
-                    .cornerRadius(Radius.card)
+                if let coverURL = item.coverURL {
+                    KFImage(coverURL)
+                        .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 160, height: 93)))
+                        .placeholder {
+                            GameListCardPlaceholder()
+                        }
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipped()
+                        .cornerRadius(Radius.card)
+                } else {
+                    GameListCardPlaceholder()
+                        .frame(width: 100, height: 100)
+                        .cornerRadius(Radius.card)
+                }
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(item.title)
