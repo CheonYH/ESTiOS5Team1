@@ -12,6 +12,9 @@ struct MainTabView: View {
     @State var iconColor: Color = .gray
     @State private var selectedTab: Tab = .home
     @State private var loadedTabs: Set<Tab> = [.home]
+    @State private var openSearchRequested = false
+    @State private var pendingGenre: GameGenreModel? = nil
+    
     @StateObject var favoriteManager = FavoriteManager()
     
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
@@ -20,13 +23,14 @@ struct MainTabView: View {
     
     @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
     
+    @StateObject private var tabBarState = TabBarState()
+    
     private var isPageLoading: Bool {
         trendingVM.isLoading || releasesVM.isLoading
     }
     
-    @State private var openSearchRequested = false
-    @StateObject private var tabBarState = TabBarState()
     private let tabBarHeight: CGFloat = 86
+ 
     var body: some View {
             ZStack {
                 Color("BGColor")
@@ -43,6 +47,11 @@ struct MainTabView: View {
                                         openSearchRequested = true
                                         selectedTab = .discover
                                         loadedTabs.insert(.discover)
+                                    },
+                                    onGenreTap: { genre in
+                                        pendingGenre = genre
+                                        selectedTab = .discover
+                                        loadedTabs.insert(.discover)
                                     }
                                 )
                             }
@@ -54,7 +63,8 @@ struct MainTabView: View {
                             tabStack(isActive: selectedTab == .discover) {
                                 SearchView(
                                     favoriteManager: favoriteManager,
-                                    openSearchRequested: $openSearchRequested
+                                    openSearchRequested: $openSearchRequested,
+                                    pendingGenre: $pendingGenre
                                 )
                                     .opacity(selectedTab == .discover ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .discover)
@@ -90,6 +100,7 @@ struct MainTabView: View {
             .animation(.easeInOut(duration: 0.2), value: isPageLoading)
             .onChange(of: selectedTab) { loadedTabs.insert($0) }
     }
+    
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {
         NavigationStack {
             ZStack {
@@ -103,6 +114,7 @@ struct MainTabView: View {
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)
     }
+    
     private var loadingOverlay: some View {
         ZStack {
             Color("BGColor")

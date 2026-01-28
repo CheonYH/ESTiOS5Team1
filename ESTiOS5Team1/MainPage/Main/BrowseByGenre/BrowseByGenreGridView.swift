@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BrowseByGenreGridView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    let onGenreTap: (GameGenreModel) -> Void
     private let rows = [
         GridItem(.fixed(140), spacing: 16),
         GridItem(.fixed(140), spacing: 16)
@@ -24,9 +24,8 @@ struct BrowseByGenreGridView: View {
 
                 LazyHGrid(rows: rows, spacing: 15) {
                     ForEach(GameGenreModel.allCases) { genre in
-                        NavigationLink {
-                            SearchView(favoriteManager: favoriteManager, gameGenre: genre)
-                                .environmentObject(favoriteManager)
+                        Button {                         // ✅ CHANGED
+                            onGenreTap(genre)
                         } label: {
                             GenreCard(genre: genre)
                         }
@@ -39,5 +38,6 @@ struct BrowseByGenreGridView: View {
 }
 
 #Preview {
-    BrowseByGenreGridView()
+    BrowseByGenreGridView(onGenreTap: { _ in})
+        .environmentObject(FavoriteManager())
 }
