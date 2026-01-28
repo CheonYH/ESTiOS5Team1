@@ -8,23 +8,33 @@
 import Foundation
 import Combine
 
+/// 프로필 조회/생성/업데이트 및 업로드 흐름을 담당하는 ViewModel입니다.
 @MainActor
 final class ProfileViewModel: ObservableObject {
 
+    /// 입력 중인 닉네임입니다.
     @Published var nickname: String = ""
+    /// 입력 중인 프로필 이미지 URL 문자열입니다.
     @Published var avatarUrl: String = ""
+    /// 현재 프로필 응답 데이터입니다.
     @Published var profile: ProfileResponse?
+    /// 로딩 상태 표시용 플래그입니다.
     @Published var isLoading: Bool = false
+    /// 사용자에게 표시할 에러 메시지입니다.
     @Published var errorMessage: String = ""
 
+    /// 프로필 API 서비스입니다.
     private let profileService: ProfileService
+    /// R2 업로드 프리사인/업로드 서비스입니다.
     private let r2Service: R2Service
 
+    /// 의존성 주입을 지원하는 초기화 메서드입니다.
     init(profileService: ProfileService? = nil, r2Service: R2Service? = nil) {
         self.profileService = profileService ?? ProfileServiceManager()
         self.r2Service = r2Service ?? R2ServiceManager()
     }
 
+    /// 프로필을 조회합니다.
     func fetchProfile() async {
         isLoading = true
         defer { isLoading = false }
@@ -39,6 +49,7 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// 프로필을 생성합니다.
     func createProfile() async {
         isLoading = true
         defer { isLoading = false }
@@ -51,6 +62,7 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// 프로필을 업데이트합니다.
     func updateProfile() async {
         isLoading = true
         defer { isLoading = false }
@@ -63,6 +75,7 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// R2 업로드용 프리사인 URL을 요청합니다.
     func presign(filename: String, expiresIn: Int = 900) async -> R2PresignResponse? {
         print("[Presign] start filename=\(filename) expiresIn=\(expiresIn)")
         do {
@@ -76,6 +89,7 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// 프리사인 URL로 파일을 업로드합니다.
     func uploadToPresignedUrl(_ uploadUrl: String, data: Data, contentType: String = "image/png") async -> Bool {
         guard let url = URL(string: uploadUrl) else {
             return false

@@ -29,11 +29,13 @@ final class SocialRegisterViewModel: ObservableObject {
 
         print("[SocialRegister] submit START - nickname=\(nickname)")
 
+        // 1) 로컬 닉네임 검증
         if let validationError = nicknameValidationError() {
             print("[SocialRegister] nickname invalid")
             return validationError
         }
 
+        // 2) 소셜 로그인에서 받은 providerUid가 있어야 가입 가능
         guard let providerUid = appViewModel.socialProviderUid, !providerUid.isEmpty else {
             print("[SocialRegister] providerUid missing")
             return FeedbackEvent(.auth, .error, "소셜 인증 정보가 없습니다. 다시 로그인해주세요.")
@@ -43,6 +45,7 @@ final class SocialRegisterViewModel: ObservableObject {
             let start = CFAbsoluteTimeGetCurrent()
             print("[SocialRegister] submit START timing")
 
+            // 3) 닉네임 중복 검사
             print("[SocialRegister] checking nickname")
             let isAvailable = try await service.checkNickname(nickname)
             let afterNickname = CFAbsoluteTimeGetCurrent()
@@ -53,6 +56,7 @@ final class SocialRegisterViewModel: ObservableObject {
             }
             print("[SocialRegister] nickname available")
 
+            // 4) 소셜 가입 요청
             print("[SocialRegister] calling service.socialRegister")
             let token = try await service.socialRegister(
                 provider: "google",

@@ -36,9 +36,8 @@ struct GameListItem: Identifiable, Hashable {
         self.title = entity.title
         self.coverURL = entity.coverURL
 
-        let avg = review.stats?.averageRating
-        self.ratingText = avg
-            .map { String(format: "%.1f/5", $0) } ?? "N/A"
+        let avg = review.stats?.averageRating ?? 0
+        self.ratingText = avg == 0 ? "0/5" : String(format: "%.1f/5", avg)
 
         self.genre = entity.genre
 
