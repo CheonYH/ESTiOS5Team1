@@ -111,12 +111,8 @@ struct SearchView: View {
         .onAppear {
             handleOnAppear()
         }
-        // [추가] 화면 전환 시 검색 상태 초기화
-        .onDisappear {
-            isSearchActive = false
-            searchText = ""
-            viewModel.clearSearchResults()
-        }
+        // [삭제] onDisappear 제거 - 디테일뷰 이동 시에도 호출되어 검색 초기화 문제 발생
+        // 탭 전환 시 초기화는 shouldResetSearch 바인딩으로만 처리
         .sheet(isPresented: $showFilterSheet) {
             FilterSheet(filterState: $advancedFilterState)
         }
