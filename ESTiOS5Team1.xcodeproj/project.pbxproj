@@ -269,7 +269,6 @@
 				25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */,
 				25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
