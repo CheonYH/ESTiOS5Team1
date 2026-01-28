@@ -27,17 +27,17 @@ struct MainView: View {
                 onSearchTap: { onSearchTap() },
                 showRoot: $showRoot
             )
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
                     if let item = viewModel.items.first {
                         MainPoster(item: item)
                     }
-                    
+
                     TrendingNowGameView(viewModel: trendingVM)
-                    
+
                     BrowseByGenreGridView(onGenreTap: onGenreTap)
-                    
+
                     NewReleasesView(viewModel: newReleasesVM)
                 }
             }

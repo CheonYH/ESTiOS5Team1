@@ -16,7 +16,7 @@ struct ProfileView: View {
             Button("닉네임 변경") {
                 // 닉네임 변경
             }
-            
+
             Button("로그아웃") {
                 // 로그아웃
             }

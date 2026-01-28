@@ -94,18 +94,19 @@ final class RegisterViewModel: ObservableObject {
     ///     실패 → Toast로 검증 안내 또는 오류 출력
     @discardableResult
     func register(appViewModel: AppViewModel) async -> FeedbackEvent {
-        // 1. 검증 로직을 별도 함수로 분리하여 복잡도 감소
+        // 1) 로컬 검증: 빠른 피드백 제공
         if let validationError = validateInputs() {
             return validationError
         }
 
-        // 2. 서버 호출 시작
+        // 2) 서버 호출 시작
         isLoading = true
         defer { isLoading = false }
 
         do {
             let start = CFAbsoluteTimeGetCurrent()
             print("[RegisterVM] register START")
+            // 2-1) 닉네임 중복 검사
             let isAvailable = try await authService.checkNickname(nickname)
             let afterNickname = CFAbsoluteTimeGetCurrent()
             print("[RegisterVM] nickname check done in \(String(format: "%.3f", afterNickname - start))s")
@@ -113,6 +114,7 @@ final class RegisterViewModel: ObservableObject {
                 return FeedbackEvent(.auth, .warning, "이미 사용 중인 닉네임입니다.")
             }
 
+            // 2-2) 회원가입 요청
             _ = try await authService.register(
                 email: email,
                 password: password,

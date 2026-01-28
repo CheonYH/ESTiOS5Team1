@@ -143,6 +143,34 @@ enum GenreFilterType: String, CaseIterable, Identifiable {
         }
     }
 
+    /// [추가] IGDB API 장르 ID (서버 사이드 필터링용)
+    /// 참고: https://api-docs.igdb.com/#genre
+    var igdbGenreId: Int? {
+        switch self {
+            case .all: return nil  // 전체는 ID 없음
+            case .pinball: return 30
+            case .adventure: return 31
+            case .arcade: return 33
+            case .visualNovel: return 34
+            case .cardBoard: return 35
+            case .moba: return 36
+            case .pointAndClick: return 2
+            case .fighting: return 4
+            case .music: return 7
+            case .platform: return 8
+            case .puzzle: return 9
+            case .shooter: return 5
+            case .racing: return 10
+            case .realTimeStrategy: return 11
+            case .turnBasedStrategy: return 16
+            case .rolePlaying: return 12
+            case .simulator: return 13
+            case .sport: return 14
+            case .hackAndSlash: return 25
+            case .quizTrivia: return 26
+        }
+    }
+
     // swiftlint:disable cyclomatic_complexity
 
     /// GameGenreModel에서 GenreFilterType으로 변환

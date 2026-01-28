@@ -9,6 +9,7 @@ import Kingfisher
 import PhotosUI
 import SwiftUI
 
+/// 프로필/업로드 흐름을 수동으로 테스트하는 화면입니다.
 struct ProfileTestView: View {
     @StateObject private var vm = ProfileViewModel()
     @State private var selectedItem: PhotosPickerItem?

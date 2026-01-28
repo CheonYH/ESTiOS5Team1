@@ -14,23 +14,25 @@ struct MainTabView: View {
     @State private var loadedTabs: Set<Tab> = [.home]
     @State private var openSearchRequested = false
     @State private var pendingGenre: GameGenreModel? = nil
+    // [추가] 검색 상태 초기화용 (탭 전환 시 검색 비활성화)
+    @State private var shouldResetSearch = false
     
     @StateObject var favoriteManager = FavoriteManager()
-    
+
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
-    
+
     @StateObject private var tabBarState = TabBarState()
-    
+
     private var isPageLoading: Bool {
         trendingVM.isLoading || releasesVM.isLoading
     }
-    
+
     private let tabBarHeight: CGFloat = 86
- 
+
     var body: some View {
             ZStack {
                 Color("BGColor")
@@ -58,19 +60,20 @@ struct MainTabView: View {
                             .opacity(selectedTab == .home ? 1 : 0)
                             .allowsHitTesting(selectedTab == .home)
                         }
-                        
+
                         if loadedTabs.contains(.discover) {
                             tabStack(isActive: selectedTab == .discover) {
                                 SearchView(
                                     favoriteManager: favoriteManager,
                                     openSearchRequested: $openSearchRequested,
-                                    pendingGenre: $pendingGenre
+                                    pendingGenre: $pendingGenre,
+                                    shouldResetSearch: $shouldResetSearch
                                 )
                                     .opacity(selectedTab == .discover ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .discover)
                             }
                         }
-                        
+
                         if loadedTabs.contains(.library) {
                             tabStack(isActive: selectedTab == .library) {
                                 LibraryView()
@@ -88,7 +91,7 @@ struct MainTabView: View {
                     }
                 }
                 .allowsHitTesting(!isPageLoading)
-                
+
                 if isPageLoading {
                     loadingOverlay
                         .transition(.opacity)
@@ -98,9 +101,15 @@ struct MainTabView: View {
             .environmentObject(favoriteManager)
             .environmentObject(tabBarState)
             .animation(.easeInOut(duration: 0.2), value: isPageLoading)
-            .onChange(of: selectedTab) { loadedTabs.insert($0) }
+            .onChange(of: selectedTab) { newTab in
+                loadedTabs.insert(newTab)
+                // [추가] discover 탭에서 다른 탭으로 이동 시 검색 상태 초기화
+                if newTab != .discover {
+                    shouldResetSearch = true
+                }
+            }
     }
-    
+
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {
         NavigationStack {
             ZStack {
@@ -114,24 +123,24 @@ struct MainTabView: View {
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)
     }
-    
+
     private var loadingOverlay: some View {
         ZStack {
             Color("BGColor")
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 12) {
                 ProgressView()
                     .scaleEffect(2.2)
                     .padding()
-                
+
                 Text("불러오는 중…")
                     .font(.caption)
                     .foregroundStyle(.textPrimary.opacity(0.7))
             }
         }
     }
-    
+
 }
 
 #Preview {

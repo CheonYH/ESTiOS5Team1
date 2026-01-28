@@ -100,11 +100,8 @@ extension GameDetailItem {
         self.coverURL = detail.coverURL
 
         // 통계 기반 평균 평점을 표시합니다.
-        if let averageRating = review.stats?.averageRating {
-            self.ratingText = String(format: "%.1f/5", averageRating)
-        } else {
-            self.ratingText = "N/A"
-        }
+        let averageRating = review.stats?.averageRating ?? 0
+        self.ratingText = averageRating == 0 ? "0/5" : String(format: "%.1f/5", averageRating)
 
         self.metaScore = detail.metaScore
             .map { String(format: "%.1f", $0 / 20.0) } ?? "N/A"

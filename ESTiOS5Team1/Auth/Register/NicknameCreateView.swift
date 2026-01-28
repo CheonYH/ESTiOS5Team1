@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 소셜 로그인 후 닉네임을 추가로 입력받는 화면입니다.
 struct NicknameCreateView: View {
     @EnvironmentObject var appVM: AppViewModel
     @EnvironmentObject var toast: ToastManager

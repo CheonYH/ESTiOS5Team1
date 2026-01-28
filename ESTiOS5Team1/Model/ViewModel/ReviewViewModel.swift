@@ -47,6 +47,7 @@ final class ReviewViewModel: ObservableObject {
         errorMessage = nil
 
         do {
+            // 최신/오래된 순 정렬 옵션을 지원
             reviews = try await service.fetchByGame(gameId: gameId, sort: sort)
         } catch {
             errorMessage = "\(error)"
@@ -63,6 +64,7 @@ final class ReviewViewModel: ObservableObject {
         errorMessage = nil
 
         do {
+            // 평균 평점/리뷰 개수 등 통계 정보 로딩
             stats = try await service.stats(gameId: gameId)
         } catch {
             errorMessage = "\(error)"
@@ -75,6 +77,7 @@ final class ReviewViewModel: ObservableObject {
         isLoading = true; errorMessage = nil
 
         do {
+            // 내 리뷰 조회 (인증 토큰 필요)
             myReviews = try await service.me()
         } catch {
             errorMessage = "\(error)"
@@ -94,9 +97,12 @@ final class ReviewViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            // 1) 리뷰 등록
             _ = try await service.create(gameId: gameId, rating: rating, content: content)
+            // 2) 목록/통계를 다시 불러와 화면 일관성 유지
             await loadReviews()
             await loadStats()
+            await loadMine()
             return FeedbackEvent(.review, .success, "리뷰가 등록되었습니다.")
         } catch {
             errorMessage = "\(error)"
@@ -115,9 +121,11 @@ final class ReviewViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            // 수정 성공 후 최신 상태 반영
             try await service.update(id: id, rating: rating, content: content)
             await loadReviews()
             await loadStats()
+            await loadMine()
             return FeedbackEvent(.review, .success, "리뷰가 수정되었습니다.")
         } catch {
             errorMessage = "\(error)"
@@ -132,9 +140,11 @@ final class ReviewViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            // 삭제 후 목록/통계를 갱신
             try await service.delete(id: id)
             await loadReviews()
             await loadStats()
+            await loadMine()
             return FeedbackEvent(.review, .success, "리뷰가 삭제되었습니다.")
         } catch {
             errorMessage = "\(error)"

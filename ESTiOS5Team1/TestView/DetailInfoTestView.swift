@@ -8,6 +8,7 @@
 import SwiftUI
 import WebKit
 
+/// 게임 상세 정보 화면을 수동으로 테스트하는 뷰입니다.
 struct DetailInfoTestView: View {
     @StateObject private var viewModel = GameDetailViewModel(gameId: 115)
 
@@ -114,6 +115,7 @@ struct DetailInfoTestView: View {
     }
 }
 
+/// 게임 트레일러(유튜브)를 표시하는 웹뷰 래퍼입니다.
 private struct WebVideoPlayer: UIViewRepresentable {
     let url: URL
 

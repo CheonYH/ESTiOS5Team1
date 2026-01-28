@@ -116,6 +116,7 @@ final class AuthViewModel: ObservableObject {
     ///     let event = viewModel.logout(appViewModel: appVM)
     ///     toast.show(event)
     ///     ```
+    @discardableResult
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
         signOutFromSocialProviders()
         TokenStore.shared.clear()
@@ -143,11 +144,13 @@ final class AuthViewModel: ObservableObject {
         print("[AuthVM] signInWithGoogle START")
 
         do {
+            // 1) Google SDK로 idToken 획득
             let (idToken, email) = try await googleAuth()
             print("[AuthVM] Google result received")
             print("[AuthVM] idToken prefix =", idToken.prefix(20))
             print("[AuthVM] email =", email ?? "nil")
 
+            // 2) 서버에 소셜 로그인 요청
             print("[AuthVM] calling Vapor socialLogin")
             let result = try await service.socialLogin(
                 idToken: idToken,
@@ -156,6 +159,7 @@ final class AuthViewModel: ObservableObject {
 
             switch result {
                 case .signedIn(let tokens):
+                    // 가입 완료 사용자 → 토큰 저장 + signedIn
                     print("[AuthVM] socialLogin -> signedIn")
                     TokenStore.shared.updateTokens(pair: tokens)
                     appViewModel.state = .signedIn
@@ -163,6 +167,7 @@ final class AuthViewModel: ObservableObject {
                     return FeedbackEvent(.auth, .success, "Google 로그인 성공!")
 
                 case let .needsRegister(serverEmail, providerUid):
+                    // 추가 닉네임 등록 필요 → 상태 전환
                     print("[AuthVM] socialLogin -> needsRegister")
                     appViewModel.prefilledEmail = serverEmail ?? email
                     appViewModel.socialProviderUid = providerUid
@@ -180,11 +185,13 @@ final class AuthViewModel: ObservableObject {
     func googleAuth() async throws -> (idToken: String, email: String?) {
         print("[AuthVM] googleAuth START")
 
+        // Firebase 설정에서 clientID 확보
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             print("[AuthVM] ERROR: no clientID")
             throw AuthError.server
         }
 
+        // Google 로그인 UI를 띄울 root VC 조회
         guard let rootVC = await findPresentingViewController() else {
             print("[AuthVM] ERROR: no rootVC")
             throw AuthError.server
@@ -193,6 +200,7 @@ final class AuthViewModel: ObservableObject {
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
+        // Google 로그인 플로우 진행
         let signInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
         print("[AuthVM] google sign-in UI DONE")
 

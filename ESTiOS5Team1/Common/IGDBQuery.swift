@@ -73,19 +73,21 @@ enum IGDBQuery {
     }()
 
     /// 특정 장르 기반 쿼리
+    /// [수정] 다른 쿼리들과 동일한 필드 구조로 통일
     static func genre(_ genreId: Int) -> String {
         """
         fields
             id,
             name,
             cover.image_id,
-            rating,
+            summary,
+            aggregated_rating,
+            release_dates.y,
             genres.name,
             platforms.name,
             platforms.platform_logo.image_id;
         where genres = (\(genreId));
         sort popularity desc;
-        limit 30;
         """
     }
 

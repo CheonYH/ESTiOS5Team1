@@ -10,7 +10,7 @@ import SwiftUI
 struct StarRatingPicker: View {
     var maxStars: Int = 5
     @Binding var rating: Int
-    
+
     var body: some View {
         HStack(spacing: 5) {
             ForEach(1...maxStars, id: \.self) { index in
@@ -21,9 +21,9 @@ struct StarRatingPicker: View {
                     .contentShape(Rectangle())
                     .accessibilityLabel("\(index)점")
             }
-            
+
             Spacer()
-            
+
             Text("\(rating)/\(maxStars)")
                 .font(.subheadline)
                 .foregroundStyle(.textPrimary.opacity(0.8))
@@ -33,6 +33,6 @@ struct StarRatingPicker: View {
     }
 }
 
-//#Preview {
+// #Preview {
 //    StarRatingPicker()
-//}
+// }

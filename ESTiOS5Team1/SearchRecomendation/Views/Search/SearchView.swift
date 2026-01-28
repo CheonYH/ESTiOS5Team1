@@ -26,6 +26,9 @@ struct SearchView: View {
     
     @Binding var openSearchRequested: Bool
     @Binding var pendingGenre: GameGenreModel?
+    // [추가] 탭 전환 시 검색 상태 초기화용
+    @Binding var shouldResetSearch: Bool
+
     // MARK: - Initialization
 
     /// 통합 Initializer (기본값으로 3개 init 통합)
@@ -34,19 +37,22 @@ struct SearchView: View {
         initialGenre: GenreFilterType = .all,
         initialPlatform: PlatformFilterType = .all,
         openSearchRequested: Binding<Bool> = .constant(false),
-        pendingGenre: Binding<GameGenreModel?> = .constant(nil)
+        pendingGenre: Binding<GameGenreModel?> = .constant(nil),
+        shouldResetSearch: Binding<Bool> = .constant(false)
     ) {
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
+        self._shouldResetSearch = shouldResetSearch
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: initialPlatform)
         _selectedGenre = State(initialValue: initialGenre)
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false),pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil), shouldResetSearch: Binding<Bool> = .constant(false)) {
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
+        self._shouldResetSearch = shouldResetSearch
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: .all)
         _selectedGenre = State(initialValue: GenreFilterType.from(gameGenre: gameGenre))
@@ -106,6 +112,8 @@ struct SearchView: View {
         .onAppear {
             handleOnAppear()
         }
+        // [삭제] onDisappear 제거 - 디테일뷰 이동 시에도 호출되어 검색 초기화 문제 발생
+        // 탭 전환 시 초기화는 shouldResetSearch 바인딩으로만 처리
         .sheet(isPresented: $showFilterSheet) {
             FilterSheet(filterState: $advancedFilterState)
         }
@@ -121,7 +129,14 @@ struct SearchView: View {
             selectedGenre = GenreFilterType.from(gameGenre: gener)
             pendingGenre = nil
         }
-        
+        // [추가] 탭 전환 시 검색 상태 초기화 (실무 방식: 부모에서 신호 전달)
+        .onChange(of: shouldResetSearch) { value in
+            guard value else { return }
+            isSearchActive = false
+            searchText = ""
+            viewModel.clearSearchResults()
+            shouldResetSearch = false
+        }
         .onChange(of: searchText) { newValue in
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 viewModel.clearSearchResults()
@@ -129,13 +144,21 @@ struct SearchView: View {
         }
         // 필터 변경 시 ViewModel에 적용
         .onChange(of: selectedPlatform) { _ in applyFilters() }
-        .onChange(of: selectedGenre) { _ in applyFilters() }
+        .onChange(of: selectedGenre) { newGenre in
+            // [추가] 장르 변경 시 서버에서 해당 장르 데이터 로드
+            viewModel.prepareGenreLoading(newGenre)
+            Task {
+                await viewModel.loadGamesForGenre(newGenre)
+            }
+            applyFilters()
+        }
         .onChange(of: searchText) { _ in applyFilters() }
         .onChange(of: advancedFilterState) { _ in applyFilters() }
         .onChange(of: viewModel.discoverItems) { _ in applyFilters() }
         .onChange(of: viewModel.trendingItems) { _ in applyFilters() }
         .onChange(of: viewModel.newReleaseItems) { _ in applyFilters() }
         .onChange(of: viewModel.searchItems) { _ in applyFilters() }
+        .onChange(of: viewModel.genreItems) { _ in applyFilters() }  // [추가] 장르 데이터 변경 감지
     }
 
     // MARK: - Private Methods
@@ -151,7 +174,7 @@ struct SearchView: View {
             isSearchActive = true
             openSearchRequested = false
         }
-        
+
         if let genre = pendingGenre {
             selectedGenre = GenreFilterType.from(gameGenre: genre)
             pendingGenre = nil
