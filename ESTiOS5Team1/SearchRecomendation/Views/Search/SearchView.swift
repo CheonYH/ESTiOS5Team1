@@ -43,7 +43,7 @@ struct SearchView: View {
     }
 
     /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false),pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil)) {
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
@@ -120,7 +120,7 @@ struct SearchView: View {
             selectedGenre = GenreFilterType.from(gameGenre: gener)
             pendingGenre = nil
         }
-        
+
         .onChange(of: searchText) { newValue in
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 viewModel.clearSearchResults()
@@ -158,12 +158,12 @@ struct SearchView: View {
             isSearchActive = true
             openSearchRequested = false
         }
-        
+
         if let genre = pendingGenre {
             selectedGenre = GenreFilterType.from(gameGenre: genre)
             pendingGenre = nil
         }
-        
+
         // 초기 필터 적용
         applyFilters()
     }

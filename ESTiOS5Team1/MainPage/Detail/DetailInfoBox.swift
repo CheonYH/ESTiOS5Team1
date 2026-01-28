@@ -65,7 +65,7 @@ struct DetailInfoBox: View {
             HStack {
                 StatView(value: item.ratingText, title: "User Score", color: .mint)
                     .frame(maxWidth: .infinity)
-                
+
                 Divider()
                     .frame(height: 40)
                     .background(.textPrimary.opacity(0.2))

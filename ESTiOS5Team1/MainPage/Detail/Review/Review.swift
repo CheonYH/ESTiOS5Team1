@@ -7,21 +7,20 @@
 
 import SwiftUI
 
-
 struct Review: View {
     let onSubmit: (_ rating: Int, _ text: String) -> Void
     @State private var rating: Int = 1
     @State private var content: String = ""
     @FocusState private var focused: Bool
-    
+
     var body: some View {
         VStack {
             Text("평가 남기기")
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
-            
+
             StarRatingPicker(rating: $rating)
-            
+
             TextField("", text: $content, prompt: Text("게임의 평가를 남겨주세요.").foregroundStyle(.white.opacity(0.4)), axis: .vertical)
                 .lineLimit(3...8)
                 .focused($focused)
@@ -35,12 +34,12 @@ struct Review: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(.gray.opacity(0.6), lineWidth: 1)
                 )
-                
+
             HStack {
                 Spacer()
                 Button {
                     let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                    
+
                     guard !trimmed.isEmpty else { return }
                     onSubmit(rating, trimmed)
                     content = ""

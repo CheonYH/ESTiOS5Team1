@@ -116,6 +116,7 @@ final class AuthViewModel: ObservableObject {
     ///     let event = viewModel.logout(appViewModel: appVM)
     ///     toast.show(event)
     ///     ```
+    @discardableResult
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
         signOutFromSocialProviders()
         TokenStore.shared.clear()

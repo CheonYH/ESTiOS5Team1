@@ -14,7 +14,7 @@ struct MainView: View {
     @ObservedObject var newReleasesVM: GameListSingleQueryViewModel
     // [수정] FavoriteManager 연동을 위해 추가
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     let onSearchTap: () -> Void
     let onGenreTap: (GameGenreModel) -> Void
     var body: some View {
@@ -25,17 +25,17 @@ struct MainView: View {
                 isSearchActive: false,
                 onSearchTap: { onSearchTap() }
             )
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
                     if let item = viewModel.items.first {
                         MainPoster(item: item)
                     }
-                    
+
                     TrendingNowGameView(viewModel: trendingVM)
-                    
+
                     BrowseByGenreGridView(onGenreTap: onGenreTap)
-                    
+
                     NewReleasesView(viewModel: newReleasesVM)
                 }
             }

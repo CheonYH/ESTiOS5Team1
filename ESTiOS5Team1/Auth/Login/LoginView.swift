@@ -43,7 +43,7 @@ struct LoginView: View {
                         }
                     }
                     .scrollDismissesKeyboard(.interactively)
-                    .onChange(of: focusedField) { field in
+                    .onChange(of: focusedField) { _, field in
                         guard let field else { return }
                         withAnimation(.easeOut(duration: 0.2)) {
                             // 포커스된 입력칸이 키보드에 가려지지 않도록 스크롤합니다.

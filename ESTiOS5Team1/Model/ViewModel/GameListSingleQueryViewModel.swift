@@ -60,11 +60,11 @@ final class GameListSingleQueryViewModel: ObservableObject {
 
     /// 서비스와 쿼리를 주입받습니다.
     /// [수정] pageSize 300 → 30으로 변경하여 초기 로딩 속도 개선
-    init(service: IGDBService, query: String, pageSize: Int = 100) {
+    init(service: IGDBService, reviewService: ReviewService? = nil, query: String, pageSize: Int = 100) {
         self.service = service
         self.query = query
         self.pageSize = pageSize
-        self.reviewService = reviewService
+        self.reviewService =  reviewService ?? ReviewServiceManager()
     }
 
     /// 단일 멀티쿼리로 게임 목록을 불러옵니다.
@@ -167,7 +167,7 @@ final class GameListSingleQueryViewModel: ObservableObject {
                 group.addTask {
                     do {
                         let stats = try await self.reviewService.stats(gameId: id)
-                        let review = GameReviewEntity(reviews: [], stats: stats, myReview: nil)
+                        let review = await GameReviewEntity(reviews: [], stats: stats, myReview: nil)
                         return (id, review)
                     } catch {
                         return (id, nil)

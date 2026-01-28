@@ -202,6 +202,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				2595DF862F298F590006B179 /* PBXTargetDependency */,
 				25C032532F0C972500CA196B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -355,6 +356,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2595DF862F298F590006B179 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 2595DF852F298F590006B179 /* SwiftLintBuildToolPlugin */;
+		};
 		25C032532F0C972500CA196B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
@@ -502,7 +507,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -536,7 +541,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -734,6 +739,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2595DF852F298F590006B179 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		25B45A192F1DEA790093740B /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;

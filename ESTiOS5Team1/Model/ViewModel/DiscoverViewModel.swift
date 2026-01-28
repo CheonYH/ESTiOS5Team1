@@ -40,9 +40,9 @@ final class DiscoverViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(service: IGDBService, reviewService: ReviewService = ReviewServiceManager()) {
+    init(service: IGDBService, reviewService: ReviewService? = nil) {
         self.service = service
-        self.reviewService = reviewService
+        self.reviewService = reviewService ?? ReviewServiceManager()
     }
 
     // MARK: - Public API
@@ -125,7 +125,7 @@ final class DiscoverViewModel: ObservableObject {
                 group.addTask {
                     do {
                         let stats = try await self.reviewService.stats(gameId: id)
-                        let review = GameReviewEntity(reviews: [], stats: stats, myReview: nil)
+                        let review = await GameReviewEntity(reviews: [], stats: stats, myReview: nil)
                         return (id, review)
                     } catch {
                         return (id, nil)
