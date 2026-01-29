@@ -52,7 +52,7 @@ struct DetailInfoBox: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text(item.title)
-                        .font(.title)
+                        .font(.title2.bold())
 
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)

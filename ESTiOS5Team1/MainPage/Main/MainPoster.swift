@@ -11,7 +11,7 @@ import Kingfisher
 struct MainPoster: View {
     let item: GameListItem
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             if let coverURL = item.coverURL {
@@ -62,9 +62,7 @@ struct MainPoster: View {
                 }
 
                 HStack {
-                    Button {
-                        // 플레이 나우 기능
-                    } label: {
+                    NavigationLink(destination: DetailView(gameId: item.id)) {
                         Label("게임 정보 확인", systemImage: "play.fill")
                             .font(.headline)
                             .foregroundStyle(.textPrimary)

@@ -14,10 +14,16 @@ struct CustomNavigationHeader: View {
     let title: String
     var showSearchButton: Bool = false
     var isSearchActive: Bool = false
-    var onSearchTap: (() -> Void)?
-
+    var onSearchTap: (() -> Void)? = nil
+    @Binding var showRoot: Bool
+    
     var body: some View {
         HStack {
+            Button { showRoot = true } label: {
+                Image(systemName: "book")
+                    
+            }
+            
             Spacer()
 
             Text(title)
@@ -34,35 +40,35 @@ struct CustomNavigationHeader: View {
                         .foregroundColor(.white)
                         .font(.title3)
                 }
-                .padding(.trailing, 16)
+//                .padding(.trailing, 16)
             }
         }
-        .padding(.vertical, 12)
+        .padding()
         .background(Color.black)
     }
 }
 
 // MARK: - Preview
-#Preview("CustomNavigationHeader") {
-    ZStack {
-        Color.black.ignoresSafeArea()
-
-        VStack {
-            CustomNavigationHeader(
-                title: "게임 탐색",
-                showSearchButton: true,
-                isSearchActive: false,
-                onSearchTap: { print("Search tapped") }
-            )
-
-            CustomNavigationHeader(
-                title: "내 게임",
-                showSearchButton: true,
-                isSearchActive: true,
-                onSearchTap: { print("Search tapped") }
-            )
-
-            Spacer()
-        }
-    }
-}
+//#Preview("CustomNavigationHeader") {
+//    ZStack {
+//        Color.black.ignoresSafeArea()
+//
+//        VStack {
+//            CustomNavigationHeader(
+//                title: "게임 탐색",
+//                showSearchButton: true,
+//                isSearchActive: false,
+//                onSearchTap: { print("Search tapped") }
+//            )
+//
+//            CustomNavigationHeader(
+//                title: "내 게임",
+//                showSearchButton: true,
+//                isSearchActive: true,
+//                onSearchTap: { print("Search tapped") }
+//            )
+//
+//            Spacer()
+//        }
+//    }
+//}

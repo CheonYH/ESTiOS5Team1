@@ -13,7 +13,8 @@ struct LibraryView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
     @State private var isSearchActive = false
     @State private var searchText = ""
-
+    @State private var showRoot = false
+    @EnvironmentObject var tabBarState: TabBarState
     let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
@@ -50,7 +51,8 @@ struct LibraryView: View {
                                 searchText = ""
                             }
                         }
-                    }
+                    },
+                    showRoot: $showRoot
                 )
 
                 // 검색바 (조건부 표시)
@@ -95,6 +97,12 @@ struct LibraryView: View {
                     }
                 }
             }
+            .navigationDestination(isPresented: $showRoot) {
+                RootTabView()
+                    .onAppear { tabBarState.isHidden = true }
+                    .onDisappear { tabBarState.isHidden = false }
+            }
+            .onAppear { tabBarState.isHidden = false }
         }
     }
 }

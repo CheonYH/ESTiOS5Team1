@@ -13,7 +13,8 @@ struct SearchHeaderSection: View {
     @Binding var isSearchActive: Bool
     @Binding var searchText: String
     var onSearchSubmit: () -> Void
-
+    @State private var showRoot = false
+    @EnvironmentObject var tabBarState: TabBarState
     var body: some View {
         VStack(spacing: 0) {
             // 커스텀 헤더
@@ -28,7 +29,8 @@ struct SearchHeaderSection: View {
                             searchText = ""
                         }
                     }
-                }
+                },
+                showRoot: $showRoot
             )
 
             // 검색바 (조건부 표시)
@@ -40,6 +42,11 @@ struct SearchHeaderSection: View {
                 )
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
+        }
+        .navigationDestination(isPresented: $showRoot) {
+            RootTabView()
+                .onAppear { tabBarState.isHidden = true }
+                .onDisappear { tabBarState.isHidden = false }
         }
     }
 }
