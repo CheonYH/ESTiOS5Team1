@@ -16,7 +16,7 @@ struct ReviewSection: View {
     @EnvironmentObject private var toastManager: ToastManager
     @State private var keyboardHeight: CGFloat = 0
     @State private var showAll: Bool = false
-    
+
     private var myReview: ReviewResponse? {
         viewModel.myReviews.first(where: { $0.gameId == gameId })
     }
@@ -36,12 +36,12 @@ struct ReviewSection: View {
         ScrollViewReader { proxy in
             VStack(alignment: .leading) {
                 TitleBox(title: "리뷰", showsSeeAll: true, onSeeAllTap: { showAll = true })
-                
+
                 // 리스트(최신 3개)
                 ForEach(latestThree) { review in
                     ReviewCellServer(review: review)
                 }
-                
+
                 if let myReview {
                     if !isEditingMyReview {
                         TitleBox(title: "내 리뷰", onSeeAllTap: nil)
@@ -115,19 +115,18 @@ struct ReviewSection: View {
                     }
                     .id("reviewEditor")
                 }
-                
+
                 // 상태 표시
                 if viewModel.isLoading {
                     Text("Loading...")
                         .foregroundStyle(.secondary)
                 }
-                
+
                 if let error = viewModel.errorMessage {
                     Text("Error: \(error)")
                         .foregroundStyle(.red)
                 }
-                
-               
+
             }
             .padding(.bottom, isEditingOrCreating ? keyboardHeight : 0)
             .onChange(of: isEditingOrCreating) { _, isEditing in
@@ -161,7 +160,7 @@ struct ReviewSection: View {
         .navigationDestination(isPresented: $showAll) {
             ZStack {
                 Color.BG.ignoresSafeArea()
-                
+
                 ScrollView {
                     ForEach(reviewList) { review in
                         ReviewCellServer(review: review)
@@ -169,8 +168,7 @@ struct ReviewSection: View {
                 }
             }
         }
-        
-        
+
     }
 }
 

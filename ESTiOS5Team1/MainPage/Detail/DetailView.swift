@@ -24,7 +24,7 @@ struct DetailView: View {
         ZStack {
             Color.black
                 .ignoresSafeArea()
-            VStack(alignment: .leading ,spacing: 16) {
+            VStack(alignment: .leading, spacing: 16) {
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
@@ -38,7 +38,7 @@ struct DetailView: View {
                             infoRow(label: "출시년도", value: item.releaseYear)
 
                             if let website = item.officialWebsite {
-                                infoLink(label: "공식 사이트", title: "홈페이지로 이동",url: website)
+                                infoLink(label: "공식 사이트", title: "홈페이지로 이동", url: website)
                             }
 
                             let visibleStores = item.stores.filter { $0.name.lowercased() != "unknown" }
@@ -67,7 +67,7 @@ struct DetailView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 24)
                         }
-                        
+
                         GoChatBotBox(showRoot: $showRoot)
 
                         ReviewSection(gameId: item.id)

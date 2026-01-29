@@ -14,16 +14,16 @@ struct CustomNavigationHeader: View {
     let title: String
     var showSearchButton: Bool = false
     var isSearchActive: Bool = false
-    var onSearchTap: (() -> Void)? = nil
+    var onSearchTap: (() -> Void)?
     @Binding var showRoot: Bool
-    
+
     var body: some View {
         HStack {
             Button { showRoot = true } label: {
                 Image(systemName: "book")
-                    
+
             }
-            
+
             Spacer()
 
             Text(title)
@@ -49,7 +49,7 @@ struct CustomNavigationHeader: View {
 }
 
 // MARK: - Preview
-//#Preview("CustomNavigationHeader") {
+// #Preview("CustomNavigationHeader") {
 //    ZStack {
 //        Color.black.ignoresSafeArea()
 //
@@ -71,4 +71,4 @@ struct CustomNavigationHeader: View {
 //            Spacer()
 //        }
 //    }
-//}
+// }

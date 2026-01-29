@@ -13,10 +13,10 @@ struct MainTabView: View {
     @State private var selectedTab: Tab = .home
     @State private var loadedTabs: Set<Tab> = [.home]
     @State private var openSearchRequested = false
-    @State private var pendingGenre: GameGenreModel? = nil
+    @State private var pendingGenre: GameGenreModel?
     // [추가] 검색 상태 초기화용 (탭 전환 시 검색 비활성화)
     @State private var shouldResetSearch = false
-    
+
     @StateObject var favoriteManager = FavoriteManager()
 
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow, label: "home-main")

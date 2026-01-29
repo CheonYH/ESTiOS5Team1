@@ -125,7 +125,7 @@ enum IGDBQuery {
             .replacingOccurrences(of: "\"", with: "\\\"")
 
         return """
-        search \"\(escaped)\";
+        where name ~ *\"\(escaped)\"* | alternative_names.name ~ *\"\(escaped)\"*;
         fields
             id,
             name,
