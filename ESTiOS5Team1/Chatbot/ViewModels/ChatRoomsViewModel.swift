@@ -5,34 +5,34 @@
 //  Created by 김대현 on 1/13/26.
 //
 
-import Combine
 import Foundation
+import Combine
 
 @MainActor
 final class ChatRoomsViewModel: ObservableObject {
     @Published private(set) var rooms: [ChatRoom] = []
     @Published private(set) var defaultRoom: ChatRoom
 
-    // 현재 선택된 방 (RootTabView에서 사용)
     @Published var selectedRoomId: UUID
 
-    // 편집/다중삭제
     @Published var isEditing: Bool = false
     @Published var selectedRoomIds: Set<UUID> = []
 
-    private let store: ChatLocalStore
+    private let store: ChatSwiftDataStore
 
-    private let defaultRoomTitle = "New Chat"
+    private let defaultRoomTitle: String = "New Chat"
     private let defaultRoomMaxMessages: Int = 40
     private let defaultRoomMaxIdleSeconds: TimeInterval = 60 * 30
 
-    init(store: ChatLocalStore) {
+    init(store: ChatSwiftDataStore) {
         self.store = store
 
         let createdDefaultRoom = ChatRoom(
+            identifier: UUID(),
             title: defaultRoomTitle,
             isDefaultRoom: true,
-            alanClientIdentifier: "ios-\(UUID().uuidString)"
+            alanClientIdentifier: "ios-\(UUID().uuidString)",
+            updatedAt: Date()
         )
 
         self.defaultRoom = createdDefaultRoom
@@ -42,15 +42,14 @@ final class ChatRoomsViewModel: ObservableObject {
     func load() async {
         let storedRooms = await store.loadRooms()
 
-        if let existingDefaultRoom = storedRooms.first(where: { $0.isDefaultRoom }) {
-            defaultRoom = existingDefaultRoom
+        if let existingDefault = storedRooms.first(where: { $0.isDefaultRoom }) {
+            defaultRoom = existingDefault
         } else {
             await store.saveRooms([defaultRoom])
         }
 
         await refreshRooms()
 
-        // 기본방이 선택이 아니면(예: 첫 실행/데이터 꼬임) 기본방으로 강제
         if selectedRoom() == nil {
             selectedRoomId = defaultRoom.identifier
         }
@@ -60,110 +59,112 @@ final class ChatRoomsViewModel: ObservableObject {
 
     func refreshRooms() async {
         let storedRooms = await store.loadRooms()
-
-        rooms = storedRooms.sorted { roomA, roomB in
-            if roomA.isDefaultRoom != roomB.isDefaultRoom {
-                return roomA.isDefaultRoom
-            }
-            return roomA.updatedAt > roomB.updatedAt
-        }
-
-        // 저장소에서 defaultRoom의 최신(updatedAt/title 등)을 다시 반영
-        if let latestDefaultRoom = storedRooms.first(where: { $0.isDefaultRoom }) {
-            defaultRoom = latestDefaultRoom
-        }
-    }
-
-    // MARK: - Selection
-
-    func select(room: ChatRoom) {
-        selectedRoomId = room.identifier
-
-        // 편집중이었다면 선택 동작 시 편집 해제
-        if isEditing {
-            isEditing = false
-            selectedRoomIds.removeAll()
-        }
+        rooms = storedRooms.sorted { $0.updatedAt > $1.updatedAt }
     }
 
     func selectedRoom() -> ChatRoom? {
-        if selectedRoomId == defaultRoom.identifier {
-            return defaultRoom
-        }
+        if defaultRoom.identifier == selectedRoomId { return defaultRoom }
         return rooms.first(where: { $0.identifier == selectedRoomId })
     }
 
-    // MARK: - Start new chat (+)
+    func select(room: ChatRoom) {
+        selectedRoomId = room.identifier
+    }
 
-    // 현재 기본 대화(진행 중)를 아카이브로 저장 (요약 제목 1줄)
-    // 기본 대화는 초기화하여 새 대화를 시작
     func startNewConversation() async {
+        // 사용자가 +를 눌렀을 때 기대하는 동작
+        // 1) 기본방에 대화가 있으면 "새 채팅방"으로 저장해서 목록에 추가
+        // 2) 기본방은 비우고 새 대화를 시작
+
         let defaultMessages = await store.loadMessages(roomIdentifier: defaultRoom.identifier)
 
         if defaultMessages.isEmpty == false {
-            let summaryTitle = makeArchiveTitle(from: defaultMessages) ?? "Archived Chat"
+            let archivedRoom = makeArchivedRoom(from: defaultMessages)
 
-            let archivedRoom = ChatRoom(
-                title: summaryTitle,
-                isDefaultRoom: false,
-                alanClientIdentifier: defaultRoom.alanClientIdentifier,
-                updatedAt: Date()
-            )
+            await store.saveMessages(defaultMessages, roomIdentifier: archivedRoom.identifier)
 
             var storedRooms = await store.loadRooms()
-            storedRooms.append(archivedRoom)
 
-            // 기본방 메타데이터 초기화(제목/시간)
-            storedRooms = storedRooms.map { room in
-                guard room.identifier == defaultRoom.identifier else { return room }
-                var updated = room
-                updated.title = defaultRoomTitle
-                updated.updatedAt = Date()
-                return updated
+            if storedRooms.contains(where: { $0.identifier == defaultRoom.identifier }) == false {
+                storedRooms.append(defaultRoom)
             }
 
+            storedRooms.append(archivedRoom)
             await store.saveRooms(storedRooms)
-            await store.saveMessages(defaultMessages, roomIdentifier: archivedRoom.identifier)
         }
 
-        // 기본 대화 메시지 초기화
+        // 기본방을 완전히 초기화한다.
+        // 서버 측 컨텍스트를 방별로 분리하는 구조가 아니라도,
+        // 클라이언트 식별자를 새로 발급해두면 섞임을 줄이는 데 도움이 된다.
+        defaultRoom.title = defaultRoomTitle
+        defaultRoom.alanClientIdentifier = "ios-\(UUID().uuidString)"
+        defaultRoom.updatedAt = Date()
+
         await store.saveMessages([], roomIdentifier: defaultRoom.identifier)
         await store.touchRoomUpdatedAt(roomIdentifier: defaultRoom.identifier)
 
-        // 기본방 제목도 초기화 (안전하게 한번 더)
-        var roomsAfter = await store.loadRooms()
-        roomsAfter = roomsAfter.map { room in
-            guard room.identifier == defaultRoom.identifier else { return room }
-            var updated = room
-            updated.title = defaultRoomTitle
-            updated.updatedAt = Date()
-            return updated
+        var roomsAfterReset = await store.loadRooms()
+        if let idx = roomsAfterReset.firstIndex(where: { $0.identifier == defaultRoom.identifier }) {
+            roomsAfterReset[idx] = defaultRoom
+        } else {
+            roomsAfterReset.append(defaultRoom)
         }
-        await store.saveRooms(roomsAfter)
+        await store.saveRooms(roomsAfterReset)
+
+        selectedRoomId = defaultRoom.identifier
+        isEditing = false
+        selectedRoomIds.removeAll()
 
         await refreshRooms()
-
-        // + 누르면 항상 “새 대화(기본방)”로 돌아오게
-        selectedRoomId = defaultRoom.identifier
     }
 
-    // MARK: - Auto archive default room when idle / too long
-
-    // 기본 대화가 너무 오래되었거나(무활동 30분) 메시지가 너무 많으면 아카이브로 넘기고 초기화.
-    func autoArchiveDefaultRoomIfNeeded() async {
-        let now = Date()
-        let idleSeconds = now.timeIntervalSince(defaultRoom.updatedAt)
+    private func autoArchiveDefaultRoomIfNeeded() async {
         let defaultMessages = await store.loadMessages(roomIdentifier: defaultRoom.identifier)
+        guard defaultMessages.isEmpty == false else { return }
 
-        let shouldArchiveByIdle = idleSeconds > defaultRoomMaxIdleSeconds && defaultMessages.isEmpty == false
-        let shouldArchiveByCount = defaultMessages.count > defaultRoomMaxMessages
+        // 메시지가 너무 많아지면 자동으로 보관
+        guard defaultMessages.count >= defaultRoomMaxMessages else { return }
 
-        guard shouldArchiveByIdle || shouldArchiveByCount else { return }
+        let archivedRoom = makeArchivedRoom(from: defaultMessages)
+        await store.saveMessages(defaultMessages, roomIdentifier: archivedRoom.identifier)
 
-        await startNewConversation()
+        var storedRooms = await store.loadRooms()
+        storedRooms.append(archivedRoom)
+        await store.saveRooms(storedRooms)
+
+        await store.saveMessages([], roomIdentifier: defaultRoom.identifier)
+        await store.touchRoomUpdatedAt(roomIdentifier: defaultRoom.identifier)
+
+        await refreshRooms()
     }
 
-    // MARK: - Editing / Multi delete
+    private func makeArchivedRoom(from messages: [ChatMessage]) -> ChatRoom {
+        // 제목은 첫 사용자 메시지를 우선 사용한다.
+        // guest/bot 모델을 그대로 유지한다.
+        let firstGuest = messages.first(where: { $0.author == .guest })
+        let candidate = (firstGuest?.text ?? messages.first?.text ?? "")
+        let title = normalizeRoomTitle(candidate)
+
+        return ChatRoom(
+            identifier: UUID(),
+            title: title,
+            isDefaultRoom: false,
+            alanClientIdentifier: "ios-\(UUID().uuidString)",
+            updatedAt: Date()
+        )
+    }
+
+    private func normalizeRoomTitle(_ raw: String) -> String {
+        let trimmed = raw.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let compact = trimmed
+            .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+
+        let base = compact.isEmpty ? "Archived Chat" : compact
+        let maxChars = 24
+        if base.count <= maxChars { return base }
+        return String(base.prefix(maxChars))
+    }
 
     func toggleEditing() {
         isEditing.toggle()
@@ -181,40 +182,31 @@ final class ChatRoomsViewModel: ObservableObject {
     }
 
     func deleteSelectedRooms() async {
-        let targets = selectedRoomIds
-        guard targets.isEmpty == false else { return }
+        guard selectedRoomIds.isEmpty == false else { return }
 
         var storedRooms = await store.loadRooms()
         storedRooms.removeAll { room in
-            // default room은 삭제 불가
-            guard room.isDefaultRoom == false else { return false }
-            return targets.contains(room.identifier)
+            selectedRoomIds.contains(room.identifier) && room.isDefaultRoom == false
         }
         await store.saveRooms(storedRooms)
+
+        if selectedRoomIds.contains(selectedRoomId) {
+            selectedRoomId = defaultRoom.identifier
+        }
 
         selectedRoomIds.removeAll()
         isEditing = false
 
-        // 선택중이던 방이 삭제됐으면 default로
-        if targets.contains(selectedRoomId) {
-            selectedRoomId = defaultRoom.identifier
-        }
-
         await refreshRooms()
     }
 
-    // MARK: - Helpers
+    func maybeArchiveDefaultRoomByIdleTime() async {
+        let defaultMessages = await store.loadMessages(roomIdentifier: defaultRoom.identifier)
+        guard let last = defaultMessages.last else { return }
 
-    private func makeArchiveTitle(from messages: [ChatMessage]) -> String? {
-        // 첫 번째 유저 메시지 기준 1줄 요약 (간단)
-        if let firstUser = messages.first(where: { $0.author == .guest }) {
-            let trimmed = firstUser.text
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .replacingOccurrences(of: "\n", with: " ")
+        let idle = Date().timeIntervalSince(last.createdAt)
+        guard idle >= defaultRoomMaxIdleSeconds else { return }
 
-            if trimmed.isEmpty { return nil }
-            return String(trimmed.prefix(40))
-        }
-        return nil
+        await startNewConversation()
     }
 }

@@ -7,19 +7,20 @@
 
 import CoreML
 import Foundation
-import OSLog
 
+// MessageGate에서 사용하는 분류기 인터페이스
+// label은 모델이 내보내는 문자열 라벨
+// confidence는 0~1 확률값이 있으면 전달하고, 없으면 음수(-1)로 전달한다.
 final class CreateMLTextClassifierAdapter: MessageIntentClassifying {
     private let requestedModelName: String
-
-    private let logger = Logger(subsystem: "ESTiOS5Team1", category: "CreateMLTextClassifierAdapter")
-
-    // Simulator/Preview -> baseline 강제
     private let resolvedModelName: String
 
-    // Backend
+    // 실제 예측을 수행하는 백엔드
+    // typed 모델은 Swift에서 타입 안정적으로 prediction을 호출할 수 있지만,
+    // 모델 출력에 확률값이 포함되지 않는 경우가 많다.
     private enum Backend {
-        case typedBert(GameNonGame_bert)
+        case typedBertNonGame(GameNonGame_bert)
+        case typedBertSort(GameSort_bert)
         case generic(model: MLModel, inputTextKey: String, outputLabelKey: String, outputProbKey: String?)
     }
 
@@ -28,91 +29,34 @@ final class CreateMLTextClassifierAdapter: MessageIntentClassifying {
     init(modelName: String) {
         self.requestedModelName = modelName
         self.resolvedModelName = Self.resolveModelName(requested: modelName)
-
-        let config = MLModelConfiguration()
-        config.computeUnits = .all
-
-        // iPhone(실물) + bert 요청인 경우: typed model 우선
-        if Self.shouldUseTypedBert(modelName: resolvedModelName) {
-            do {
-                let typed = try GameNonGame_bert(configuration: config)
-                self.backend = .typedBert(typed)
-                logger.info("[CreateMLAdapter] init modelName=\(self.resolvedModelName, privacy: .public) backend=typedBert loaded=true")
-                return
-            } catch {
-                logger.error("[CreateMLAdapter] typedBert init FAILED modelName=\(self.resolvedModelName, privacy: .public) error=\(String(describing: error), privacy: .public)")
-                // typed 실패 시 generic로 폴백 시도
-            }
-        }
-
-        // 그 외(= simulator/preview 포함): generic MLModel 로드
-        guard let model = Self.loadGenericModel(named: resolvedModelName, configuration: config) else {
-            logger.error("[CreateMLAdapter] init FAILED modelName=\(self.resolvedModelName, privacy: .public) (mlmodelc not found in bundle)")
-            self.backend = nil
-            return
-        }
-
-        let inKeys = Array(model.modelDescription.inputDescriptionsByName.keys)
-        let outKeys = Array(model.modelDescription.outputDescriptionsByName.keys)
-        logger.info("[CreateMLAdapter] init modelName=\(self.resolvedModelName, privacy: .public) backend=generic loaded=true")
-        logger.info("[CreateMLAdapter] IO inputs=\(String(describing: inKeys), privacy: .public) outputs=\(String(describing: outKeys), privacy: .public)")
-
-        // input key
-        let inputTextKey: String = {
-            if inKeys.contains("text") { return "text" }
-            return inKeys.first ?? "text"
-        }()
-
-        let outputDescriptions = model.modelDescription.outputDescriptionsByName
-
-        // label key
-        let outputLabelKey: String = {
-            if outKeys.contains("label") { return "label" }
-            if outKeys.contains("classLabel") { return "classLabel" }
-            if let k = outKeys.first(where: { outputDescriptions[$0]?.type == .string }) { return k }
-            // 최후 fallback: "label" 고정
-            return "label"
-        }()
-
-        // probability key (없을 수 있음)
-        let outputProbKey: String? = {
-            if outKeys.contains("labelProbability") { return "labelProbability" }
-            if outKeys.contains("classLabelProbs") { return "classLabelProbs" }
-            return outKeys.first(where: { outputDescriptions[$0]?.type == .dictionary })
-        }()
-
-        logger.info("[CreateMLAdapter] keys input=\(inputTextKey, privacy: .public) label=\(outputLabelKey, privacy: .public) prob=\((outputProbKey ?? "nil"), privacy: .public)")
-
-        self.backend = .generic(
-            model: model,
-            inputTextKey: inputTextKey,
-            outputLabelKey: outputLabelKey,
-            outputProbKey: outputProbKey
-        )
+        self.backend = Self.loadBackend(modelName: self.resolvedModelName)
     }
 
     func predictLabel(text: String) -> (label: String, confidence: Double)? {
-        logger.info("[CreateMLAdapter] predictLabel called len=\(text.count)")
-
-        guard let backend else {
-            logger.error("[CreateMLAdapter] predictLabel aborted: backend=nil")
-            return nil
-        }
+        guard let backend else { return nil }
 
         switch backend {
-        case .typedBert(let typed):
+        case .typedBertNonGame(let model):
             do {
-                let out = try typed.prediction(text: text)
+                let out = try model.prediction(text: text)
                 let label = out.label.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard label.isEmpty == false else {
-                    logger.error("[CreateMLAdapter] typedBert output label empty")
-                    return nil
-                }
-                // bert typed output에 확률이 없으면 conf=1.0로 운용(요청하신 “% 안 써도 바로 작동”)
-                logger.info("[CreateMLAdapter] typedBert prediction OK label=\(label, privacy: .public) conf=1.0")
-                return (label: label, confidence: 1.0)
+                guard label.isEmpty == false else { return nil }
+
+                // typed 모델은 확률을 제공하지 않으므로 confidence는 -1로 내려서
+                // MessageGate에서 "라벨만으로 판정"하도록 연결한다.
+                return (label: label, confidence: -1)
             } catch {
-                logger.error("[CreateMLAdapter] typedBert prediction FAILED error=\(String(describing: error), privacy: .public)")
+                return nil
+            }
+
+        case .typedBertSort(let model):
+            do {
+                let out = try model.prediction(text: text)
+                let label = out.label.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard label.isEmpty == false else { return nil }
+
+                return (label: label, confidence: -1)
+            } catch {
                 return nil
             }
 
@@ -121,81 +65,111 @@ final class CreateMLTextClassifierAdapter: MessageIntentClassifying {
                 let input = try MLDictionaryFeatureProvider(dictionary: [inputTextKey: text])
                 let out = try model.prediction(from: input)
 
-                guard let label = out.featureValue(for: outputLabelKey)?.stringValue,
-                      label.isEmpty == false else {
-                    logger.error("[CreateMLAdapter] generic output missing label key=\(outputLabelKey, privacy: .public)")
+                guard let labelValue = out.featureValue(for: outputLabelKey)?.stringValue else {
                     return nil
                 }
 
-                var conf: Double = 1.0
+                let label = labelValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard label.isEmpty == false else { return nil }
+
+                // generic 모델은 확률 딕셔너리를 제공하는 경우가 있다.
+                // 제공되면 label에 해당하는 확률을 찾아 사용하고,
+                // 제공되지 않으면 1.0(확신)으로 둔다.
+                var confidence: Double = 1.0
+
                 if let outputProbKey,
-                   let dict = out.featureValue(for: outputProbKey)?.dictionaryValue {
-                    if let n = dict[label] as? NSNumber {
-                        conf = n.doubleValue
-                    } else {
-                        for (k, v) in dict {
-                            if let ks = k as? String, ks == label, let nv = v as? NSNumber {
-                                conf = nv.doubleValue
-                                break
-                            }
-                        }
+                   let probs = out.featureValue(for: outputProbKey)?.dictionaryValue {
+                    // 여기서 probability는 static 메서드이므로 Self.로 호출해야 한다.
+                    if let p = Self.probability(for: label, in: probs) {
+                        confidence = p
                     }
                 }
 
-                logger.info("[CreateMLAdapter] generic prediction OK label=\(label, privacy: .public) conf=\(conf)")
-                return (label: label, confidence: conf)
+                return (label: label, confidence: confidence)
             } catch {
-                logger.error("[CreateMLAdapter] generic prediction FAILED error=\(String(describing: error), privacy: .public)")
                 return nil
             }
         }
     }
 
-    // MARK: - Helpers
-
+    // 시뮬레이터에서는 bert typed 모델 로딩이 실패하는 경우가 있어서 baseline으로 대체한다.
+    // 디바이스에서는 요청된 모델을 그대로 사용한다.
     private static func resolveModelName(requested: String) -> String {
         #if targetEnvironment(simulator)
-        return Self.baselineModelName(for: requested)
+        if requested == "GameNonGame_bert" { return "GameNonGame_baseline" }
+        if requested == "GameSort_bert" { return "GameSort_baseline" }
+        return requested
         #else
-        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-            return Self.baselineModelName(for: requested)
-        }
         return requested
         #endif
     }
 
-    private static func shouldUseTypedBert(modelName: String) -> Bool {
-        #if targetEnvironment(simulator)
-        return false
-        #else
-        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-            return false
+    private static func loadBackend(modelName: String) -> Backend? {
+        if modelName == "GameNonGame_bert" {
+            do { return .typedBertNonGame(try GameNonGame_bert(configuration: MLModelConfiguration())) }
+            catch { return nil }
         }
-        return modelName == "GameNonGame_bert"
-        #endif
-    }
 
-    private static func baselineModelName(for requested: String) -> String {
-        if requested.contains("GameSort") {
-            return "GameSort_baseline"
+        if modelName == "GameSort_bert" {
+            do { return .typedBertSort(try GameSort_bert(configuration: MLModelConfiguration())) }
+            catch { return nil }
         }
-        if requested.contains("GameNonGame") {
-            return "GameNonGame_baseline"
-        }
-        if requested.lowercased().contains("baseline") {
-            return requested
-        }
-        return requested
-    }
 
-    private static func loadGenericModel(named name: String, configuration: MLModelConfiguration) -> MLModel? {
-        guard let url = Bundle.main.url(forResource: name, withExtension: "mlmodelc") else {
+        // baseline 등은 번들에서 mlmodelc로 로드한다.
+        guard let url = Bundle.main.url(forResource: modelName, withExtension: "mlmodelc") else {
             return nil
         }
+
         do {
-            return try MLModel(contentsOf: url, configuration: configuration)
+            let model = try MLModel(contentsOf: url)
+            return genericBackend(from: model)
         } catch {
             return nil
         }
+    }
+
+    // generic 모델에서 입력/출력 키를 추론한다.
+    // 모델마다 키 이름이 다를 수 있어, 일반적으로 쓰이는 후보 목록을 순회한다.
+    private static func genericBackend(from model: MLModel) -> Backend? {
+        let inputKeys = Set(model.modelDescription.inputDescriptionsByName.keys)
+        let outputKeys = Set(model.modelDescription.outputDescriptionsByName.keys)
+
+        let inputTextKeyCandidates = ["text", "input", "input_text"]
+
+        // 라벨은 문자열로 나오는 키를 우선한다.
+        // 확률 딕셔너리 키("classLabelProbs" 등)는 라벨 키 후보에서 제외한다.
+        let outputLabelKeyCandidates = ["label", "classLabel", "predictedLabel", "output"]
+
+        // 확률(라벨별 확률값)이 들어있는 딕셔너리 키 후보
+        let outputProbKeyCandidates = ["labelProbability", "classLabelProbs", "probabilities"]
+
+        guard let inputTextKey = inputTextKeyCandidates.first(where: { inputKeys.contains($0) }) else { return nil }
+        guard let outputLabelKey = outputLabelKeyCandidates.first(where: { outputKeys.contains($0) }) else { return nil }
+
+        let outputProbKey = outputProbKeyCandidates.first(where: { outputKeys.contains($0) })
+
+        return .generic(
+            model: model,
+            inputTextKey: inputTextKey,
+            outputLabelKey: outputLabelKey,
+            outputProbKey: outputProbKey
+        )
+    }
+
+    // CoreML의 dictionaryValue는 키/값 타입이 상황에 따라 섞일 수 있다.
+    // 라벨 문자열과 정확히 매칭되는 확률 값을 찾아 Double로 반환한다.
+    private static func probability(for label: String, in probs: [AnyHashable: Any]) -> Double? {
+        if let direct = probs[label] as? NSNumber {
+            return direct.doubleValue
+        }
+
+        for (k, v) in probs {
+            guard let keyString = k as? String else { continue }
+            guard keyString == label else { continue }
+            if let n = v as? NSNumber {
+                return n.doubleValue
+            }
+        }
+        return nil
     }
 }

@@ -19,15 +19,13 @@ struct ChatRoomView: View {
 
     init(
         room: ChatRoom,
-        store: ChatLocalStore,
+        store: ChatSwiftDataStore,
         roomsViewModel: ChatRoomsViewModel
     ) {
         _roomViewModel = StateObject(
             wrappedValue: ChatRoomViewModel(
                 room: room,
-                store: store,
-                alanEndpointOverride: "https://kdt-api-function.azurewebsites.net",
-                alanClientKeyOverride: "3833f10d-f734-4ee3-8ec3-a94897a1d9b4"
+                store: store
             )
         )
         self.roomsViewModel = roomsViewModel
@@ -48,45 +46,12 @@ struct ChatRoomView: View {
             }
             .navigationTitle(roomViewModel.room.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 0) {
-                        Button {
-                            Task {
-                                await roomsViewModel.startNewConversation()
-                                await roomViewModel.reload(room: roomsViewModel.defaultRoom)
-                                focusComposerSoon()
-                            }
-                        } label: {
-                            Image(systemName: "plus")
-                                .frame(width: 44, height: 44)
-                        }
-                        .accessibilityLabel("Start new chat")
-
-                        Rectangle()
-                            .fill(Color.white.opacity(0.12))
-                            .frame(width: 1, height: 22)
-
-                        Button {
-                            isPresentingRooms = true
-                        } label: {
-                            Image(systemName: "text.bubble")
-                                .frame(width: 44, height: 44)
-                        }
-                        .accessibilityLabel("Open chat rooms")
-                    }
-                    .tint(playNowTint)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                    .overlay {
-                        Capsule()
-                            .stroke(Color.white.opacity(0.10), lineWidth: 1)
-                    }
-                }
-            }
+            .toolbar { toolbarCapsule }
             .sheet(isPresented: $isPresentingRooms) {
                 ChatRoomsView(roomsViewModel: roomsViewModel) { selectedRoom in
                     isPresentingRooms = false
+                    roomsViewModel.select(room: selectedRoom)
+
                     Task {
                         await roomViewModel.reload(room: selectedRoom)
                         focusComposerSoon()
@@ -94,7 +59,7 @@ struct ChatRoomView: View {
                 }
             }
             .task {
-                await roomViewModel.load()
+                await roomViewModel.loadInitialMessages()
                 focusComposerSoon()
             }
             .onAppear {
@@ -104,6 +69,44 @@ struct ChatRoomView: View {
     }
 
     private var playNowTint: Color { .purple }
+
+    private var toolbarCapsule: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            HStack(spacing: 0) {
+                Button {
+                    Task {
+                        await roomsViewModel.startNewConversation()
+                        await roomViewModel.reload(room: roomsViewModel.defaultRoom)
+                        roomsViewModel.select(room: roomsViewModel.defaultRoom)
+                        focusComposerSoon()
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("새로운 채팅 시작")
+
+                Rectangle()
+                    .fill(Color.white.opacity(0.12))
+                    .frame(width: 1, height: 22)
+
+                Button {
+                    isPresentingRooms = true
+                } label: {
+                    Image(systemName: "text.bubble")
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("채팅방 열기")
+            }
+            .tint(playNowTint)
+            .background(.ultraThinMaterial)
+            .clipShape(Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(Color.white.opacity(0.10), lineWidth: 1)
+            }
+        }
+    }
 
     private func focusComposerSoon() {
         Task { @MainActor in
@@ -128,7 +131,7 @@ struct ChatRoomView: View {
                         }
 
                         if let errorMessage = roomViewModel.errorMessage {
-                            Text("⚠️ \(errorMessage)")
+                            Text(errorMessage)
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
@@ -155,11 +158,35 @@ struct ChatRoomView: View {
                 }
             }
 
-            // 메시지 없을 때 AI고지
             if roomViewModel.messages.isEmpty {
-                EmptyChatNoticeView()
+                emptyNotice
             }
         }
+    }
+
+    private var emptyNotice: some View {
+        VStack(spacing: 12) {
+            Text("이 채팅은 AI가 생성한 정보를 제공합니다.")
+                .font(.callout.weight(.semibold))
+
+            Text("답변에는 부정확하거나 오래된 정보가 포함될 수 있습니다.\n중요한 판단은 반드시 공식 자료를 확인해 주세요.")
+                .font(.footnote)
+
+            Divider()
+                .opacity(0.4)
+
+            Text("This chat provides AI-generated content.")
+                .font(.callout.weight(.semibold))
+
+            Text("Responses may be inaccurate or outdated.\nVerify important information with official sources.")
+                .font(.footnote)
+        }
+        .multilineTextAlignment(.center)
+        .foregroundStyle(.secondary)
+        .padding(16)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(.horizontal, 24)
     }
 
     private func scrollToBottom(proxy: ScrollViewProxy, animated: Bool) {
@@ -174,7 +201,7 @@ struct ChatRoomView: View {
 
     private var composerBar: some View {
         HStack(spacing: 10) {
-            TextField("Ask about games…", text: $roomViewModel.composerText, axis: .vertical)
+            TextField("게임에 대해 질문하세요", text: $roomViewModel.inputText, axis: .vertical)
                 .lineLimit(1...4)
                 .disabled(roomViewModel.isSending)
                 .focused($isComposerFocused)
@@ -182,14 +209,10 @@ struct ChatRoomView: View {
                 .padding(.vertical, 12)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(Color.white.opacity(0.10), lineWidth: 1)
-                }
 
             Button {
                 isComposerFocused = false
-                Task { await roomViewModel.sendGuestMessage() }
+                Task { await roomViewModel.sendMessage() }
             } label: {
                 Image(systemName: "paperplane.fill")
                     .font(.system(size: 15, weight: .semibold))
@@ -200,44 +223,9 @@ struct ChatRoomView: View {
             }
             .disabled(
                 roomViewModel.isSending ||
-                roomViewModel.composerText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                roomViewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             )
-            .accessibilityLabel("Send message")
+            .accessibilityLabel("메시지 전송")
         }
-    }
-}
-
-private struct EmptyChatNoticeView: View {
-    var body: some View {
-        VStack(spacing: 14) {
-            Text("이 채팅은 AI가 생성한 정보를 제공합니다.")
-                .font(.callout.weight(.semibold))
-
-            Text("""
-            답변에는 부정확하거나 오래된 정보가 포함될 수 있습니다.
-            중요한 판단은 반드시 공식 자료를 확인해 주세요.
-            """)
-            .font(.footnote)
-
-            Divider()
-                .opacity(0.4)
-
-            Text("This chat provides AI-generated content.")
-                .font(.callout.weight(.semibold))
-
-            Text("""
-            Responses may be inaccurate or outdated.
-            Verify important information with official sources.
-            """)
-            .font(.footnote)
-        }
-        .multilineTextAlignment(.center)
-        .foregroundStyle(.secondary)
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white.opacity(0.05))
-        )
-        .padding(.horizontal, 24)
     }
 }
