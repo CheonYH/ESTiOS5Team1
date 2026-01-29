@@ -30,19 +30,23 @@ struct ESTiOS5Team1App: App {
 
     @ViewBuilder
     var content: some View {
-        switch appViewModel.state {
-            case .launching:
-                SplashView()
+        if !appViewModel.isInitialized {
+            SplashView()
+        } else {
+            switch appViewModel.state {
+                case .launching:
+                    SplashView()
 
-            case .signedOut:
-                LoginView()
+                case .signedOut:
+                    LoginView()
 
-            case .signedIn:
-                 MainTabView()
-               // LogoutTestView()
+                case .signedIn:
+                     MainTabView()
+                   // LogoutTestView()
 
-            case .socialNeedsRegister:
-                NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)
+                case .socialNeedsRegister:
+                    NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)
+            }
         }
     }
 

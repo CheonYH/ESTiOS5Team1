@@ -12,31 +12,43 @@ struct DetailInfoBox: View {
     let item: GameDetailItem
 
     var body: some View {
-        KFImage(item.coverURL)
-            .cacheOriginalImage()
-            .loadDiskFileSynchronously()
-            .placeholder {
-                ProgressView()
-            }
-            .resizable()
-            .scaledToFill()
-            .frame(height: 400)
-            .clipped()
-            .cornerRadius(Radius.card)
+        if let coverURL = item.coverURL {
+            KFImage(coverURL)
+                .cacheOriginalImage()
+                .loadDiskFileSynchronously()
+                .placeholder {
+                    GameListCardPlaceholder()
+                }
+                .resizable()
+                .scaledToFill()
+                .frame(height: 400)
+                .clipped()
+                .cornerRadius(Radius.card)
+        } else {
+            GameListCardPlaceholder()
+                .frame(height: 400)
+                .cornerRadius(Radius.card)
+        }
 
         VStack(alignment: .leading) {
-            HStack(spacing: 10) {
-                KFImage(item.coverURL)
-                    .cacheOriginalImage()
-                    .loadDiskFileSynchronously()
-                    .placeholder {
-                        ProgressView()
-                    }
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 130)
-                    .clipped()
-                    .cornerRadius(Radius.cr8)
+            HStack {
+                if let coverURL = item.coverURL {
+                    KFImage(coverURL)
+                        .cacheOriginalImage()
+                        .loadDiskFileSynchronously()
+                        .placeholder {
+                            GameListCardPlaceholder()
+                        }
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 130)
+                        .clipped()
+                        .cornerRadius(Radius.cr8)
+                } else {
+                    GameListCardPlaceholder()
+                        .frame(width: 100, height: 130)
+                        .cornerRadius(Radius.cr8)
+                }
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text(item.title)

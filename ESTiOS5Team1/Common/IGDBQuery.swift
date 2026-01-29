@@ -46,7 +46,8 @@ enum IGDBQuery {
         genres.name,
         platforms.name,
         platforms.platform_logo.image_id;
-    sort popularity desc;
+    where aggregated_rating != null;
+    sort aggregated_rating desc;
     limit 300;
     """
 

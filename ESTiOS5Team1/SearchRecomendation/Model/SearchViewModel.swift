@@ -228,14 +228,16 @@ final class SearchViewModel: ObservableObject {
 
         var vm = GameListSingleQueryViewModel(
             service: service,
-            query: IGDBQuery.search(trimmed)
+            query: IGDBQuery.search(trimmed),
+            label: "search-primary"
         )
         await vm.load()
 
         if vm.items.isEmpty {
             vm = GameListSingleQueryViewModel(
                 service: service,
-                query: IGDBQuery.searchFallback(trimmed)
+                query: IGDBQuery.searchFallback(trimmed),
+                label: "search-fallback"
             )
             await vm.load()
         }

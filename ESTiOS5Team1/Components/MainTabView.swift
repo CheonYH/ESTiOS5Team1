@@ -19,16 +19,20 @@ struct MainTabView: View {
     
     @StateObject var favoriteManager = FavoriteManager()
 
-    @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
+    @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow, label: "home-main")
 
-    @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
+    @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow, label: "home-trending")
 
-    @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
+    @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases, label: "home-newReleases")
 
     @StateObject private var tabBarState = TabBarState()
 
     private var isPageLoading: Bool {
-        trendingVM.isLoading || releasesVM.isLoading
+        mainVM.isLoading || trendingVM.isLoading || releasesVM.isLoading
+    }
+
+    private var hasLoadedHome: Bool {
+        mainVM.hasLoaded && trendingVM.hasLoaded && releasesVM.hasLoaded
     }
 
     private let tabBarHeight: CGFloat = 86
@@ -57,7 +61,7 @@ struct MainTabView: View {
                                     }
                                 )
                             }
-                            .opacity(selectedTab == .home ? 1 : 0)
+                            .opacity((selectedTab == .home && hasLoadedHome && !isPageLoading) ? 1 : 0)
                             .allowsHitTesting(selectedTab == .home)
                         }
 
@@ -92,7 +96,7 @@ struct MainTabView: View {
                 }
                 .allowsHitTesting(!isPageLoading)
 
-                if isPageLoading {
+                if !hasLoadedHome || isPageLoading {
                     loadingOverlay
                         .transition(.opacity)
                         .zIndex(999)

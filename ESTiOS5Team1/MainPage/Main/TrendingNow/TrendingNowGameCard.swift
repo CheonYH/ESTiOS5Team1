@@ -14,16 +14,22 @@ struct TrendingNowGameCard: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 5) {
-                KFImage(item.coverURL)
-                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 200, height: 113)))
-                    .placeholder {
-                        ProgressView()
-                    }
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 150, height: 200)
-                    .clipped()
-                    .cornerRadius(Radius.cr8)
+                if let coverURL = item.coverURL {
+                    KFImage(coverURL)
+                        .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 200, height: 113)))
+                        .placeholder {
+                            GameListCardPlaceholder()
+                        }
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 150, height: 200)
+                        .clipped()
+                        .cornerRadius(Radius.cr8)
+                } else {
+                    GameListCardPlaceholder()
+                        .frame(width: 150, height: 200)
+                        .cornerRadius(Radius.cr8)
+                }
 
                 Text(item.title)
                     .font(.headline)

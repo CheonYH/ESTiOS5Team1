@@ -34,7 +34,8 @@ struct LoginView: View {
 
             ZStack {
                 GeometryReader { proxy in
-                    let contentWidth = min(720, proxy.size.width - 48)
+                    let availableWidth = max(0, proxy.size.width - 48)
+                    let contentWidth = min(720, availableWidth)
                     ScrollViewReader { scrollProxy in
                         ScrollView {
                             VStack {

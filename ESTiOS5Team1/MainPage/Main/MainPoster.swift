@@ -14,14 +14,20 @@ struct MainPoster: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            KFImage(item.coverURL)
-                .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 600, height: 333)))
-                .placeholder { Color.gray.opacity(0.3) }
-                .resizable()
-                .scaledToFill()
-                .frame(height: 400)
-                .clipped()
-                .padding(.top, 20)
+            if let coverURL = item.coverURL {
+                KFImage(coverURL)
+                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 600, height: 333)))
+                    .placeholder { GameListCardPlaceholder() }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 400)
+                    .clipped()
+                    .padding(.top, 20)
+            } else {
+                GameListCardPlaceholder()
+                    .frame(height: 400)
+                    .padding(.top, 20)
+            }
 
             VStack(alignment: .leading, spacing: 10) {
                 HStack {

@@ -15,7 +15,7 @@ force_cast:
   severity: error
 
 identifier_name:
-  min_length: 2 # 2글자(cr, id 등)까지는 허용
+  min_length: 1
   max_length: 60 # 너무 긴 것만 체크
 
 function_parameter_count:
@@ -25,3 +25,7 @@ function_parameter_count:
 function_body_length:
   warning: 150
   error: 200
+
+type_body_length:
+  warning: 450
+  error: 500

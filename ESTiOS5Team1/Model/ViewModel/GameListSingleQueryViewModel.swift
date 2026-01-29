@@ -37,6 +37,8 @@ final class GameListSingleQueryViewModel: ObservableObject {
     @Published var isLoadingMore = false
     /// 에러 상태입니다.
     @Published var error: Error?
+    /// 최초 로딩 완료 여부입니다.
+    @Published var hasLoaded = false
 
     /// 원본 엔티티 캐시입니다. (필터링용)
     private var entities: [GameEntity] = []
@@ -46,6 +48,8 @@ final class GameListSingleQueryViewModel: ObservableObject {
     private let service: IGDBService
 
     private let reviewService: ReviewService
+    /// 로그 구분용 라벨입니다.
+    private let label: String
 
     /// 멀티쿼리 본문입니다.
     private let query: String
@@ -60,18 +64,22 @@ final class GameListSingleQueryViewModel: ObservableObject {
 
     /// 서비스와 쿼리를 주입받습니다.
     /// [수정] pageSize 300 → 30으로 변경하여 초기 로딩 속도 개선
-    init(service: IGDBService, reviewService: ReviewService? = nil, query: String, pageSize: Int = 100) {
+    init(service: IGDBService, reviewService: ReviewService? = nil, query: String, pageSize: Int = 100, label: String = "unknown") {
         self.service = service
         self.query = query
         self.pageSize = pageSize
         self.reviewService =  reviewService ?? ReviewServiceManager()
+        self.label = label
     }
 
     /// 단일 멀티쿼리로 게임 목록을 불러옵니다.
     func load() async {
         isLoading = true
         error = nil
-        defer { isLoading = false }
+        defer {
+            isLoading = false
+            hasLoaded = true
+        }
 
         do {
             currentOffset = 0
@@ -87,6 +95,7 @@ final class GameListSingleQueryViewModel: ObservableObject {
                 GameListItem(entity: $0, review: reviewById[$0.id] ?? emptyReview)
             }
             hasMore = pageEntities.count == pageSize
+
         } catch {
             self.error = error
         }

@@ -68,8 +68,12 @@ final class IGDBServiceManager: IGDBService {
         let (data, response) = try await URLSession.shared.data(for: request)
         let afterNetwork = CFAbsoluteTimeGetCurrent()
         print("[IGDB] fetch network done in \(String(format: "%.3f", afterNetwork - start))s")
-        guard let http = response as? HTTPURLResponse,
-              (200...299).contains(http.statusCode) else {
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        if !(200...299).contains(http.statusCode) {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+            print("[IGDB] fetch status=\(http.statusCode) body=\(bodyText)")
             throw URLError(.badServerResponse)
         }
 
