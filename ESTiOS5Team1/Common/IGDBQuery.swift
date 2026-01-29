@@ -140,6 +140,26 @@ enum IGDBQuery {
         """
     }
 
+    /// 사용자 선호 장르(복수) 메타크리틱 상위 게임 목록
+    static func topRatedByGenres(_ genreIds: [Int]) -> String {
+        let ids = genreIds.map(String.init).joined(separator: ",")
+        return """
+        fields
+            id,
+            name,
+            cover.image_id,
+            summary,
+            aggregated_rating,
+            release_dates.y,
+            genres.name,
+            platforms.name,
+            platforms.platform_logo.image_id;
+        where genres = (\(ids)) & aggregated_rating != null;
+        sort aggregated_rating desc;
+        limit 50;
+        """
+    }
+
     /// 검색어 포함 매칭 (대체 경로)
     static func searchFallback(_ text: String) -> String {
         let escaped = text
@@ -159,6 +179,25 @@ enum IGDBQuery {
             platforms.name,
             platforms.platform_logo.image_id;
         sort popularity desc;
+        """
+    }
+
+    /// 사용자 선호 장르 게임 목록 요청(메타크리틱 상위 게임들로 불러옴)
+    static func topRatedByGenre(_ genreId: Int) -> String {
+        return """
+        fields
+            id,
+            name,
+            cover.image_id,
+            summary,
+            aggregated_rating,
+            release_dates.y,
+            genres.name,
+            platforms.name,
+            platforms.platform_logo.image_id;
+        where genres = (\(genreId)) & aggregated_rating != null;
+        sort aggregated_rating desc;
+        limit 50;
         """
     }
 
