@@ -119,6 +119,9 @@ struct SearchView: View {
         }
         .onChange(of: openSearchRequested) { value in
             guard value else { return }
+            // [추가] 홈에서 검색 버튼 클릭 시 필터 초기화 (UX 개선)
+            selectedPlatform = .all
+            selectedGenre = .all
             withAnimation(.spring(response: 0.3)) {
                 isSearchActive = true
             }
