@@ -36,12 +36,16 @@ final class AuthViewModel: ObservableObject {
 
     // MARK: - Input
 
+    /// 이메일 입력값입니다.
     @Published var email: String = ""
+    /// 비밀번호 입력값입니다.
     @Published var password: String = ""
+    /// 로딩 상태입니다.
     @Published var isLoading: Bool = false
 
     // MARK: - Dependencies
 
+    /// 인증 서비스입니다.
     private let service: AuthService
 
     /// 인증 서비스 의존성을 주입받습니다.
@@ -52,6 +56,7 @@ final class AuthViewModel: ObservableObject {
 
     // MARK: - API
 
+    /// 로그인 요청을 수행하고 결과 이벤트를 반환합니다.
     @discardableResult
     func login(appViewModel: AppViewModel) async -> FeedbackEvent {
 
@@ -69,8 +74,14 @@ final class AuthViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
+            let start = CFAbsoluteTimeGetCurrent()
+            print("[AuthVM] login START")
             _ = try await service.login(email: email, password: password)
+            let afterNetwork = CFAbsoluteTimeGetCurrent()
+            print("[AuthVM] login network done in \(String(format: "%.3f", afterNetwork - start))s")
             appViewModel.state = .signedIn
+            let afterState = CFAbsoluteTimeGetCurrent()
+            print("[AuthVM] login state updated in \(String(format: "%.3f", afterState - afterNetwork))s total \(String(format: "%.3f", afterState - start))s")
 
             return FeedbackEvent(.auth, .success, "로그인 성공")
 
@@ -105,7 +116,9 @@ final class AuthViewModel: ObservableObject {
     ///     let event = viewModel.logout(appViewModel: appVM)
     ///     toast.show(event)
     ///     ```
+    @discardableResult
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
+        signOutFromSocialProviders()
         TokenStore.shared.clear()
         appViewModel.state = .signedOut
 
@@ -116,17 +129,28 @@ final class AuthViewModel: ObservableObject {
         )
     }
 
+    private func signOutFromSocialProviders() {
+        GIDSignIn.sharedInstance.signOut()
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("[AuthVM] Firebase signOut failed:", error)
+        }
+    }
+
     @discardableResult
     func signInWithGoogle(appViewModel: AppViewModel) async -> FeedbackEvent {
 
         print("[AuthVM] signInWithGoogle START")
 
         do {
+            // 1) Google SDK로 idToken 획득
             let (idToken, email) = try await googleAuth()
             print("[AuthVM] Google result received")
             print("[AuthVM] idToken prefix =", idToken.prefix(20))
             print("[AuthVM] email =", email ?? "nil")
 
+            // 2) 서버에 소셜 로그인 요청
             print("[AuthVM] calling Vapor socialLogin")
             let result = try await service.socialLogin(
                 idToken: idToken,
@@ -135,6 +159,7 @@ final class AuthViewModel: ObservableObject {
 
             switch result {
                 case .signedIn(let tokens):
+                    // 가입 완료 사용자 → 토큰 저장 + signedIn
                     print("[AuthVM] socialLogin -> signedIn")
                     TokenStore.shared.updateTokens(pair: tokens)
                     appViewModel.state = .signedIn
@@ -142,6 +167,7 @@ final class AuthViewModel: ObservableObject {
                     return FeedbackEvent(.auth, .success, "Google 로그인 성공!")
 
                 case let .needsRegister(serverEmail, providerUid):
+                    // 추가 닉네임 등록 필요 → 상태 전환
                     print("[AuthVM] socialLogin -> needsRegister")
                     appViewModel.prefilledEmail = serverEmail ?? email
                     appViewModel.socialProviderUid = providerUid
@@ -159,11 +185,13 @@ final class AuthViewModel: ObservableObject {
     func googleAuth() async throws -> (idToken: String, email: String?) {
         print("[AuthVM] googleAuth START")
 
+        // Firebase 설정에서 clientID 확보
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             print("[AuthVM] ERROR: no clientID")
             throw AuthError.server
         }
 
+        // Google 로그인 UI를 띄울 root VC 조회
         guard let rootVC = await findPresentingViewController() else {
             print("[AuthVM] ERROR: no rootVC")
             throw AuthError.server
@@ -172,6 +200,7 @@ final class AuthViewModel: ObservableObject {
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
+        // Google 로그인 플로우 진행
         let signInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
         print("[AuthVM] google sign-in UI DONE")
 
@@ -183,8 +212,6 @@ final class AuthViewModel: ObservableObject {
         let email = signInResult.user.profile?.email
         print("[AuthVM] email =", email ?? "nil")
 
-        // Firebase Auth 연동
-        print("[AuthVM] Firebase credential sign-in START")
         return (idToken, email)
     }
 

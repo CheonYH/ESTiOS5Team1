@@ -85,8 +85,7 @@ extension ToastType {
 
     /// 상태별 배경 색상 설정
     ///
-    /// - Important:
-    ///     살짝 투명도를 주면 다른 UI 위에 겹칠 때 훨씬 자연스럽습니다.
+    ///
     var color: Color {
         switch self {
         case .success: .green.opacity(0.85)

@@ -22,7 +22,7 @@ import Combine
 ///     상태(`event`, `placement`)만 관리하고 UI는 SwiftUI View가 결정합니다.
 ///
 /// - Note:
-///     이 패턴은 실무에서도 많이 사용하는 Event-Driven UI 패턴입니다.
+///     이 패턴은 Event-Driven UI 패턴입니다.
 @MainActor
 final class ToastManager: ObservableObject {
 
@@ -53,7 +53,7 @@ final class ToastManager: ObservableObject {
     ///     `toastManager.show(FeedbackEvent(.auth, .success, "로그인 성공!"))`
     func show(_ event: FeedbackEvent) {
         // UI에 표시할 이벤트 설정
-        withAnimation(.spring()) {
+        withAnimation(.easeOut(duration: 0.45)) {
             self.event = event
             self.placement = event.resolvedPlacement
         }
@@ -80,7 +80,7 @@ final class ToastManager: ObservableObject {
     ///     toastManager.dismiss()
     ///     ```
     func dismiss() {
-        withAnimation(.spring()) {
+        withAnimation(.easeIn(duration: 0.35)) {
             self.event = nil
         }
     }

@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum LoginField: Hashable {
+    case email
+    case password
+}
+
 /// 로그인 폼 View입니다.
 ///
 /// - Purpose:
@@ -25,18 +30,23 @@ struct LoginForm: View {
     /// 로그인 결과를 Toast로 표시하기 위한 매니저
     @EnvironmentObject var toast: ToastManager
 
+    var focusedField: FocusState<LoginField?>.Binding
+
     // MARK: - Body
     var body: some View {
 
         VStack(alignment: .leading, spacing: 15) {
 
             Text("Email")
-                .font(Font.title3.bold())
+                .font(.headline)
                 .foregroundStyle(.white)
 
-            TextField("", text: $viewModel.email, prompt: Text("이메일을 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
-                .padding(10)
+            TextField("", text: $viewModel.email, prompt: Text("이메일을 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
+                .font(.callout)
+                .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
+                .focused(focusedField, equals: .email)
+                .id(LoginField.email)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
@@ -47,12 +57,15 @@ struct LoginForm: View {
                 )
 
             Text("Password")
-                .font(Font.title3.bold())
+                .font(.headline)
                 .foregroundStyle(.white)
 
-            SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.white.opacity(0.3)))
-                .padding(10)
+            SecureField("", text: $viewModel.password, prompt: Text("비밀번호를 입력해 주세요").foregroundStyle(.textPrimary.opacity(0.4)))
+                .font(.callout)
+                .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
+                .focused(focusedField, equals: .password)
+                .id(LoginField.password)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
@@ -71,18 +84,19 @@ struct LoginForm: View {
                 }
             } label: {
                 Text("로그인")
-                    .font(.title2.bold())
+                    .font(.title2)
+                    .bold()
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, maxHeight: 60)
+                    .frame(maxWidth: .infinity, minHeight: 60)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.purplePrimary)
                     )
             }
-            .padding(.top, 10)
+            .padding(.top, Spacing.pv10)
 
         }
-        .padding(10)
+        .padding(Spacing.pv10)
 
         HStack {
             Rectangle()
@@ -102,28 +116,30 @@ struct LoginForm: View {
                 .foregroundStyle(.gray.opacity(0.4))
                 .layoutPriority(0)
         }
-        .padding(10)
+        .padding(Spacing.pv10)
 
         HStack(spacing: 16) {
+
             Button {
                 Task {
                     await viewModel.signInWithGoogle(appViewModel: appViewModel)
                 }
             } label: {
-                Image(systemName: "applelogo")
+                Image("google")
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
+                    .foregroundStyle(.white)
                     .frame(width: 28, height: 28)
-                    .padding(12)
-                    .frame(width: 120, height: 80)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 60)
                     .background(
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(.white.opacity(0.3), lineWidth: 1)
                     )
-                    .foregroundStyle(.white)
             }
 
-            Button {
+            /* Button {
 
             } label: {
                 Image(systemName: "playstation.logo")
@@ -155,8 +171,10 @@ struct LoginForm: View {
                     .foregroundStyle(.white)
             }
 
-        }
+             */
 
+        }
+        .padding(Spacing.pv10)
     }
 }
 
@@ -165,7 +183,9 @@ struct LoginForm: View {
     let auth = AuthServiceImpl()
     let appVM = AppViewModel(authService: auth, toast: toast)
 
-    LoginView()
-        .environmentObject(appVM)
-        .environmentObject(toast)
+    NavigationStack {
+        LoginView()
+    }
+    .environmentObject(appVM)
+    .environmentObject(toast)
 }

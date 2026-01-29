@@ -30,18 +30,23 @@ struct ESTiOS5Team1App: App {
 
     @ViewBuilder
     var content: some View {
-        switch appViewModel.state {
-            case .launching:
-                SplashView()
+        if !appViewModel.isInitialized {
+            SplashView()
+        } else {
+            switch appViewModel.state {
+                case .launching:
+                    SplashView()
 
-            case .signedOut:
-                LoginView()
+                case .signedOut:
+                    LoginView()
 
-            case .signedIn:
-                LogoutTestView()
+                case .signedIn:
+                     MainTabView()
+                   // LogoutTestView()
 
-            case .socialNeedsRegister:
-                SocialRegisterView(prefilledEmail: appViewModel.prefilledEmail)
+                case .socialNeedsRegister:
+                    NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)
+            }
         }
     }
 
@@ -61,12 +66,26 @@ struct ESTiOS5Team1App: App {
 
     var body: some Scene {
         WindowGroup {
-            content
-                .environmentObject(toastManager)
-                .environmentObject(appViewModel)
-                .onOpenURL { url in
-                    GIDSignIn.sharedInstance.handle(url)
-                }
+             ZStack {
+                 content
+                // MainTabView()
+
+             }
+             .frame(maxWidth: .infinity, maxHeight: .infinity)
+             .environmentObject(toastManager)
+             .environmentObject(appViewModel)
+             .onOpenURL { url in
+                 GIDSignIn.sharedInstance.handle(url)
+             }
+             .overlay(alignment: toastManager.placement == .top ? .top : .bottom) {
+                 if let event = toastManager.event {
+                     ToastView(event: event)
+                         .transition(.move(edge: toastManager.placement == .top ? .top : .bottom).combined(with: .opacity))
+                         .padding()
+                 }
+             }
+
+            // DetailInfoTestView()
         }
         .modelContainer(sharedModelContainer)
     }

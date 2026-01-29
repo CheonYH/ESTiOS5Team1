@@ -16,10 +16,7 @@ import Combine
 /// - Important:
 /// 이 ViewModel은 장르 정보를 받아오기만 하며,
 /// 장르를 기반으로 게임을 필터링하는 기능은 다른 ViewModel에서 수행합니다.
-///
-/// - Note:
-/// IGDB의 장르 데이터는 비교적 정적이며 빈번히 변하지 않기 때문에,
-/// 향후에는 캐싱 전략을 적용하기에도 적합한 데이터입니다.
+
 @MainActor
 final class GenreListViewModel: ObservableObject {
 

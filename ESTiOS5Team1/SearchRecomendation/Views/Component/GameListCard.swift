@@ -8,6 +8,7 @@
 //  [수정] Game → GameListItem 통일
 
 import SwiftUI
+import Kingfisher
 
 // MARK: - Game List Card (통일된 게임 카드)
 struct GameListCard: View {
@@ -23,21 +24,15 @@ struct GameListCard: View {
                 ZStack(alignment: .topLeading) {
                     // 커버 이미지
                     if let coverURL = item.coverURL {
-                        AsyncImage(url: coverURL) { phase in
-                            switch phase {
-                            case .empty:
-                                GameListCardPlaceholder()
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: geometry.size.width, height: 225)
-                            case .failure:
-                                GameListCardPlaceholder()
-                            @unknown default:
+                        KFImage(coverURL)
+                            .cacheOriginalImage()
+                            .loadDiskFileSynchronously()
+                            .placeholder {
                                 GameListCardPlaceholder()
                             }
-                        }
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: 225)
                     } else {
                         GameListCardPlaceholder()
                     }

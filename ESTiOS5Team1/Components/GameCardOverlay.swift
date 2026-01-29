@@ -33,7 +33,7 @@ struct GameFavoriteButton: View {
     let isFavorite: Bool
     let onToggle: () -> Void
     var frameWH: CGFloat = 32
-    
+
     var body: some View {
         Button(action: onToggle) {
             Image(systemName: isFavorite ? "heart.fill" : "heart")

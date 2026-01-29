@@ -14,7 +14,6 @@
 		25E231A62F108F9200C0B57B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A52F108F9200C0B57B /* FirebaseAnalytics */; };
 		25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A72F1090EF00C0B57B /* FirebaseCore */; };
 		25E231AA2F1090EF00C0B57B /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = 25E231A92F1090EF00C0B57B /* FirebaseInstallations */; };
-		25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 25E236622F10EADF00C0B57B /* StreamChatSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,10 +44,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
-				KeyChain/DeviceID.swift,
-				KeyChain/TokenStore.swift,
-				Model/DTO/IGDBGenreDTO.swift,
+				Model/DTO/IGDB/IGDBGenreDTO.swift,
 				Model/ViewModel/GenreListViewModel.swift,
+				Security/DeviceID.swift,
+				Security/TokenStore.swift,
 				TestView/GenreListTestView.swift,
 			);
 			target = 25C032502F0C972500CA196B /* ESTiOS5Team1Tests */;
@@ -57,10 +56,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
-				KeyChain/DeviceID.swift,
-				KeyChain/TokenStore.swift,
-				Model/DTO/IGDBGenreDTO.swift,
+				Model/DTO/IGDB/IGDBGenreDTO.swift,
 				Model/ViewModel/GenreListViewModel.swift,
+				Security/DeviceID.swift,
+				Security/TokenStore.swift,
 				TestView/GenreListTestView.swift,
 			);
 			target = 25C0325A2F0C972500CA196B /* ESTiOS5Team1UITests */;
@@ -103,7 +102,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25E236632F10EADF00C0B57B /* StreamChatSwiftUI in Frameworks */,
 				25E2319D2F10854D00C0B57B /* Kingfisher in Frameworks */,
 				25E231A12F10886400C0B57B /* FirebaseCrashlytics in Frameworks */,
 				25E231A82F1090EF00C0B57B /* FirebaseCore in Frameworks */,
@@ -202,6 +200,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				2595DF862F298F590006B179 /* PBXTargetDependency */,
 				25C032532F0C972500CA196B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -269,7 +268,6 @@
 				25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				25E2319B2F10854D00C0B57B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */,
 				25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -355,6 +353,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2595DF862F298F590006B179 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 2595DF852F298F590006B179 /* SwiftLintBuildToolPlugin */;
+		};
 		25C032532F0C972500CA196B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 25C032412F0C972400CA196B /* ESTiOS5Team1 */;
@@ -502,7 +504,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 7RH8F785XV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -536,7 +538,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 7RH8F785XV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ESTiOS5Team1/Info.plist;
@@ -569,7 +571,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8J9X9NN4Y8;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
@@ -723,17 +725,14 @@
 				minimumVersion = 12.7.0;
 			};
 		};
-		25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/getstream/stream-chat-swiftui";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.95.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2595DF852F298F590006B179 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		25B45A192F1DEA790093740B /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 25B45A182F1DE8010093740B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
@@ -768,11 +767,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319F2F10886400C0B57B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseInstallations;
-		};
-		25E236622F10EADF00C0B57B /* StreamChatSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 25E236612F10EADF00C0B57B /* XCRemoteSwiftPackageReference "stream-chat-swiftui" */;
-			productName = StreamChatSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

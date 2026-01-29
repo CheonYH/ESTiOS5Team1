@@ -1,0 +1,69 @@
+//
+//  SearchHeaderSection.swift
+//  ESTiOS5Team1
+//
+//  Created by Claude on 1/27/26.
+//
+//  [신규] SearchView에서 분리된 헤더 섹션 컴포넌트
+
+import SwiftUI
+
+/// 검색 화면의 헤더 섹션 (네비게이션 헤더 + 검색바)
+struct SearchHeaderSection: View {
+    @Binding var isSearchActive: Bool
+    @Binding var searchText: String
+    var onSearchSubmit: () -> Void
+    @State private var showRoot = false
+    @EnvironmentObject var tabBarState: TabBarState
+    var body: some View {
+        VStack(spacing: 0) {
+            // 커스텀 헤더
+            CustomNavigationHeader(
+                title: "게임 탐색",
+                showSearchButton: true,
+                isSearchActive: isSearchActive,
+                onSearchTap: {
+                    withAnimation(.spring(response: 0.3)) {
+                        isSearchActive.toggle()
+                        if !isSearchActive {
+                            searchText = ""
+                        }
+                    }
+                },
+                showRoot: $showRoot
+            )
+
+            // 검색바 (조건부 표시)
+            if isSearchActive {
+                SearchBar(
+                    searchText: $searchText,
+                    isSearchActive: $isSearchActive,
+                    onSubmit: onSearchSubmit
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .navigationDestination(isPresented: $showRoot) {
+            RootTabView()
+                .onAppear { tabBarState.isHidden = true }
+                .onDisappear { tabBarState.isHidden = false }
+        }
+    }
+}
+
+// MARK: - Preview
+struct SearchHeaderSection_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack {
+                SearchHeaderSection(
+                    isSearchActive: .constant(true),
+                    searchText: .constant("테스트"),
+                    onSearchSubmit: {}
+                )
+                Spacer()
+            }
+        }
+    }
+}

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 소셜 가입(닉네임 등록) 흐름을 테스트하는 화면입니다.
 struct SocialRegisterView: View {
 
     @EnvironmentObject var appVM: AppViewModel
@@ -39,4 +40,10 @@ struct SocialRegisterView: View {
         }
         .padding()
     }
+}
+
+#Preview {
+
+    SocialRegisterView(prefilledEmail: "test@example.com")
+        .environmentObject(ToastManager())
 }

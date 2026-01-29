@@ -18,6 +18,12 @@ import Foundation
 /// 추가 정의할 수 있습니다.
 enum IGDBImageSize: String {
 
+    /// 게임 커버 이미지 (소형)
+    case coverSmall = "t_cover_small"
+
+    /// 게임 커버 이미지 (중형)
+    case coverMed = "t_cover_med"
+
     /// 게임 커버 이미지 (대형)
     ///
     /// 목록 화면, 상세 화면 등에서 가장 일반적으로 사용되는 사이즈입니다.

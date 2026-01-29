@@ -26,5 +26,5 @@ struct StatView: View {
 }
 
 #Preview {
-    StatView(value: "8.9", title: "User Score", color: .black)
+    StatView(value: "4", title: "User Score", color: .black)
 }

@@ -11,20 +11,23 @@ import Kingfisher
 struct MainPoster: View {
     let item: GameListItem
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            KFImage(item.coverURL)
-                .cacheOriginalImage()
-                .loadDiskFileSynchronously()
-                .placeholder { Color.gray.opacity(0.3) }
-                .resizable()
-                .scaledToFill()
-                .frame(height: 400)
-                .clipped()
-                .padding(.top, 20)
-                
-                
+            if let coverURL = item.coverURL {
+                KFImage(coverURL)
+                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 600, height: 333)))
+                    .placeholder { GameListCardPlaceholder() }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 400)
+                    .clipped()
+                    .padding(.top, 20)
+            } else {
+                GameListCardPlaceholder()
+                    .frame(height: 400)
+                    .padding(.top, 20)
+            }
 
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
@@ -48,26 +51,19 @@ struct MainPoster: View {
                     .font(.largeTitle)
                     .foregroundStyle(.textPrimary)
 
-//                Text(item.id.description ?? "")
-//                    .font(.caption)
-//                    .foregroundStyle(.textPrimary)
-//                    .multilineTextAlignment(.leading)
-
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption2)
                     .foregroundColor(.textPrimary.opacity(0.7))
-                
+
                 ForEach(item.platformCategories, id: \.rawValue) { platform in
                     Image(systemName: platform.iconName)
                         .foregroundStyle(.textPrimary.opacity(0.6))
                         .font(.caption)
                 }
-                
+
                 HStack {
-                    Button {
-                        // 플레이 나우 기능
-                    } label: {
-                        Label("Play Now", systemImage: "play.fill")
+                    NavigationLink(destination: DetailView(gameId: item.id)) {
+                        Label("게임 정보 확인", systemImage: "play.fill")
                             .font(.headline)
                             .foregroundStyle(.textPrimary)
                             .frame(maxWidth: 250)

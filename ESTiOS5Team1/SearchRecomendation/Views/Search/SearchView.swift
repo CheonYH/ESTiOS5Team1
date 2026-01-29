@@ -5,6 +5,7 @@
 //  Created by 이찬희 on 1/6/26.
 //
 //  [수정] Game → GameListItem 통일
+//  [수정] View 컴포넌트 분리 및 필터링 로직 ViewModel 이동
 
 import SwiftUI
 
@@ -21,450 +22,180 @@ struct SearchView: View {
 
     @StateObject private var viewModel: SearchViewModel
     @EnvironmentObject var favoriteManager: FavoriteManager
+    @EnvironmentObject var tabBarState: TabBarState
+
+    @Binding var openSearchRequested: Bool
+    @Binding var pendingGenre: GameGenreModel?
+    // [추가] 탭 전환 시 검색 상태 초기화용
+    @Binding var shouldResetSearch: Bool
 
     // MARK: - Initialization
 
-    init(favoriteManager: FavoriteManager) {
-        _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
-        _selectedPlatform = State(initialValue: .all)
-        _selectedGenre = State(initialValue: .all)
-    }
-
-    init(favoriteManager: FavoriteManager, initialGenre: GenreFilterType) {
-        _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
-        _selectedPlatform = State(initialValue: .all)
-        _selectedGenre = State(initialValue: initialGenre)
-    }
-
+    /// 통합 Initializer (기본값으로 3개 init 통합)
     init(
         favoriteManager: FavoriteManager,
-        initialGenre: GenreFilterType,
-        initialPlatform: PlatformFilterType
+        initialGenre: GenreFilterType = .all,
+        initialPlatform: PlatformFilterType = .all,
+        openSearchRequested: Binding<Bool> = .constant(false),
+        pendingGenre: Binding<GameGenreModel?> = .constant(nil),
+        shouldResetSearch: Binding<Bool> = .constant(false)
     ) {
+        self._openSearchRequested = openSearchRequested
+        self._pendingGenre = pendingGenre
+        self._shouldResetSearch = shouldResetSearch
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: initialPlatform)
         _selectedGenre = State(initialValue: initialGenre)
     }
 
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel) {
+    /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
+    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil), shouldResetSearch: Binding<Bool> = .constant(false)) {
+        self._openSearchRequested = openSearchRequested
+        self._pendingGenre = pendingGenre
+        self._shouldResetSearch = shouldResetSearch
         _viewModel = StateObject(wrappedValue: SearchViewModel(favoriteManager: favoriteManager))
         _selectedPlatform = State(initialValue: .all)
         _selectedGenre = State(initialValue: GenreFilterType.from(gameGenre: gameGenre))
     }
 
+    // MARK: - Body
     var body: some View {
-        // [수정] NavigationView → NavigationStack으로 변경
-        // 탭 전환 후 돌아올 때 navigation bar가 사라지는 문제 해결 (iOS 16+)
-        NavigationStack {
-            ZStack {
-                Color.black.ignoresSafeArea()
+        ZStack {
+            Color.black.ignoresSafeArea()
 
-                ScrollViewReader { proxy in
-                    VStack(spacing: 0) {
-                        // 검색바 (조건부 표시)
-                        if isSearchActive {
-                            SearchBar(searchText: $searchText, isSearchActive: $isSearchActive)
-                                .transition(.move(edge: .top).combined(with: .opacity))
+            ScrollViewReader { proxy in
+                VStack(spacing: 0) {
+                    // 헤더 섹션
+                    SearchHeaderSection(
+                        isSearchActive: $isSearchActive,
+                        searchText: $searchText,
+                        onSearchSubmit: {
+                            Task { await viewModel.performSearch(query: searchText) }
                         }
+                    )
 
-                        // Platform Filter (고정)
-                        PlatformFilter(selectedPlatform: $selectedPlatform)
-                            .padding(.top, 10)
+                    // 필터 섹션
+                    SearchFilterSection(
+                        selectedPlatform: $selectedPlatform,
+                        selectedGenre: $selectedGenre,
+                        advancedFilterState: $advancedFilterState,
+                        showFilterSheet: $showFilterSheet,
+                        allItems: viewModel.allItems
+                    )
 
-                        // Genre Filter (고정, 하단 구분선 포함)
-                        // [수정] games → items
-                        GenreFilter(selectedGenre: $selectedGenre, items: allItems)
-                            .padding(.top, 10)
-
-                        // 고급 필터 버튼 바 (필터 버튼 + 선택된 필터 캡슐)
-                        FilterButtonBar(
-                            filterState: $advancedFilterState,
-                            showFilterSheet: $showFilterSheet
-                        )
-
-                        // 게임 카드만 스크롤
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 12) {
-                                // 스크롤 상단 앵커
-                                Color.clear
-                                    .frame(height: 1)
-                                    .id("top")
-
-                                // [수정] 로딩 또는 에러 상태 - discoverGames → discoverItems
-                                if viewModel.isLoading && viewModel.discoverItems.isEmpty {
-                                    LoadingView()
-                                } else if let error = viewModel.error, viewModel.discoverItems.isEmpty {
-                                    ErrorView(error: error) {
-                                        Task { await viewModel.loadAllGames() }
-                                    }
-                                } else {
-                                    // 결과 헤더
-                                    ResultHeader(
-                                        title: headerTitle,
-                                        count: filteredItems.count
-                                    )
-                                    
-
-                                    // 2열 그리드 게임 카드
-                                    // [수정] filteredGames → filteredItems
-                                    if filteredItems.isEmpty {
-                                        EmptyFilterResultView(
-                                            platform: selectedPlatform,
-                                            genre: selectedGenre
-                                        )
-                                    } else {
-                                        GameGridView(items: filteredItems)
-                                    }
-                                }
-                            }
-
-                            .padding(.bottom, 10)
-                        }
-                        .refreshable {
-                            await viewModel.forceRefreshAllGames()
-                        }
-                        // 플랫폼 변경 시 상단으로 스크롤 (애니메이션 제거)
-                        .onChange(of: selectedPlatform) { _ in
-                            proxy.scrollTo("top", anchor: .top)
-                        }
-                        // 장르 변경 시 상단으로 스크롤 (애니메이션 제거)
-                        .onChange(of: selectedGenre) { _ in
-                            proxy.scrollTo("top", anchor: .top)
-                        }
-                        // 고급 필터 변경 시 상단으로 스크롤 (애니메이션 제거)
-                        .onChange(of: advancedFilterState) { _ in
-                            proxy.scrollTo("top", anchor: .top)
-                        }
+                    // 컨텐츠 섹션
+                    SearchContentSection(
+                        viewModel: viewModel,
+                        searchText: searchText,
+                        selectedPlatform: selectedPlatform,
+                        selectedGenre: selectedGenre,
+                        advancedFilterState: advancedFilterState,
+                        isSearchActive: isSearchActive
+                    )
+                    .refreshable {
+                        await viewModel.forceRefreshAllGames()
                     }
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("게임 탐색")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                }
-
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3)) {
-                            isSearchActive.toggle()
-                            if !isSearchActive {
-                                searchText = ""
-                            }
-                        }
-                    }) {
-                        Image(systemName: isSearchActive ? "xmark" : "magnifyingglass")
-                            .foregroundColor(.white)
-                            .font(.title3)
+                    // 필터 변경 시 상단으로 스크롤
+                    .onChange(of: selectedPlatform) { _ in
+                        proxy.scrollTo("top", anchor: .top)
+                    }
+                    .onChange(of: selectedGenre) { _ in
+                        proxy.scrollTo("top", anchor: .top)
+                    }
+                    .onChange(of: advancedFilterState) { _ in
+                        proxy.scrollTo("top", anchor: .top)
                     }
                 }
             }
         }
-        // [수정] discoverGames → discoverItems
+        // [수정] 중복 onAppear 통합
         .onAppear {
-            if viewModel.discoverItems.isEmpty {
-                Task { await viewModel.loadAllGames() }
-            }
+            handleOnAppear()
         }
-        // 필터 시트 표시
+        // [삭제] onDisappear 제거 - 디테일뷰 이동 시에도 호출되어 검색 초기화 문제 발생
+        // 탭 전환 시 초기화는 shouldResetSearch 바인딩으로만 처리
         .sheet(isPresented: $showFilterSheet) {
             FilterSheet(filterState: $advancedFilterState)
         }
-    }
-
-    // MARK: - Computed Properties
-
-    private var hasActiveFilters: Bool {
-        selectedPlatform != .all || selectedGenre != .all || !searchText.isEmpty
-    }
-
-    private var headerTitle: String {
-        var components: [String] = []
-
-        if selectedPlatform != .all {
-            components.append(selectedPlatform.rawValue)
-        }
-
-        if selectedGenre != .all {
-            components.append(selectedGenre.displayName)
-        }
-
-        if components.isEmpty {
-            return "추천 게임"
-        }
-
-        return components.joined(separator: " · ") + " 게임"
-    }
-
-    // [수정] 모든 게임 (중복 제거, 순서 유지) - Game → GameListItem
-    // 카테고리 필터 적용
-    private var allItems: [GameListItem] {
-        // 카테고리에 따라 데이터 소스 선택
-        let items: [GameListItem]
-        switch advancedFilterState.category {
-        case .all:
-            items = viewModel.discoverItems + viewModel.trendingItems + viewModel.newReleaseItems
-        case .trending:
-            items = viewModel.trendingItems
-        case .newReleases:
-            items = viewModel.newReleaseItems
-        case .discover:
-            items = viewModel.discoverItems
-        }
-
-        // 중복 제거
-        var seen = Set<Int>()
-        return items.filter { item in
-            if seen.contains(item.id) { return false }
-            seen.insert(item.id)
-            return true
-        }
-    }
-
-    // [수정] filteredGames → filteredItems
-    // 모든 필터 적용 (플랫폼, 장르, 검색어, 고급 필터)
-    private var filteredItems: [GameListItem] {
-        var result = allItems.filter { item in
-            let matchesPlatform = filterByPlatform(item: item, platform: selectedPlatform)
-            let matchesGenre = filterByGenre(item: item, genre: selectedGenre)
-            let matchesSearch = searchText.isEmpty ||
-                item.title.localizedCaseInsensitiveContains(searchText) ||
-                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(searchText)
-
-            // 평점 필터
-            let matchesRating = filterByRating(item: item)
-
-            // 출시 시기 필터
-            let matchesReleasePeriod = advancedFilterState.releasePeriod.matches(releaseYear: item.releaseYearText)
-
-            return matchesPlatform && matchesGenre && matchesSearch && matchesRating && matchesReleasePeriod
-        }
-
-        // 정렬 적용
-        result = sortItems(result)
-
-        return result
-    }
-
-    // MARK: - Advanced Filter Methods
-
-    /// 평점 필터 적용 (슬라이더 기반)
-    private func filterByRating(item: GameListItem) -> Bool {
-        // 최소 평점이 0이면 모든 게임 표시
-        guard advancedFilterState.minimumRating > 0 else { return true }
-
-        // ratingText를 Double로 변환 (예: "4.2" -> 4.2)
-        guard item.ratingText != "N/A",
-              let rating = Double(item.ratingText) else {
-            // 평점이 없는 경우 필터링에서 제외
-            return false
-        }
-
-        return rating >= advancedFilterState.minimumRating
-    }
-
-    /// 정렬 적용
-    private func sortItems(_ items: [GameListItem]) -> [GameListItem] {
-        switch advancedFilterState.sortType {
-        case .popularity:
-            // 기본 순서 유지 (API에서 이미 인기순으로 정렬됨)
-            return items
-        case .newest:
-            return items.sorted { item1, item2 in
-                let year1 = Int(item1.releaseYearText) ?? 0
-                let year2 = Int(item2.releaseYearText) ?? 0
-                return year1 > year2
+        .onChange(of: openSearchRequested) { value in
+            guard value else { return }
+            // [추가] 홈에서 검색 버튼 클릭 시 필터 초기화 (UX 개선)
+            selectedPlatform = .all
+            selectedGenre = .all
+            withAnimation(.spring(response: 0.3)) {
+                isSearchActive = true
             }
-        case .rating:
-            return items.sorted { item1, item2 in
-                let rating1 = Double(item1.ratingText) ?? 0
-                let rating2 = Double(item2.ratingText) ?? 0
-                return rating1 > rating2
-            }
-        case .nameAsc:
-            return items.sorted { $0.title < $1.title }
+            openSearchRequested = false
         }
-    }
-
-    // MARK: - Helper Methods
-
-    // [수정] game → item, platforms → platformCategories
-    private func filterByPlatform(item: GameListItem, platform: PlatformFilterType) -> Bool {
-        guard platform != .all else { return true }
-
-        return item.platformCategories.contains { itemPlatform in
-            switch platform {
-            case .all: return true
-            case .pc: return itemPlatform == .pc
-            case .playstation: return itemPlatform == .playstation
-            case .xbox: return itemPlatform == .xbox
-            case .nintendo: return itemPlatform == .nintendo
-            case .mobile: return itemPlatform == .mobile
+        .onChange(of: pendingGenre) { gener in
+            guard let gener else { return }
+            selectedGenre = GenreFilterType.from(gameGenre: gener)
+            pendingGenre = nil
+        }
+        // [추가] 탭 전환 시 검색 상태 초기화 (실무 방식: 부모에서 신호 전달)
+        .onChange(of: shouldResetSearch) { value in
+            guard value else { return }
+            isSearchActive = false
+            searchText = ""
+            viewModel.clearSearchResults()
+            shouldResetSearch = false
+        }
+        .onChange(of: searchText) { newValue in
+            if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                viewModel.clearSearchResults()
             }
         }
-    }
-
-    // [수정] game → item, genre가 배열이므로 any로 매칭
-    private func filterByGenre(item: GameListItem, genre: GenreFilterType) -> Bool {
-        guard genre != .all else { return true }
-        return item.genre.contains { genreString in
-            genre.matches(genre: genreString)
-        }
-    }
-}
-
-// MARK: - Result Header
-struct ResultHeader: View {
-    let title: String
-    let count: Int
-
-    var body: some View {
-        HStack {
-            Image(systemName: "gamecontroller.fill")
-                .foregroundColor(.purple)
-
-            Text(title)
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-
-            Spacer()
-
-            Text("\(count)개")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-        }
-        .padding(.horizontal)
-    }
-}
-
-// MARK: - Game Grid View (2열 세로 스크롤)
-// [수정] games → items, Game → GameListItem
-// [수정] NavigationLink 추가하여 DetailView로 이동
-struct GameGridView: View {
-    let items: [GameListItem]
-    @EnvironmentObject var favoriteManager: FavoriteManager
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
-
-    var body: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(items, id: \.id) { item in
-                NavigationLink(destination: DetailView(gameId: item.id)) {
-                    GameListCard(
-                        item: item,
-                        isFavorite: favoriteManager.isFavorite(itemId: item.id),
-                        onToggleFavorite: {
-                            favoriteManager.toggleFavorite(item: item)
-                        }
-                    )
-                }
-                .buttonStyle(.plain)
+        // 필터 변경 시 ViewModel에 적용
+        .onChange(of: selectedPlatform) { _ in applyFilters() }
+        .onChange(of: selectedGenre) { newGenre in
+            // [추가] 장르 변경 시 서버에서 해당 장르 데이터 로드
+            viewModel.prepareGenreLoading(newGenre)
+            Task {
+                await viewModel.loadGamesForGenre(newGenre)
             }
+            applyFilters()
         }
-        .padding(.horizontal)
-        .animation(nil, value: items.map { $0.id })
-    }
-}
-
-// MARK: - Empty Filter Result View
-struct EmptyFilterResultView: View {
-    let platform: PlatformFilterType
-    let genre: GenreFilterType
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 60))
-                .foregroundColor(.gray)
-
-            Text("검색 결과가 없습니다")
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-
-            Text(suggestionText)
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 80)
+        .onChange(of: searchText) { _ in applyFilters() }
+        .onChange(of: advancedFilterState) { _ in applyFilters() }
+        .onChange(of: viewModel.discoverItems) { _ in applyFilters() }
+        .onChange(of: viewModel.trendingItems) { _ in applyFilters() }
+        .onChange(of: viewModel.newReleaseItems) { _ in applyFilters() }
+        .onChange(of: viewModel.searchItems) { _ in applyFilters() }
+        .onChange(of: viewModel.genreItems) { _ in applyFilters() }  // [추가] 장르 데이터 변경 감지
     }
 
-    private var suggestionText: String {
-        if platform != .all && genre != .all {
-            return "\(platform.rawValue)에서 \(genre.displayName) 장르의 게임을 찾지 못했습니다.\n다른 조합을 시도해보세요."
-        } else if platform != .all {
-            return "\(platform.rawValue) 플랫폼의 게임을 찾지 못했습니다."
-        } else if genre != .all {
-            return "\(genre.displayName) 장르의 게임을 찾지 못했습니다."
+    // MARK: - Private Methods
+
+    /// [수정] 중복 onAppear 통합 - 데이터 로드 + 홈화면 검색 요청 처리
+    private func handleOnAppear() {
+        // 데이터 로드
+        if viewModel.discoverItems.isEmpty {
+            Task { await viewModel.loadAllGames() }
         }
-        return "다른 검색어를 시도해보세요."
+        // 홈화면에서 검색 요청 시 처리
+        if openSearchRequested {
+            isSearchActive = true
+            openSearchRequested = false
+        }
+
+        if let genre = pendingGenre {
+            selectedGenre = GenreFilterType.from(gameGenre: genre)
+            pendingGenre = nil
+        }
+
+        tabBarState.isHidden = false
+        // 초기 필터 적용
+        applyFilters()
     }
-}
 
-// MARK: - Loading View
-struct LoadingView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.5)
-                .tint(.purple)
-
-            Text("게임 정보를 불러오는 중...")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 100)
-    }
-}
-
-// MARK: - Error View
-struct ErrorView: View {
-    let error: Error
-    let retry: () -> Void
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 60))
-                .foregroundColor(.orange)
-
-            Text("데이터를 불러올 수 없습니다")
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-
-            Text(error.localizedDescription)
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            Button(action: retry) {
-                HStack {
-                    Image(systemName: "arrow.clockwise")
-                    Text("다시 시도")
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(Color.purple)
-                .cornerRadius(10)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 100)
+    /// 필터 적용
+    private func applyFilters() {
+        viewModel.applyFilters(
+            platform: selectedPlatform,
+            genre: selectedGenre,
+            searchText: searchText,
+            advancedFilter: advancedFilterState
+        )
     }
 }
 

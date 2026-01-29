@@ -26,9 +26,13 @@ final class RegisterViewModel: ObservableObject {
 
     // MARK: - Input (사용자 입력 필드)
 
+    /// 이메일 입력값입니다.
     @Published var email = ""
+    /// 비밀번호 입력값입니다.
     @Published var password = ""
+    /// 비밀번호 확인 입력값입니다.
     @Published var confirmPassword = ""
+    /// 닉네임 입력값입니다.
     @Published var nickname = ""
 
     // MARK: - UI State 표시용
@@ -38,9 +42,10 @@ final class RegisterViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    /// Auth 도메인 API 호출 담당 서비스
+    /// Auth 도메인 API 호출 담당 서비스입니다.
     private let authService: AuthService
 
+    /// 의존성을 주입해 초기화합니다.
     init(authService: AuthService) {
         self.authService = authService
     }
@@ -66,11 +71,7 @@ final class RegisterViewModel: ObservableObject {
 
     /// 닉네임 규칙 검증 (길이 + 이모지 + 반복문자 체크)
     var isNicknameValid: Bool {
-        let trimmed = nickname.trimmingCharacters(in: .whitespaces)
-        return trimmed.count >= 2 &&
-        trimmed.count <= 12 &&
-        !containsEmoji(trimmed) &&
-        !hasTooManyRepeatingCharacters(trimmed)
+        NicknameValidator.validate(nickname) == .valid
     }
 
     /// 모든 항목이 유효한지 여부 (가입 버튼 활성화 조건)
@@ -93,24 +94,39 @@ final class RegisterViewModel: ObservableObject {
     ///     실패 → Toast로 검증 안내 또는 오류 출력
     @discardableResult
     func register(appViewModel: AppViewModel) async -> FeedbackEvent {
-        // 1. 검증 로직을 별도 함수로 분리하여 복잡도 감소
+        // 1) 로컬 검증: 빠른 피드백 제공
         if let validationError = validateInputs() {
             return validationError
         }
 
-        // 2. 서버 호출 시작
+        // 2) 서버 호출 시작
         isLoading = true
         defer { isLoading = false }
 
         do {
+            let start = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] register START")
+            // 2-1) 닉네임 중복 검사
+            let isAvailable = try await authService.checkNickname(nickname)
+            let afterNickname = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] nickname check done in \(String(format: "%.3f", afterNickname - start))s")
+            if !isAvailable {
+                return FeedbackEvent(.auth, .warning, "이미 사용 중인 닉네임입니다.")
+            }
+
+            // 2-2) 회원가입 요청
             _ = try await authService.register(
                 email: email,
                 password: password,
                 nickname: nickname
             )
+            let afterRegister = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] register network done in \(String(format: "%.3f", afterRegister - afterNickname))s total \(String(format: "%.3f", afterRegister - start))s")
 
             appViewModel.prefilledEmail = email
             appViewModel.state = .signedOut
+            let afterState = CFAbsoluteTimeGetCurrent()
+            print("[RegisterVM] state updated in \(String(format: "%.3f", afterState - afterRegister))s total \(String(format: "%.3f", afterState - start))s")
             return FeedbackEvent(.auth, .success, "회원가입 완료! 로그인해주세요.")
 
         } catch {
@@ -119,49 +135,31 @@ final class RegisterViewModel: ObservableObject {
     }
 
     // MARK: - Validation Helpers
-
-    /// 텍스트에 이모지가 포함되어 있는지 검사합니다.
-    private func containsEmoji(_ text: String) -> Bool {
-        for scalar in text.unicodeScalars {
-            switch scalar.value {
-                case 0x1F600...0x1F64F,
-                    0x1F300...0x1F5FF,
-                    0x1F680...0x1F6FF,
-                    0x2600...0x26FF,
-                    0x2700...0x27BF:
-                    return true
-                default:
-                    continue
-            }
-        }
-        return false
-    }
-
-    /// 동일 문자 반복 여부 검사 (3회 이상)
-    private func hasTooManyRepeatingCharacters(_ text: String) -> Bool {
-        var last: Character?
-        var count = 1
-
-        for char in text {
-            if char == last {
-                count += 1
-                if count >= 3 { return true }
-            } else {
-                count = 1
-                last = char
-            }
-        }
-        return false
-    }
-
     // MARK: - Helper Methods (복잡도 분산)
     private func validateInputs() -> FeedbackEvent? {
         guard !email.isEmpty else { return FeedbackEvent(.auth, .warning, "이메일을 입력해주세요.") }
         guard isEmailValid else { return FeedbackEvent(.auth, .warning, "올바른 이메일 형식이 아닙니다.") }
         guard isPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호는 영문/숫자/특수문자 포함 8자 이상이어야 합니다.") }
         guard isConfirmPasswordValid else { return FeedbackEvent(.auth, .warning, "비밀번호 확인이 일치하지 않습니다.") }
-        guard isNicknameValid else { return FeedbackEvent(.auth, .warning, "닉네임 형식을 확인해주세요.") }
+        if let nicknameError = nicknameValidationError() { return nicknameError }
         return nil
+    }
+
+    private func nicknameValidationError() -> FeedbackEvent? {
+        switch NicknameValidator.validate(nickname) {
+            case .valid:
+                return nil
+            case .empty:
+                return FeedbackEvent(.auth, .warning, "닉네임을 입력해주세요.")
+            case .length:
+                return FeedbackEvent(.auth, .warning, "닉네임은 2~12자로 입력해주세요.")
+            case .emoji:
+                return FeedbackEvent(.auth, .warning, "닉네임에는 이모지를 사용할 수 없습니다.")
+            case .repeating:
+                return FeedbackEvent(.auth, .warning, "동일 문자는 3회 이상 반복할 수 없습니다.")
+            case .numericOnly:
+                return FeedbackEvent(.auth, .warning, "닉네임은 숫자만 사용할 수 없습니다.")
+        }
     }
 
     /// 에러 처리 로직만 담당 (복잡도 분리)
@@ -174,6 +172,7 @@ final class RegisterViewModel: ObservableObject {
             case .validation(let message): return FeedbackEvent(.auth, .warning, message)
             case .network: return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
             case .server: return FeedbackEvent(.auth, .error, "서버 오류가 발생했습니다.")
+            case .conflict(let field): return FeedbackEvent(.auth, .warning, "\(field)이 이미 사용 중입니다.")
             default: return FeedbackEvent(.auth, .error, "회원가입 중 오류가 발생했습니다.")
         }
     }

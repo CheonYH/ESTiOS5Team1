@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 앱 시작 시 로딩 상태를 보여주는 스플래시 화면입니다.
 struct SplashView: View {
     var body: some View {
         ProgressView("로그인 확인 중...")

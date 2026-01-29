@@ -16,7 +16,7 @@ import SwiftUI
 struct LoginHeader: View {
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Spacing.pv10) {
 
             Image(systemName: "gamecontroller.fill")
                 .resizable()
@@ -25,31 +25,31 @@ struct LoginHeader: View {
                 .frame(width: 44, height: 44)
 
             Text("GameCompass")
-                .font(.system(size: 48))
+                .font(.largeTitle)
                 .bold()
                 .foregroundStyle(.white)
 
             Text("게임 리뷰·추천·정보를 한 곳에서")
-                .font(.title3)
+                .font(.headline)
                 .bold()
                 .foregroundStyle(.gray)
         }
         .frame(maxWidth: .infinity)
 
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Spacing.pv10) {
             Text("환영합니다")
                 .font(.largeTitle)
                 .bold()
                 .foregroundStyle(.white)
 
             Text("로그인하고 당신만의 여정을 시작하세요")
-                .font(.title3)
+                .font(.headline)
                 .bold()
                 .foregroundStyle(.gray)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.white)
-        .padding(10)
+        .padding(Spacing.pv10)
     }
 }
 
