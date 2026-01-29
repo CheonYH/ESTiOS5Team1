@@ -25,7 +25,7 @@ struct Review: View {
         _rating = State(initialValue: initialRating)
         _content = State(initialValue: initialContent)
     }
-    
+
     var body: some View {
         VStack {
             Text("평가 남기기")

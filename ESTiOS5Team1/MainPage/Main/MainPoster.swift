@@ -11,7 +11,7 @@ import Kingfisher
 struct MainPoster: View {
     let item: GameListItem
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             if let coverURL = item.coverURL {
