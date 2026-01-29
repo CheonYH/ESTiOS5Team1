@@ -15,6 +15,7 @@ struct ReviewSection: View {
     @State private var isEditingMyReview = false
     @EnvironmentObject private var toastManager: ToastManager
     @State private var keyboardHeight: CGFloat = 0
+    @State private var showAll: Bool = false
     
     private var myReview: ReviewResponse? {
         viewModel.myReviews.first(where: { $0.gameId == gameId })
@@ -28,15 +29,22 @@ struct ReviewSection: View {
         let filtered = viewModel.reviews.filter { $0.id != myReview?.id }
         return Array(filtered.prefix(3))
     }
-
+    private var reviewList: [ReviewResponse] {
+        Array(viewModel.reviews)
+    }
     var body: some View {
         ScrollViewReader { proxy in
             VStack(alignment: .leading) {
+                TitleBox(title: "리뷰", showsSeeAll: true, onSeeAllTap: { showAll = true })
+                
+                // 리스트(최신 3개)
+                ForEach(latestThree) { review in
+                    ReviewCellServer(review: review)
+                }
+                
                 if let myReview {
                     if !isEditingMyReview {
-                        Text("내 리뷰")
-                            .font(.headline)
-                            .foregroundStyle(.textPrimary)
+                        TitleBox(title: "내 리뷰", onSeeAllTap: nil)
 
                         ReviewCellServer(review: myReview)
                     }
@@ -119,10 +127,7 @@ struct ReviewSection: View {
                         .foregroundStyle(.red)
                 }
                 
-                // 리스트(최신 3개)
-                ForEach(latestThree) { review in
-                    ReviewCellServer(review: review)
-                }
+               
             }
             .padding(.bottom, isEditingOrCreating ? keyboardHeight : 0)
             .onChange(of: isEditingOrCreating) { _, isEditing in
@@ -153,7 +158,19 @@ struct ReviewSection: View {
             await viewModel.loadStats()
             await viewModel.loadMine()
         }
-
+        .navigationDestination(isPresented: $showAll) {
+            ZStack {
+                Color.BG.ignoresSafeArea()
+                
+                ScrollView {
+                    ForEach(reviewList) { review in
+                        ReviewCellServer(review: review)
+                    }
+                }
+            }
+        }
+        
+        
     }
 }
 

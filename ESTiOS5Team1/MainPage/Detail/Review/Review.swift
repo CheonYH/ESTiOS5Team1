@@ -38,7 +38,7 @@ struct Review: View {
                 .lineLimit(3...8)
                 .focused($focused)
                 .padding(5)
-                .foregroundStyle(.white)
+                .foregroundStyle(.textPrimary)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
@@ -61,7 +61,7 @@ struct Review: View {
                 } label: {
                     Text(submitTitle)
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.textPrimary)
                         .padding(.vertical)
                         .padding(.horizontal, 25)
                         .background(.purplePrimary, in: RoundedRectangle(cornerRadius: 6))
