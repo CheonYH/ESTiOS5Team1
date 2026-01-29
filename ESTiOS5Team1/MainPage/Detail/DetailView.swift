@@ -14,7 +14,7 @@ struct DetailView: View {
     @State var rating: Double = 4
     @StateObject private var viewModel: GameDetailViewModel
     @EnvironmentObject var tabBarState: TabBarState
-
+    @State var showRoot: Bool = false
     init(gameId: Int) {
         self.gameId = gameId
         self._viewModel = StateObject(wrappedValue: GameDetailViewModel(gameId: gameId))
@@ -119,7 +119,7 @@ struct DetailView: View {
         }
     }
 
-    private func infoLink(label: String, url: URL) -> some View {
+    private func infoLink(label: String, title: String, url: URL) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Text(label)
                 .foregroundStyle(.gray.opacity(0.7))
