@@ -7,6 +7,70 @@
 
 import SwiftUI
 
+// 말풍선 모양을 커스텀하기 위한 Shape
+// 네 모서리의 라운드 정도를 각각 지정해서, 좌/우 말풍선 느낌을 만들 수 있다.
+struct ChatBubbleShape: Shape {
+    var topLeft: CGFloat
+    var topRight: CGFloat
+    var bottomLeft: CGFloat
+    var bottomRight: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let tl = min(min(topLeft, rect.width / 2), rect.height / 2)
+        let tr = min(min(topRight, rect.width / 2), rect.height / 2)
+        let bl = min(min(bottomLeft, rect.width / 2), rect.height / 2)
+        let br = min(min(bottomRight, rect.width / 2), rect.height / 2)
+
+        var p = Path()
+        p.move(to: CGPoint(x: rect.minX + tl, y: rect.minY))
+
+        p.addLine(to: CGPoint(x: rect.maxX - tr, y: rect.minY))
+        p.addArc(
+            center: CGPoint(x: rect.maxX - tr, y: rect.minY + tr),
+            radius: tr,
+            startAngle: .degrees(-90),
+            endAngle: .degrees(0),
+            clockwise: false
+        )
+
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - br))
+        p.addArc(
+            center: CGPoint(x: rect.maxX - br, y: rect.maxY - br),
+            radius: br,
+            startAngle: .degrees(0),
+            endAngle: .degrees(90),
+            clockwise: false
+        )
+
+        p.addLine(to: CGPoint(x: rect.minX + bl, y: rect.maxY))
+        p.addArc(
+            center: CGPoint(x: rect.minX + bl, y: rect.maxY - bl),
+            radius: bl,
+            startAngle: .degrees(90),
+            endAngle: .degrees(180),
+            clockwise: false
+        )
+
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.minY + tl))
+        p.addArc(
+            center: CGPoint(x: rect.minX + tl, y: rect.minY + tl),
+            radius: tl,
+            startAngle: .degrees(180),
+            endAngle: .degrees(270),
+            clockwise: false
+        )
+
+        p.closeSubpath()
+        return p
+    }
+}
+
+// 채팅 한 줄(메시지 하나)을 말풍선 형태로 렌더링한다.
+// 흐름:
+// 1) author(bot/guest)에 따라 좌/우 정렬 결정
+// 2) 메시지 텍스트를 링크/일반 텍스트로 분리(LinkSegmenter)
+// 3) 일반 텍스트는 마크다운 블록 파서(MarkdownBlockView)로 렌더링
+// 4) 링크는 Link 버튼 형태로 렌더링
 struct MessageBubbleView: View {
     let message: ChatMessage
 
@@ -15,6 +79,28 @@ struct MessageBubbleView: View {
         formatter.dateFormat = "yyyy.MM.dd HH:mm"
         return formatter
     }()
+
+    private let botAvatarSize: CGFloat = 25
+    private let botAvatarTextSpacing: CGFloat = 10
+
+    private var botAvatarCircle: some View {
+        Circle()
+            .fill(Color.pink.opacity(0.95))
+            .frame(width: botAvatarSize, height: botAvatarSize)
+            .overlay {
+                Circle()
+                    .stroke(Color.black.opacity(0.65), lineWidth: 7)
+            }
+    }
+
+    private var bubbleClipShape: ChatBubbleShape {
+        if message.author == .bot {
+            // bot(좌측): 좌하단만 각지게
+            return ChatBubbleShape(topLeft: 16, topRight: 16, bottomLeft: 0, bottomRight: 16)
+        }
+        // guest(우측): 우하단만 각지게
+        return ChatBubbleShape(topLeft: 16, topRight: 16, bottomLeft: 16, bottomRight: 0)
+    }
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
@@ -30,14 +116,38 @@ struct MessageBubbleView: View {
     }
 
     private var bubbleWithTimestamp: some View {
-        let stackAlignment: HorizontalAlignment = (message.author == .bot) ? .leading : .trailing
+        let timestampText = Text(Self.timestampFormatter.string(from: message.createdAt))
+            .font(.caption2)
+            .foregroundStyle(.secondary)
 
-        return VStack(alignment: stackAlignment, spacing: 4) {
-            bubble
-            Text(Self.timestampFormatter.string(from: message.createdAt))
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+        if message.author == .bot {
+            return AnyView(
+                VStack(alignment: .leading, spacing: 6) {
+                    // 이름 라벨과 아바타를 말풍선 위쪽에 배치한다.
+                    // 아바타는 overlay로 얹어서 말풍선 위에 살짝 겹치도록 처리한다.
+                    Text("채팅봇")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                        .padding(.leading, botAvatarSize + botAvatarTextSpacing)
+                        .offset(x: -8, y: 12)
+
+                    bubble
+                        .overlay(alignment: .topLeading) {
+                            botAvatarCircle
+                                .offset(x: 0, y: -17)
+                        }
+
+                    timestampText
+                }
+            )
         }
+
+        return AnyView(
+            VStack(alignment: .trailing, spacing: 4) {
+                bubble
+                timestampText
+            }
+        )
     }
 
     private var bubble: some View {
@@ -50,6 +160,7 @@ struct MessageBubbleView: View {
                 ForEach(segments) { segment in
                     switch segment.kind {
                     case .text(let value):
+                        // 서버 응답에 출처 표기 등이 섞일 수 있어 표시 전에 한 번 더 정리한다.
                         let cleaned = TextCleaner.stripSourceMarkers(value)
                         if cleaned.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
                             MarkdownBlockView(text: cleaned)
@@ -81,7 +192,11 @@ struct MessageBubbleView: View {
         }
         .padding(14)
         .background(bubbleBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(bubbleClipShape)
+        .overlay {
+            bubbleClipShape
+                .stroke(Color.white.opacity(0.10), lineWidth: 1)
+        }
         .shadow(radius: 0.7, y: 0.7)
         .frame(maxWidth: 520, alignment: bubbleAlignment)
     }
@@ -97,6 +212,8 @@ struct MessageBubbleView: View {
     }
 }
 
+// 답변 생성 중 표시하는 타이핑 버블
+// 일정 주기로 점이 바뀌면서 입력 중인 느낌을 만든다.
 struct TypingBubbleView: View {
     @State private var phase = 0
     @State private var timer: Timer?
@@ -132,7 +249,7 @@ struct TypingBubbleView: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(Color.white.opacity(0.10), lineWidth: 1)
         }
-        .accessibilityLabel("Bot is typing")
+        .accessibilityLabel("챗봇이 입력 중")
     }
 
     private struct Dot: View {
@@ -147,6 +264,8 @@ struct TypingBubbleView: View {
     }
 }
 
+// 마크다운의 아주 단순한 형태(헤딩/불릿/일반 텍스트)만 처리한다.
+// SwiftUI의 Text(.init(markdown))을 사용하되, 줄 단위로 블록을 나눠서 레이아웃을 예측 가능하게 만든다.
 struct MarkdownBlockView: View {
     let text: String
 

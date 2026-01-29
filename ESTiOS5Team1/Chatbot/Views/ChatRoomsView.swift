@@ -16,51 +16,45 @@ struct ChatRoomsView: View {
             List {
                 Section {
                     roomRow(
-                        title: roomsViewModel.defaultRoom.title,
-                        subtitle: "Current conversation",
-                        isSelected: roomsViewModel.selectedRoomIds.contains(roomsViewModel.defaultRoom.identifier),
+                        room: roomsViewModel.defaultRoom,
+                        subtitle: "현재 대화중인 내용",
+                        isChecked: roomsViewModel.selectedRoomIds.contains(roomsViewModel.defaultRoom.identifier),
                         isEditing: roomsViewModel.isEditing
                     ) {
-                        if roomsViewModel.isEditing {
-                            roomsViewModel.toggleSelected(room: roomsViewModel.defaultRoom)
-                        } else {
-                            roomsViewModel.select(room: roomsViewModel.defaultRoom)
-                            onSelectRoom(roomsViewModel.defaultRoom)
-                        }
+                        handleTap(room: roomsViewModel.defaultRoom)
                     }
                 } header: {
-                    Text("New Chat")
+                    Text("새로운 대화")
                 }
 
                 Section {
                     ForEach(roomsViewModel.rooms.filter { $0.isDefaultRoom == false }) { room in
                         roomRow(
-                            title: room.title,
+                            room: room,
                             subtitle: room.updatedAt.formatted(date: .abbreviated, time: .shortened),
-                            isSelected: roomsViewModel.selectedRoomIds.contains(room.identifier),
+                            isChecked: roomsViewModel.selectedRoomIds.contains(room.identifier),
                             isEditing: roomsViewModel.isEditing
                         ) {
-                            if roomsViewModel.isEditing {
-                                roomsViewModel.toggleSelected(room: room)
-                            } else {
-                                roomsViewModel.select(room: room)
-                                onSelectRoom(room)
-                            }
+                            handleTap(room: room)
                         }
                     }
                 } header: {
-                    Text("Archive")
+                    Text("저장된 대화")
                 }
             }
-            .navigationTitle("Chats")
+            .navigationTitle("내 채팅목록")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        Task { await roomsViewModel.startNewConversation() }
+                        Task {
+                            await roomsViewModel.startNewConversation()
+                            roomsViewModel.select(room: roomsViewModel.defaultRoom)
+                            onSelectRoom(roomsViewModel.defaultRoom)
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
-                    .accessibilityLabel("Start new chat")
+                    .accessibilityLabel("새 채팅 시작")
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -70,6 +64,8 @@ struct ChatRoomsView: View {
                                 Task { await roomsViewModel.deleteSelectedRooms() }
                             } label: {
                                 Image(systemName: "trash")
+                                    .frame(width: 44, alignment: .center)
+                                    .foregroundStyle(Color(.systemRed))
                             }
                             .disabled(roomsViewModel.selectedRoomIds.isEmpty)
                         }
@@ -77,7 +73,7 @@ struct ChatRoomsView: View {
                         Button {
                             roomsViewModel.toggleEditing()
                         } label: {
-                            Text(roomsViewModel.isEditing ? "Done" : "Edit")
+                            Text(roomsViewModel.isEditing ? "확인" : "편집")
                         }
                     }
                 }
@@ -88,27 +84,37 @@ struct ChatRoomsView: View {
         }
     }
 
+    private func handleTap(room: ChatRoom) {
+        if roomsViewModel.isEditing {
+            roomsViewModel.toggleSelected(room: room)
+            return
+        }
+
+        roomsViewModel.select(room: room)
+        onSelectRoom(room)
+    }
+
     @ViewBuilder
     private func roomRow(
-        title: String,
+        room: ChatRoom,
         subtitle: String,
-        isSelected: Bool,
+        isChecked: Bool,
         isEditing: Bool,
         onTap: @escaping () -> Void
     ) -> some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
                 if isEditing {
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
                         .imageScale(.large)
-                        .foregroundStyle(isSelected ? .blue : .secondary)
+                        .foregroundStyle(isChecked ? .blue : .secondary)
                 } else {
                     Image(systemName: "bubble.left.and.bubble.right")
                         .foregroundStyle(.secondary)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
+                    Text(room.title)
                         .font(.headline)
                         .lineLimit(1)
 
@@ -126,6 +132,7 @@ struct ChatRoomsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .padding(.vertical, 6)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
