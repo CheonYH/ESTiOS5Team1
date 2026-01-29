@@ -11,17 +11,23 @@ import Kingfisher
 struct MainPoster: View {
     let item: GameListItem
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            KFImage(item.coverURL)
-                .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 600, height: 333)))
-                .placeholder { Color.gray.opacity(0.3) }
-                .resizable()
-                .scaledToFill()
-                .frame(height: 400)
-                .clipped()
-                .padding(.top, 20)
+            if let coverURL = item.coverURL {
+                KFImage(coverURL)
+                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 600, height: 333)))
+                    .placeholder { GameListCardPlaceholder() }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 400)
+                    .clipped()
+                    .padding(.top, 20)
+            } else {
+                GameListCardPlaceholder()
+                    .frame(height: 400)
+                    .padding(.top, 20)
+            }
 
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
@@ -56,9 +62,7 @@ struct MainPoster: View {
                 }
 
                 HStack {
-                    Button {
-                        // 플레이 나우 기능
-                    } label: {
+                    NavigationLink(destination: DetailView(gameId: item.id)) {
                         Label("게임 정보 확인", systemImage: "play.fill")
                             .font(.headline)
                             .foregroundStyle(.textPrimary)

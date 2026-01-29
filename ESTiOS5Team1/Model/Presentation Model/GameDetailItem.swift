@@ -104,7 +104,7 @@ extension GameDetailItem {
         self.ratingText = averageRating == 0 ? "0/5" : String(format: "%.1f/5", averageRating)
 
         self.metaScore = detail.metaScore
-            .map { String(format: "%.1f", $0 / 20.0) } ?? "N/A"
+            .map { String(format: "%.0f", $0) } ?? "N/A"
 
         self.releaseYear = detail.releaseYear
             .map { "\($0)" } ?? "–"

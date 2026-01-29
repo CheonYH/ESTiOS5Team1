@@ -14,7 +14,7 @@ struct DetailView: View {
     @State var rating: Double = 4
     @StateObject private var viewModel: GameDetailViewModel
     @EnvironmentObject var tabBarState: TabBarState
-
+    @State var showRoot: Bool = false
     init(gameId: Int) {
         self.gameId = gameId
         self._viewModel = StateObject(wrappedValue: GameDetailViewModel(gameId: gameId))
@@ -24,7 +24,7 @@ struct DetailView: View {
         ZStack {
             Color.black
                 .ignoresSafeArea()
-            VStack(spacing: 16) {
+            VStack(alignment: .leading ,spacing: 16) {
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
@@ -38,14 +38,15 @@ struct DetailView: View {
                             infoRow(label: "출시년도", value: item.releaseYear)
 
                             if let website = item.officialWebsite {
-                                infoLink(label: "공식 사이트", url: website)
+                                infoLink(label: "공식 사이트", title: "홈페이지로 이동",url: website)
                             }
 
                             let visibleStores = item.stores.filter { $0.name.lowercased() != "unknown" }
                             if !visibleStores.isEmpty {
-                                VStack(alignment: .leading, spacing: 6) {
+                                HStack(alignment: .top, spacing: 8) {
                                     Text("스토어")
                                         .foregroundStyle(.gray.opacity(0.7))
+                                        .frame(width: 80, alignment: .leading)
                                     ForEach(visibleStores) { store in
                                         Link(store.name, destination: store.url)
                                             .foregroundStyle(.purplePrimary)
@@ -53,7 +54,7 @@ struct DetailView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, Spacing.pv10)
                         .padding(.vertical, 12)
 
                         if let trailer = item.trailers.first {
@@ -66,6 +67,8 @@ struct DetailView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 24)
                         }
+                        
+                        GoChatBotBox(showRoot: $showRoot)
 
                         ReviewSection(gameId: item.id)
                     } else if viewModel.isLoading {
@@ -77,13 +80,16 @@ struct DetailView: View {
                     }
                 }
                 .scrollIndicators(.hidden)
+
             }
         }
         .task {
             await viewModel.load()
         }
+        .navigationDestination(isPresented: $showRoot) {
+            RootTabView()
+        }
         .onAppear { tabBarState.isHidden = true }
-        .onDisappear { tabBarState.isHidden = false }
         .toolbar {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 4) {
@@ -113,14 +119,15 @@ struct DetailView: View {
         }
     }
 
-    private func infoLink(label: String, url: URL) -> some View {
+    private func infoLink(label: String, title: String, url: URL) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Text(label)
                 .foregroundStyle(.gray.opacity(0.7))
                 .frame(width: 80, alignment: .leading)
-            Link(url.absoluteString, destination: url)
+            Link(title, destination: url)
                 .foregroundStyle(.purplePrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
         }
     }
 

@@ -22,7 +22,8 @@ struct SearchView: View {
 
     @StateObject private var viewModel: SearchViewModel
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    @EnvironmentObject var tabBarState: TabBarState
+    
     @Binding var openSearchRequested: Bool
     @Binding var pendingGenre: GameGenreModel?
     // [추가] 탭 전환 시 검색 상태 초기화용
@@ -178,7 +179,8 @@ struct SearchView: View {
             selectedGenre = GenreFilterType.from(gameGenre: genre)
             pendingGenre = nil
         }
-
+        
+        tabBarState.isHidden = false
         // 초기 필터 적용
         applyFilters()
     }

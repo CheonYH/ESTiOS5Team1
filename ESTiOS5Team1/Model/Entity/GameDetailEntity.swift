@@ -72,7 +72,8 @@ extension GameDetailEntity {
 
         self.summary = gameListDTO.summary
         self.storyline = gameListDTO.storyline
-        self.metaScore = gameListDTO.aggregatedRating
+        // aggregated_rating가 없으면 rating을 보조 값으로 사용합니다.
+        self.metaScore = gameListDTO.aggregatedRating ?? gameListDTO.rating
 
         self.releaseYear = Self.latestReleaseYear(from: gameListDTO)
 
@@ -100,7 +101,8 @@ private extension GameDetailEntity {
     /// 커버 이미지 URL을 생성합니다.
     static func makeCoverURL(from dto: IGDBGameListDTO) -> URL? {
         guard let imageID = dto.cover?.imageID else { return nil }
-        return makeIGDBImageURL(imageID: imageID)
+        // 상세 화면은 큰 사이즈 사용
+        return makeIGDBImageURL(imageID: imageID, size: .coverBig)
     }
 
     /// 최신 출시 연도를 추출합니다.
