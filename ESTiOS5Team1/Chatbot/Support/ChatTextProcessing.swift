@@ -218,7 +218,7 @@ enum TextCleaner {
 
         let looksLikeObject = t.first == "{" && t.last == "}"
         let looksLikeArray = t.first == "[" && t.last == "]"
-        guard looksLikeObject || looksLikeArray else  { return nil }
+        guard looksLikeObject || looksLikeArray else { return nil }
 
         guard let data = t.data(using: .utf8) else { return nil }
 

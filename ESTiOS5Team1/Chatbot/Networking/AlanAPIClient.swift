@@ -10,9 +10,6 @@ import Foundation
 struct AlanAPIClient {
     struct Configuration: Sendable {
         let baseUrl: URL
-        init(baseUrl: URL) {
-            self.baseUrl = baseUrl
-        }
     }
 
     enum AlanAPIError: LocalizedError {

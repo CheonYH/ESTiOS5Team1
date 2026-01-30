@@ -16,6 +16,7 @@ struct ProfileTestView: View {
     @State private var selectedImageData: Data?
 
     var body: some View {
+
         VStack(spacing: 16) {
             Text("Profile Test")
                 .font(.title2)
@@ -78,7 +79,7 @@ struct ProfileTestView: View {
                 Text("id: \(profile.id)")
                 Text("userId: \(profile.userId)")
                 Text("nickname: \(profile.nickname)")
-                Text("avatarUrl: \(profile.avatarUrl)")
+                Text("avatarUrl: \(profile.avatarUrl ?? "")")
             }
 
             if !vm.errorMessage.isEmpty {

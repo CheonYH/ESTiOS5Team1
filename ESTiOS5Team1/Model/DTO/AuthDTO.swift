@@ -36,7 +36,8 @@ struct LoginRequest: Codable, Hashable {
 /// ```json
 /// {
 ///   "access": "<JWT Access Token>",
-///   "refresh": "<Refresh Token>"
+///   "refresh": "<Refresh Token>",
+///   "onboardingCompleted": false
 /// }
 /// ```
 ///
@@ -58,10 +59,13 @@ struct LoginResponse: Codable, Hashable {
     let accessToken: String
     /// Refresh 토큰입니다. (없을 수 있음)
     let refreshToken: String?
+    /// 온보딩 완료 여부입니다. (없을 수 있음)
+    let onboardingCompleted: Bool?
 
     enum CodingKeys: String, CodingKey {
         case accessToken = "access"
         case refreshToken = "refresh"
+        case onboardingCompleted
     }
 }
 
@@ -196,4 +200,8 @@ struct NicknameCheckRequest: Codable {
 struct NicknameCheckResponse: Decodable {
     /// 사용 가능 여부입니다.
     let available: Bool
+}
+
+struct UpdateNicknameRequest: Codable {
+    let nickName: String
 }
