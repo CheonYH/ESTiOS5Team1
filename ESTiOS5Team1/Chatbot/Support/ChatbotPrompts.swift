@@ -9,12 +9,10 @@ import Foundation
 
 enum ChatbotPrompts {
 
-    // Intent 라벨을 문자열로 직접 비교하지 않고 enum으로 다룬다.
-    // 모델 출력은 결국 문자열이지만, 앱 내부에서는 enum으로 변환해 사용하는 편이 안전하다.
+    // Intent 라벨을 문자열로 직접 비교하지 않고 enum으로 다룬다. 모델 출력은 결국 문자열이지만, 앱 내부에서는 enum으로 변환해 사용하는 편이 안전하다.
     typealias Intent = GameIntentLabel
 
     // 시스템 프롬프트는 "게임 관련만 답변"을 강하게 고정한다.
-    // 서버가 이 프롬프트를 그대로 쓰는 구조라면, 여기서 범위/톤을 일관되게 유지하는 게 중요하다.
     static let systemPrompt: String = """
     You are a specialized Game Assistant called "게임봇".
     You are focused exclusively on video games.
@@ -35,7 +33,6 @@ enum ChatbotPrompts {
     """
 
     // 기본적으로 서버에 보내는 메시지 포맷을 한 군데에서 관리한다.
-    // ViewModel에서 문자열을 대충 붙이면, 형식이 흐트러져 서버 측 파싱이 깨지기 쉽다.
     static func buildUserMessage(intent: Intent, userText: String) -> String {
         let cleanedUserText = userText.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -49,7 +46,7 @@ enum ChatbotPrompts {
     }
 
     // 대화 요약을 함께 보내야 하는 구조라면 이 포맷을 사용한다.
-    // GET만 받는 구조에서는 길이 제한에 걸릴 수 있으니, contextSummary는 ViewModel에서 길이를 제한하는 편이 안전하다.
+    // GET만 받는 구조에서는 길이 제한에 걸릴 수 있으니, 길이를 제한한다.
     static func buildUserMessage(intent: Intent, userText: String, contextSummary: String) -> String {
         let cleanedUserText = userText.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanedSummary = contextSummary.trimmingCharacters(in: .whitespacesAndNewlines)
