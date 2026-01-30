@@ -94,7 +94,6 @@ final class ChatRoomViewModel: ObservableObject {
             break
 
         case .blockNonGame(_, let reply):
-            // 생각하는척 시뮬레이션해서(1-2초 사이 랜덤값 설정) 실제 AI대화랑 갭이 적게 느껴지도록 처리
             await simulatedGateReplyDelay()
 
             let botMessage = ChatMessage(author: .bot, text: reply)
@@ -103,19 +102,6 @@ final class ChatRoomViewModel: ObservableObject {
             await store.touchRoomUpdatedAt(roomIdentifier: room.identifier)
             return
         }
-
-//        if let prediction = secondPassClassifier.predictLabel(text: trimmedText),
-//           prediction.label == secondPassNonGameLabel,
-//           prediction.confidence >= secondPassConfidenceThreshold {
-//
-//            await simulatedGateReplyDelay()
-//
-//            let botMessage = ChatMessage(author: .bot, text: reply)
-//            messages.append(botMessage)
-//            await store.saveMessages(messages, roomIdentifier: room.identifier)
-//            await store.touchRoomUpdatedAt(roomIdentifier: room.identifier)
-//            return
-//        }
 
         // 2) 설정 로드 (Preview override가 있으면 우선)
         let settings = AppSettings.load()
