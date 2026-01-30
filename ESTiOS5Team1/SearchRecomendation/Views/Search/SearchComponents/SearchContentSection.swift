@@ -25,30 +25,22 @@ struct SearchContentSection: View {
 
     private var isInitialLoading: Bool {
         if isRemoteSearchActive {
-            return viewModel.isSearching && viewModel.searchItems.isEmpty
+            return viewModel.isSearching && viewModel.filteredItems.isEmpty
         }
         // [수정] 장르 로딩 상태도 포함
         if selectedGenre != .all {
-            return viewModel.isGenreLoading && viewModel.genreItems.isEmpty
+            return viewModel.isGenreLoading && viewModel.filteredItems.isEmpty
         }
-        return viewModel.isLoading && viewModel.discoverItems.isEmpty
+        return viewModel.isLoading && viewModel.filteredItems.isEmpty
     }
 
     private var currentError: Error? {
-        if isRemoteSearchActive {
-            return viewModel.searchError
-        }
+        // [리팩토링] 통합된 error 속성 사용
         return viewModel.error
     }
 
     private var isLoadingMoreVisible: Bool {
-        if isRemoteSearchActive {
-            return viewModel.isSearchLoadingMore
-        }
-        // [수정] 장르 로딩 상태도 포함
-        if selectedGenre != .all {
-            return viewModel.isGenreLoadingMore
-        }
+        // [리팩토링] 통합된 isLoadingMore 속성 사용
         return viewModel.isLoadingMore
     }
 
@@ -123,12 +115,9 @@ struct SearchContentSection: View {
     private var gameGridView: some View {
         VStack(spacing: 0) {
             GameGridView(items: viewModel.filteredItems) {
+                // [리팩토링] 통합된 loadNextPage() 메서드 사용
                 Task {
-                    if isRemoteSearchActive {
-                        await viewModel.loadNextSearchPage()
-                    } else {
-                        await viewModel.loadNext(for: advancedFilterState.category)
-                    }
+                    await viewModel.loadNextPage()
                 }
             }
 

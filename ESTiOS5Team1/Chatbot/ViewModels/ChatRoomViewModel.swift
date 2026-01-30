@@ -104,18 +104,18 @@ final class ChatRoomViewModel: ObservableObject {
             return
         }
 
-        if let prediction = secondPassClassifier.predictLabel(text: trimmedText),
-           prediction.label == secondPassNonGameLabel,
-           prediction.confidence >= secondPassConfidenceThreshold {
-
-            await simulatedGateReplyDelay()
-
-            let botMessage = ChatMessage(author: .bot, text: reply)
-            messages.append(botMessage)
-            await store.saveMessages(messages, roomIdentifier: room.identifier)
-            await store.touchRoomUpdatedAt(roomIdentifier: room.identifier)
-            return
-        }
+//        if let prediction = secondPassClassifier.predictLabel(text: trimmedText),
+//           prediction.label == secondPassNonGameLabel,
+//           prediction.confidence >= secondPassConfidenceThreshold {
+//
+//            await simulatedGateReplyDelay()
+//
+//            let botMessage = ChatMessage(author: .bot, text: reply)
+//            messages.append(botMessage)
+//            await store.saveMessages(messages, roomIdentifier: room.identifier)
+//            await store.touchRoomUpdatedAt(roomIdentifier: room.identifier)
+//            return
+//        }
 
         // 2) 설정 로드 (Preview override가 있으면 우선)
         let settings = AppSettings.load()
