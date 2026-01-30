@@ -20,10 +20,11 @@ struct DetailInfoBox: View {
                     GameListCardPlaceholder()
                 }
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
                 .frame(height: 400)
                 .clipped()
                 .cornerRadius(Radius.card)
+            // frame을 수로 고정하면 기기에 따라 크기가 고정되어버림
         } else {
             GameListCardPlaceholder()
                 .frame(height: 400)
@@ -32,28 +33,30 @@ struct DetailInfoBox: View {
 
         VStack(alignment: .leading) {
             HStack {
-                if let coverURL = item.coverURL {
-                    KFImage(coverURL)
-                        .cacheOriginalImage()
-                        .loadDiskFileSynchronously()
-                        .placeholder {
-                            GameListCardPlaceholder()
-                        }
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 130)
-                        .clipped()
-                        .cornerRadius(Radius.cr8)
-                } else {
-                    GameListCardPlaceholder()
-                        .frame(width: 100, height: 130)
-                        .cornerRadius(Radius.cr8)
-                }
+//                if let coverURL = item.coverURL {
+//                    KFImage(coverURL)
+//                        .cacheOriginalImage()
+//                        .loadDiskFileSynchronously()
+//                        .placeholder {
+//                            GameListCardPlaceholder()
+//                        }
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(height: 130)
+//                        .clipped()
+//                        .cornerRadius(Radius.cr8)
+//                } else {
+//                    GameListCardPlaceholder()
+//                        .frame(width: 100, height: 130)
+//                        .cornerRadius(Radius.cr8)
+//                }
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text(item.title)
                         .font(.title2.bold())
-
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7) // 기억
+//리퀴드
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)
                         .foregroundStyle(.pink.opacity(0.75))

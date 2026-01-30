@@ -18,20 +18,19 @@ struct CustomNavigationHeader: View {
     @Binding var showRoot: Bool
 
     var body: some View {
-        HStack {
-            Button { showRoot = true } label: {
-                Image(systemName: "book")
-
-            }
-
-            Spacer()
-
+        ZStack {
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
-
-            Spacer()
+                .frame(maxWidth: .infinity)
+        }
+        .overlay(alignment: .leading) {
+            Button { showRoot = true } label: {
+                Image(systemName: "book")
+                    .foregroundColor(.white)
+                    .font(.title3)
+            }
         }
         .overlay(alignment: .trailing) {
             if showSearchButton {

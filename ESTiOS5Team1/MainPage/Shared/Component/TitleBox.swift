@@ -22,19 +22,10 @@ struct TitleBox: View {
             if showsSeeAll {
                 Button("모두 보기") {
                     onSeeAllTap?()
-                    // See All 버튼 이동
-                    // trending now와 new Releases에서 사용하니 분류할 것
                 }
                 .font(.title3.bold())
                 .foregroundStyle(.purplePrimary)
             }
         }
-    }
-}
-
-struct ComponentFormat: View {
-
-    var body: some View {
-
     }
 }
