@@ -28,6 +28,9 @@ struct ESTiOS5Team1App: App {
         )
     }
 
+    /// 온보딩 완료 여부 (UserDefaults 기반, 첫 로그인 시에만 온보딩 표시)
+    @State private var hasCompletedOnboarding = !OnboardingData.shouldShowOnboarding()
+
     @ViewBuilder
     var content: some View {
         if !appViewModel.isInitialized {
@@ -41,8 +44,12 @@ struct ESTiOS5Team1App: App {
                     LoginView()
 
                 case .signedIn:
-                     MainTabView()
-                   // LogoutTestView()
+                    // 온보딩 완료 여부에 따라 분기 (UserDefaults에 저장된 값 기준)
+                    if hasCompletedOnboarding {
+                        MainTabView()
+                    } else {
+                        OnboardingView(isOnboardingComplete: $hasCompletedOnboarding)
+                    }
 
                 case .socialNeedsRegister:
                     NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)
