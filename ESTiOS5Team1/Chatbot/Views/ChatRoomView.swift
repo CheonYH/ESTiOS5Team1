@@ -9,10 +9,8 @@ import SwiftUI
 
 struct ChatRoomView: View {
     @StateObject private var roomViewModel: ChatRoomViewModel
-
     @ObservedObject private var roomsViewModel: ChatRoomsViewModel
     @State private var isPresentingRooms = false
-
     @FocusState private var isComposerFocused: Bool
 
     private let bottomAnchorId = "bottom_anchor"
@@ -39,10 +37,23 @@ struct ChatRoomView: View {
             }
             .preferredColorScheme(.dark)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                composerBar
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(Color.clear)
+                VStack(spacing: 0) {
+                    LinearGradient(
+                        stops: [
+                            .init(color: .clear, location: 0.0),
+                            .init(color: .black.opacity(0.8), location: 0.7),
+                            .init(color: .black, location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 44)
+                    .allowsHitTesting(false)
+                    composerBar
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(Color.black)
+                }
             }
             .navigationTitle(roomViewModel.room.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -116,50 +127,49 @@ struct ChatRoomView: View {
     }
 
     private var messagesList: some View {
-        ZStack {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(roomViewModel.messages) { message in
-                            MessageBubbleView(message: message)
-                                .id(message.identifier)
-                        }
-
-                        if roomViewModel.isSending {
-                            TypingBubbleView()
-                                .transition(.opacity)
-                        }
-
-                        if let errorMessage = roomViewModel.errorMessage {
-                            Text(errorMessage)
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Color.clear
-                            .frame(height: 1)
-                            .id(bottomAnchorId)
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(roomViewModel.messages) { message in
+                        MessageBubbleView(message: message)
+                            .id(message.identifier)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.top, 12)
-                    .padding(.bottom, 4)
+
+                    if roomViewModel.isSending {
+                        TypingBubbleView()
+                            .transition(.opacity)
+                    }
+
+                    if let errorMessage = roomViewModel.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Color.clear
+                        .frame(height: 1)
+                        .id(bottomAnchorId)
                 }
-                .scrollDismissesKeyboard(.interactively)
-                .task { scrollToBottom(proxy: proxy, animated: false) }
-                .onChange(of: roomViewModel.messages) { _, _ in
-                    scrollToBottom(proxy: proxy, animated: true)
-                }
-                .onChange(of: roomViewModel.isSending) { _, _ in
-                    scrollToBottom(proxy: proxy, animated: true)
-                }
-                .onChange(of: isComposerFocused) { _, focused in
-                    guard focused else { return }
-                    scrollToBottom(proxy: proxy, animated: true)
+                .padding(.horizontal, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 10)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .overlay {
+                if roomViewModel.messages.isEmpty {
+                    emptyNotice
                 }
             }
-
-            if roomViewModel.messages.isEmpty {
-                emptyNotice
+            .task { scrollToBottom(proxy: proxy, animated: false) }
+            .onChange(of: roomViewModel.messages) { _, _ in
+                scrollToBottom(proxy: proxy, animated: true)
+            }
+            .onChange(of: roomViewModel.isSending) { _, _ in
+                scrollToBottom(proxy: proxy, animated: true)
+            }
+            .onChange(of: isComposerFocused) { _, focused in
+                guard focused else { return }
+                scrollToBottom(proxy: proxy, animated: true)
             }
         }
     }
