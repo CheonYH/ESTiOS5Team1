@@ -1,0 +1,522 @@
+//
+//  SearchViewModel.swift
+//  ESTiOS5Team1
+//
+//  Created by 이찬희 on 1/7/26.
+//
+//  [리팩토링] 팀장님 피드백 반영
+//  - @Published는 View에서 관찰하는 것만 사용
+//  - sub-ViewModel 제거, 직접 서비스 호출
+//  - 프로토콜 기반 설계
+
+import Foundation
+import Combine
+
+// MARK: - SearchViewModel
+
+@MainActor
+final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
+
+    // MARK: - Published Properties (View에서 직접 관찰하는 것만)
+
+    /// 필터링된 게임 목록 (View에서 표시)
+    @Published private(set) var filteredItems: [GameListItem] = []
+
+    /// 로딩 상태 (View에서 로딩 UI 표시)
+    @Published private(set) var isLoading: Bool = false
+
+    /// 에러 상태 (View에서 에러 UI 표시)
+    @Published private(set) var error: Error?
+
+    /// 검색 중 상태 (View에서 검색 로딩 표시)
+    @Published private(set) var isSearching: Bool = false
+
+    /// 장르 로딩 상태 (View에서 장르 변경 시 로딩 표시)
+    @Published private(set) var isGenreLoading: Bool = false
+
+    /// 추가 로딩 상태 (View에서 무한 스크롤 로딩 표시)
+    @Published private(set) var isLoadingMore: Bool = false
+
+    // MARK: - Internal State (View에서 관찰 불필요)
+
+    /// 전체 아이템 (필터링 전)
+    private(set) var allItems: [GameListItem] = []
+
+    // MARK: - Private Properties
+
+    /// 카테고리별 데이터 저장소
+    private var discoverItems: [GameListItem] = []
+    private var trendingItems: [GameListItem] = []
+    private var newReleaseItems: [GameListItem] = []
+    private var searchItems: [GameListItem] = []
+    private var genreItems: [GameListItem] = []
+
+    /// 페이지네이션 오프셋
+    private var discoverOffset: Int = 0
+    private var trendingOffset: Int = 0
+    private var newReleaseOffset: Int = 0
+    private var searchOffset: Int = 0
+    private var genreOffset: Int = 0
+
+    /// 현재 필터 상태
+    private var currentPlatform: PlatformFilterType = .all
+    private var currentGenre: GenreFilterType = .all
+    private var currentSearchText: String = ""
+    private var currentAdvancedFilter: AdvancedFilterState = AdvancedFilterState()
+
+    /// 검색 관련
+    private var lastSearchQuery: String = ""
+
+    /// 장르 관련
+    private var currentLoadedGenre: GenreFilterType = .all
+
+    /// 의존성
+    private let service: GameDataServiceProtocol
+    private let favoriteManager: FavoriteManagerProtocol
+    private let pageSize: Int = 30
+
+    // MARK: - Static Cache
+
+    private static var cachedDiscoverItems: [GameListItem] = []
+    private static var cachedTrendingItems: [GameListItem] = []
+    private static var cachedNewReleaseItems: [GameListItem] = []
+    private static var hasLoadedData: Bool = false
+
+    // MARK: - Initialization
+
+    init(service: GameDataServiceProtocol? = nil, favoriteManager: FavoriteManagerProtocol) {
+        self.service = service ?? IGDBServiceManager()
+        self.favoriteManager = favoriteManager
+    }
+
+    // MARK: - Public Methods (Protocol)
+
+    /// 모든 카테고리 데이터 로드
+    func loadAllGames() async {
+        // 캐시 확인
+        if Self.hasLoadedData {
+            discoverItems = Self.cachedDiscoverItems
+            trendingItems = Self.cachedTrendingItems
+            newReleaseItems = Self.cachedNewReleaseItems
+            updateAllItems()
+            updateFilteredItems()
+            return
+        }
+
+        isLoading = true
+        error = nil
+
+        do {
+            // 병렬 API 호출
+            async let discoverTask = service.fetchGames(
+                query: IGDBQuery.discover,
+                offset: 0,
+                limit: pageSize
+            )
+            async let trendingTask = service.fetchGames(
+                query: IGDBQuery.trendingNow,
+                offset: 0,
+                limit: pageSize
+            )
+            async let newReleaseTask = service.fetchGames(
+                query: IGDBQuery.newReleases,
+                offset: 0,
+                limit: pageSize
+            )
+
+            let (discover, trending, newRelease) = try await (discoverTask, trendingTask, newReleaseTask)
+
+            discoverItems = discover
+            trendingItems = trending
+            newReleaseItems = newRelease
+
+            // 오프셋 업데이트
+            discoverOffset = discover.count
+            trendingOffset = trending.count
+            newReleaseOffset = newRelease.count
+
+            // FavoriteManager 업데이트
+            favoriteManager.updateItems(discover + trending + newRelease)
+
+            // 캐시 저장
+            Self.cachedDiscoverItems = discover
+            Self.cachedTrendingItems = trending
+            Self.cachedNewReleaseItems = newRelease
+            Self.hasLoadedData = true
+
+            updateAllItems()
+            updateFilteredItems()
+
+        } catch {
+            self.error = error
+        }
+
+        isLoading = false
+    }
+
+    /// 강제 새로고침
+    func forceRefresh() async {
+        Self.hasLoadedData = false
+        await loadAllGames()
+    }
+
+    /// 검색 실행
+    func performSearch(query: String) async {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            clearSearchResults()
+            return
+        }
+
+        isSearching = true
+        error = nil
+        lastSearchQuery = trimmed
+        searchOffset = 0
+
+        do {
+            var items = try await service.fetchGames(
+                query: IGDBQuery.search(trimmed),
+                offset: 0,
+                limit: pageSize
+            )
+
+            // 결과 없으면 fallback 검색
+            if items.isEmpty {
+                items = try await service.fetchGames(
+                    query: IGDBQuery.searchFallback(trimmed),
+                    offset: 0,
+                    limit: pageSize
+                )
+            }
+
+            searchItems = items
+            searchOffset = items.count
+            favoriteManager.updateItems(items)
+
+            updateAllItems()
+            updateFilteredItems()
+
+        } catch {
+            self.error = error
+        }
+
+        isSearching = false
+    }
+
+    /// 다음 페이지 로드
+    func loadNextPage() async {
+        // 장르가 선택된 경우
+        if currentGenre != .all {
+            await loadNextGenrePage()
+            return
+        }
+
+        // 검색 중인 경우
+        if !lastSearchQuery.isEmpty {
+            await loadNextSearchPage()
+            return
+        }
+
+        // 카테고리별 로드
+        await loadNextCategoryPage()
+    }
+
+    /// 검색 결과 초기화
+    func clearSearchResults() {
+        searchItems = []
+        lastSearchQuery = ""
+        searchOffset = 0
+        isSearching = false
+        updateAllItems()
+        updateFilteredItems()
+    }
+
+    /// 필터 적용
+    func applyFilters(
+        platform: PlatformFilterType,
+        genre: GenreFilterType,
+        searchText: String,
+        advancedFilter: AdvancedFilterState
+    ) {
+        currentPlatform = platform
+        currentGenre = genre
+        currentSearchText = searchText
+        currentAdvancedFilter = advancedFilter
+
+        updateAllItems()
+        updateFilteredItems()
+    }
+
+    // MARK: - Genre Methods
+
+    /// 장르별 데이터 로드
+    func loadGamesForGenre(_ genre: GenreFilterType) async {
+        guard genre != .all, let genreId = genre.igdbGenreId else {
+            currentLoadedGenre = .all
+            genreItems = []
+            genreOffset = 0
+            updateAllItems()
+            updateFilteredItems()
+            return
+        }
+
+        // 이미 같은 장르가 로드되어 있으면 스킵
+        if currentLoadedGenre == genre && !genreItems.isEmpty {
+            return
+        }
+
+        isGenreLoading = true
+        currentLoadedGenre = genre
+        genreOffset = 0
+
+        do {
+            let items = try await service.fetchGames(
+                query: IGDBQuery.genre(genreId),
+                offset: 0,
+                limit: pageSize
+            )
+
+            genreItems = items
+            genreOffset = items.count
+            favoriteManager.updateItems(items)
+
+            updateAllItems()
+            updateFilteredItems()
+
+        } catch {
+            self.error = error
+        }
+
+        isGenreLoading = false
+    }
+
+    /// 장르 로딩 준비 (즉시 로딩 상태로 전환)
+    func prepareGenreLoading(_ genre: GenreFilterType) {
+        guard genre != .all else { return }
+        isGenreLoading = true
+        genreItems = []
+    }
+
+    // MARK: - Helper Methods
+
+    /// 원격 검색 활성화 여부
+    func isRemoteSearchActive(searchText: String) -> Bool {
+        !lastSearchQuery.isEmpty &&
+        lastSearchQuery == searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// 헤더 타이틀 생성
+    func headerTitle(platform: PlatformFilterType, genre: GenreFilterType) -> String {
+        var components: [String] = []
+
+        if platform != .all {
+            components.append(platform.rawValue)
+        }
+
+        if genre != .all {
+            components.append(genre.displayName)
+        }
+
+        if components.isEmpty {
+            return "추천 게임"
+        }
+
+        return components.joined(separator: " · ") + " 게임"
+    }
+
+    // MARK: - Private Methods
+
+    /// 다음 검색 페이지 로드
+    private func loadNextSearchPage() async {
+        guard !lastSearchQuery.isEmpty else { return }
+
+        isLoadingMore = true
+
+        do {
+            let items = try await service.fetchGames(
+                query: IGDBQuery.search(lastSearchQuery),
+                offset: searchOffset,
+                limit: pageSize
+            )
+
+            searchItems.append(contentsOf: items)
+            searchOffset += items.count
+            favoriteManager.updateItems(items)
+
+            updateAllItems()
+            updateFilteredItems()
+
+        } catch {
+            self.error = error
+        }
+
+        isLoadingMore = false
+    }
+
+    /// 다음 장르 페이지 로드
+    private func loadNextGenrePage() async {
+        guard let genreId = currentLoadedGenre.igdbGenreId else { return }
+
+        isLoadingMore = true
+
+        do {
+            let items = try await service.fetchGames(
+                query: IGDBQuery.genre(genreId),
+                offset: genreOffset,
+                limit: pageSize
+            )
+
+            genreItems.append(contentsOf: items)
+            genreOffset += items.count
+            favoriteManager.updateItems(items)
+
+            updateAllItems()
+            updateFilteredItems()
+
+        } catch {
+            self.error = error
+        }
+
+        isLoadingMore = false
+    }
+
+    /// 다음 카테고리 페이지 로드
+    private func loadNextCategoryPage() async {
+        isLoadingMore = true
+
+        do {
+            switch currentAdvancedFilter.category {
+            case .all:
+                // 모든 카테고리 병렬 로드
+                async let d = service.fetchGames(query: IGDBQuery.discover, offset: discoverOffset, limit: pageSize)
+                async let t = service.fetchGames(query: IGDBQuery.trendingNow, offset: trendingOffset, limit: pageSize)
+                async let n = service.fetchGames(query: IGDBQuery.newReleases, offset: newReleaseOffset, limit: pageSize)
+
+                let (discover, trending, newRelease) = try await (d, t, n)
+
+                discoverItems.append(contentsOf: discover)
+                trendingItems.append(contentsOf: trending)
+                newReleaseItems.append(contentsOf: newRelease)
+
+                discoverOffset += discover.count
+                trendingOffset += trending.count
+                newReleaseOffset += newRelease.count
+
+                favoriteManager.updateItems(discover + trending + newRelease)
+
+            case .discover:
+                let items = try await service.fetchGames(query: IGDBQuery.discover, offset: discoverOffset, limit: pageSize)
+                discoverItems.append(contentsOf: items)
+                discoverOffset += items.count
+                favoriteManager.updateItems(items)
+
+            case .trending:
+                let items = try await service.fetchGames(query: IGDBQuery.trendingNow, offset: trendingOffset, limit: pageSize)
+                trendingItems.append(contentsOf: items)
+                trendingOffset += items.count
+                favoriteManager.updateItems(items)
+
+            case .newReleases:
+                let items = try await service.fetchGames(query: IGDBQuery.newReleases, offset: newReleaseOffset, limit: pageSize)
+                newReleaseItems.append(contentsOf: items)
+                newReleaseOffset += items.count
+                favoriteManager.updateItems(items)
+            }
+
+            updateAllItems()
+            updateFilteredItems()
+
+        } catch {
+            self.error = error
+        }
+
+        isLoadingMore = false
+    }
+
+    /// 전체 아이템 업데이트
+    private func updateAllItems() {
+        let trimmedSearch = currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isRemoteSearch = !lastSearchQuery.isEmpty && lastSearchQuery == trimmedSearch
+
+        // 검색 결과 우선
+        if isRemoteSearch {
+            allItems = searchItems
+            return
+        }
+
+        // 장르 선택 시
+        if currentGenre != .all && !genreItems.isEmpty {
+            allItems = genreItems
+            return
+        }
+
+        // 카테고리별
+        let items: [GameListItem]
+        switch currentAdvancedFilter.category {
+        case .all:
+            items = discoverItems + trendingItems + newReleaseItems
+        case .trending:
+            items = trendingItems
+        case .newReleases:
+            items = newReleaseItems
+        case .discover:
+            items = discoverItems
+        }
+
+        // 중복 제거
+        var seen = Set<Int>()
+        allItems = items.filter { item in
+            guard !seen.contains(item.id) else { return false }
+            seen.insert(item.id)
+            return true
+        }
+    }
+
+    /// 필터링된 결과 업데이트
+    private func updateFilteredItems() {
+        let trimmedSearch = currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isRemoteSearch = !lastSearchQuery.isEmpty && lastSearchQuery == trimmedSearch
+
+        var result = allItems.filter { item in
+            // 플랫폼 필터
+            let matchesPlatform = currentPlatform == .all ||
+                item.platformCategories.contains { currentPlatform.matches($0) }
+
+            // 장르 필터
+            let matchesGenre = currentGenre == .all ||
+                item.genre.contains { currentGenre.matches(genre: $0) }
+
+            // 검색 필터
+            let matchesSearch = isRemoteSearch || trimmedSearch.isEmpty ||
+                item.title.localizedCaseInsensitiveContains(trimmedSearch) ||
+                item.genre.joined(separator: " ").localizedCaseInsensitiveContains(trimmedSearch)
+
+            // 평점 필터
+            let matchesRating = currentAdvancedFilter.minimumRating <= 0 ||
+                (Double(item.ratingText) ?? 0) >= currentAdvancedFilter.minimumRating
+
+            // 출시 기간 필터
+            let matchesPeriod = currentAdvancedFilter.releasePeriod.matches(releaseYear: item.releaseYearText)
+
+            return matchesPlatform && matchesGenre && matchesSearch && matchesRating && matchesPeriod
+        }
+
+        // 정렬
+        result = sortItems(result)
+        filteredItems = result
+    }
+
+    /// 정렬 적용
+    private func sortItems(_ items: [GameListItem]) -> [GameListItem] {
+        switch currentAdvancedFilter.sortType {
+        case .popularity:
+            return items
+        case .newest:
+            return items.sorted { (Int($0.releaseYearText) ?? 0) > (Int($1.releaseYearText) ?? 0) }
+        case .rating:
+            return items.sorted { (Double($0.ratingText) ?? 0) > (Double($1.ratingText) ?? 0) }
+        case .nameAsc:
+            return items.sorted { $0.title < $1.title }
+        }
+    }
+}
