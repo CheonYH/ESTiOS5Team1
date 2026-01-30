@@ -61,7 +61,7 @@ struct TopRatedByGenreConnectionExample: View {
                 }
 
                 // 저장 버튼: 선택 장르를 UserDefaults에 저장 후 갱신
-                Button("Save Selected Genres") {
+                Button("Save & Selected Genres") {
                     let ids = sortedGenres.compactMap { genre in
                         selectedGenres.contains(genre) ? genre.igdbGenreId : nil
                     }
@@ -78,8 +78,26 @@ struct TopRatedByGenreConnectionExample: View {
                 } else if topRatedVM.items.isEmpty {
                     Text("No items")
                 } else {
-                    ForEach(topRatedVM.items) { item in
-                        Text(item.title)
+                    VStack(spacing: 12) {
+                        ForEach(topRatedVM.items) { item in
+                            HStack(spacing: 12) {
+                                AsyncImage(url: item.coverURL) { image in
+                                    image.resizable().scaledToFill()
+                                } placeholder: {
+                                    Color.black.opacity(0.1)
+                                }
+                                .frame(width: 56, height: 72)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                                Text(item.title)
+                                    .foregroundColor(.black)
+                                    .font(.headline)
+                                    .lineLimit(2)
+
+                                Spacer()
+                            }
+                            .padding(.horizontal, 8)
+                        }
                     }
                 }
             }
