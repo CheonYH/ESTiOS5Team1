@@ -197,14 +197,19 @@ struct SearchView: View {
 
 // MARK: - Preview
 struct SearchView_Previews: PreviewProvider {
+    static let favoriteManager = FavoriteManager()
+    static let tabBarState = TabBarState()
+
     static var previews: some View {
         Group {
-            SearchView(favoriteManager: FavoriteManager())
-                .environmentObject(FavoriteManager())
+            SearchView(favoriteManager: favoriteManager)
+                .environmentObject(favoriteManager)
+                .environmentObject(tabBarState)
                 .previewDisplayName("기본")
 
-            SearchView(favoriteManager: FavoriteManager(), initialGenre: .shooter)
-                .environmentObject(FavoriteManager())
+            SearchView(favoriteManager: favoriteManager, initialGenre: .shooter)
+                .environmentObject(favoriteManager)
+                .environmentObject(tabBarState)
                 .previewDisplayName("장르 선택됨")
         }
     }

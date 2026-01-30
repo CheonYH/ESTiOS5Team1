@@ -139,11 +139,13 @@ struct SearchContentSection: View {
 
 // MARK: - Preview
 struct SearchContentSection_Previews: PreviewProvider {
+    static let favoriteManager = FavoriteManager()
+
     static var previews: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             SearchContentSection(
-                viewModel: SearchViewModel(favoriteManager: FavoriteManager()),
+                viewModel: SearchViewModel(favoriteManager: favoriteManager),
                 searchText: "",
                 selectedPlatform: .all,
                 selectedGenre: .all,
@@ -151,5 +153,6 @@ struct SearchContentSection_Previews: PreviewProvider {
                 isSearchActive: false
             )
         }
+        .environmentObject(favoriteManager)
     }
 }
