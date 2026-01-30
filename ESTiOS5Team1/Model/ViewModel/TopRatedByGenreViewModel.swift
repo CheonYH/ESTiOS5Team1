@@ -43,31 +43,49 @@ final class TopRatedByGenreViewModel: ObservableObject {
         isLoading = true
         error = nil
 
-        // 복수 장르 우선, 없으면 단일 장르 쿼리 사용
-        let query: String
+        // 복수 장르: 장르별 5개씩 조회 후 합산
         if !genreIds.isEmpty {
-            query = IGDBQuery.topRatedByGenres(genreIds)
-        } else if let singleGenreId {
-            query = IGDBQuery.topRatedByGenre(singleGenreId)
-        } else {
-            items = []
-            error = nil
-            isLoading = false
+            var combined: [GameListItem] = []
+            var lastError: Error?
+
+            for genreId in genreIds {
+                let vm = GameListSingleQueryViewModel(
+                    service: service,
+                    query: IGDBQuery.topRatedByGenre(genreId),
+                    pageSize: 5
+                )
+                await vm.load()
+                combined.append(contentsOf: vm.items)
+                if let err = vm.error { lastError = err }
+            }
+
+            self.innerVM = nil
+            self.items = combined.shuffled()
+            self.error = lastError
+            self.isLoading = false
             return
         }
 
-        // 쿼리별 새 VM 생성
-        let vm = GameListSingleQueryViewModel(
-            service: service,
-            query: query
-        )
+        // 단일 장르: 상위 5개만 조회
+        if let singleGenreId {
+            let vm = GameListSingleQueryViewModel(
+                service: service,
+                query: IGDBQuery.topRatedByGenre(singleGenreId),
+                pageSize: 5
+            )
 
-        await vm.load()
+            await vm.load()
 
-        self.innerVM = vm
-        self.items = vm.items
-        self.error = vm.error
-        self.isLoading = false
+            self.innerVM = vm
+            self.items = vm.items
+            self.error = vm.error
+            self.isLoading = false
+            return
+        }
+
+        items = []
+        error = nil
+        isLoading = false
     }
 
     /// 외부에서 강제 갱신할 때 호출
