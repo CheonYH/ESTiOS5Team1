@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseCrashlytics
 
 /// IGDB API에서 사용하는 엔드포인트 목록입니다.
 ///
@@ -33,33 +32,7 @@ typealias IGDBRawResponse = [String: [[String: Any]]]
 ///
 /// ViewModel은 이 프로토콜에 의존합니다.
 protocol IGDBService {
-    /// 멀티쿼리 배치 요청을 전송합니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /v4/multiquery` (서버 프록시 경유)
-    ///
-    /// - Parameters:
-    ///     - batch: endpoint/query/name으로 구성된 멀티쿼리 블록 배열
-    ///
-    /// - Returns:
-    ///     섹션 이름별 원시 JSON 딕셔너리
-    ///
-    /// - Throws:
-    ///     URL 오류 / 네트워크 오류 / 서버 응답 오류 / JSON 파싱 오류
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse
-    /// 특정 게임 상세 정보를 조회합니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /v4/games` (서버 프록시 경유)
-    ///
-    /// - Parameters:
-    ///     - id: IGDB 게임 ID
-    ///
-    /// - Returns:
-    ///     `IGDBGameListDTO`
-    ///
-    /// - Throws:
-    ///     URL 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO
 }
 
@@ -70,7 +43,6 @@ final class IGDBServiceManager: IGDBService {
 
     private let baseURL = "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app"
 
-    /// 멀티쿼리 배치 요청을 수행합니다.
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse {
         let start = CFAbsoluteTimeGetCurrent()
         let batchNames = batch.map { $0.name }.joined(separator: ",")
@@ -120,7 +92,6 @@ final class IGDBServiceManager: IGDBService {
         return result
     }
 
-    /// 단일 게임 상세 정보를 조회합니다.
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO {
         let start = CFAbsoluteTimeGetCurrent()
         print("[IGDB] fetchDetail START - id=\(id)")
@@ -154,8 +125,6 @@ final class IGDBServiceManager: IGDBService {
             return decoded
         } catch {
             print("[IGDB] decode failed:", error)
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("IGDB detail decode 실패")
             if let json = String(data: dtoData, encoding: .utf8) {
                 print("[IGDB] raw detail json:", json)
             }

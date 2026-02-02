@@ -27,46 +27,8 @@ enum ProfileEndpoint {
 
 /// 프로필 API 계약입니다.
 protocol ProfileService: Sendable {
-    /// 프로필을 생성합니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /profile`
-    ///
-    /// - Parameters:
-    ///     - nickname: 사용자 닉네임
-    ///     - avatarUrl: 아바타 URL 문자열
-    ///
-    /// - Returns:
-    ///     `ProfileResponse`
-    ///
-    /// - Throws:
-    ///     인증 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func create(nickname: String, avatarUrl: String) async throws -> ProfileResponse
-    /// 내 프로필을 조회합니다.
-    ///
-    /// - Endpoint:
-    ///     `GET /profile`
-    ///
-    /// - Returns:
-    ///     `ProfileResponse`
-    ///
-    /// - Throws:
-    ///     인증 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func fetch() async throws -> ProfileResponse
-    /// 내 프로필을 수정합니다.
-    ///
-    /// - Endpoint:
-    ///     `PATCH /profile`
-    ///
-    /// - Parameters:
-    ///     - nickname: 수정할 닉네임
-    ///     - avatarUrl: 수정할 아바타 URL 문자열
-    ///
-    /// - Returns:
-    ///     `ProfileResponse`
-    ///
-    /// - Throws:
-    ///     인증 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func update(nickname: String, avatarUrl: String) async throws -> ProfileResponse
 }
 
@@ -83,7 +45,6 @@ final class ProfileServiceManager: ProfileService {
         self.decoder = JSONDecoder()
     }
 
-    /// 프로필 생성 요청을 전송합니다.
     func create(nickname: String, avatarUrl: String) async throws -> ProfileResponse {
         // 토큰 포함 요청 + JSON 바디 구성
         var request = try authorizedRequest(url: ProfileEndpoint.create.url, method: "POST")
@@ -92,13 +53,11 @@ final class ProfileServiceManager: ProfileService {
         return try await perform(request)
     }
 
-    /// 프로필 조회 요청을 전송합니다.
     func fetch() async throws -> ProfileResponse {
         let request = try authorizedRequest(url: ProfileEndpoint.fetch.url, method: "GET")
         return try await perform(request)
     }
 
-    /// 프로필 수정 요청을 전송합니다.
     func update(nickname: String, avatarUrl: String) async throws -> ProfileResponse {
         // 프로필 수정은 PATCH로 처리
         var request = try authorizedRequest(url: ProfileEndpoint.update.url, method: "PATCH")

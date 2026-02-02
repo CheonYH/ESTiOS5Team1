@@ -10,7 +10,6 @@ import SwiftData
 import Firebase
 import GoogleSignIn
 import FirebaseAnalytics
-import FirebaseCrashlytics
 
 @main
 struct ESTiOS5Team1App: App {
@@ -73,11 +72,7 @@ struct ESTiOS5Team1App: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("ModelContainer 생성 실패. in-memory 컨테이너로 fallback")
-            let fallback = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-            return (try? ModelContainer(for: schema, configurations: [fallback]))
-                ?? (try! ModelContainer(for: schema, configurations: [fallback]))
+            fatalError("Could not create ModelContainer: \(error)")
         }
     }()
 

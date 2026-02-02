@@ -7,29 +7,16 @@
 
 import SwiftUI
 
-/// 프로필 하단 액션 버튼 목록(닉네임/선호 장르/로그아웃/회원 탈퇴) 뷰입니다.
-///
-/// 액션 트리거는 콜백으로 위임하고,
-/// 공통 카드 UI를 `actionRow`로 재사용합니다.
 struct ProfileActionListView: View {
-    /// 기기 크기에 맞춘 화면 스타일 토큰입니다.
     let style: ProfileStyle
-    /// 닉네임 변경 버튼 탭 콜백입니다.
     let onNicknameTap: () -> Void
-    /// 선호 장르 변경 버튼 탭 콜백입니다.
     let onGenrePreferenceTap: () -> Void
-    /// 로그아웃 버튼 탭 콜백입니다.
     let onLogoutTap: () -> Void
-    /// 회원 탈퇴 버튼 탭 콜백입니다.
     let onDeleteTap: () -> Void
-    /// 현재 닉네임 텍스트입니다.
     let nicknameText: String
 
-    /// 닉네임 변경 알럿 표시 상태입니다.
     @Binding var showNickNameAlert: Bool
-    /// 닉네임 입력값 바인딩입니다.
     @Binding var newNickname: String
-    /// 닉네임 변경 확정 콜백입니다.
     let onConfirmNickname: () -> Void
 
     var body: some View {
@@ -103,7 +90,6 @@ struct ProfileActionListView: View {
     }
 
     @ViewBuilder
-    /// 공통 액션 카드 UI를 생성합니다.
     private func actionRow(
         icon: String,
         title: String,
