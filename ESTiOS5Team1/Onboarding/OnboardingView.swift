@@ -15,6 +15,7 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var selectedGenres: Set<GenreFilterType> = []
     @Binding var isOnboardingComplete: Bool
+    private let authService: AuthService = AuthServiceImpl()
 
     private let pages = OnboardingData.pages
     private let totalPages: Int
@@ -123,11 +124,21 @@ struct OnboardingView: View {
     private func completeOnboarding() {
         // 선호 장르 저장
         OnboardingData.savePreferredGenres(selectedGenres)
-        // 온보딩 완료 표시
-        OnboardingData.markOnboardingComplete()
-        // 화면 전환
-        withAnimation(.easeInOut(duration: 0.3)) {
-            isOnboardingComplete = true
+        // 서버에 온보딩 완료 반영 후 화면 전환
+        Task {
+            do {
+                let response = try await authService.completeOnboarding()
+                // 서버가 값을 생략해도(또는 빈 바디여도) 200이면 완료로 처리합니다.
+                guard response.onboardingCompleted ?? true else { return }
+                OnboardingData.markOnboardingComplete()
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isOnboardingComplete = true
+                    }
+                }
+            } catch {
+                print("[Onboarding] complete failed:", error)
+            }
         }
     }
 }

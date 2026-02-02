@@ -47,9 +47,8 @@ final class GameListSingleQueryViewModel: ObservableObject {
     /// IGDB API 서비스입니다.
     private let service: IGDBService
 
+    /// Review 관련 서비스입니다.
     private let reviewService: ReviewService
-    /// 로그 구분용 라벨입니다.
-    private let label: String
 
     /// 멀티쿼리 본문입니다.
     private let query: String
@@ -64,12 +63,11 @@ final class GameListSingleQueryViewModel: ObservableObject {
 
     /// 서비스와 쿼리를 주입받습니다.
     /// [수정] pageSize 300 → 30으로 변경하여 초기 로딩 속도 개선
-    init(service: IGDBService, reviewService: ReviewService? = nil, query: String, pageSize: Int = 100, label: String = "unknown") {
+    init(service: IGDBService, reviewService: ReviewService? = nil, query: String, pageSize: Int = 100) {
         self.service = service
         self.query = query
         self.pageSize = pageSize
         self.reviewService =  reviewService ?? ReviewServiceManager()
-        self.label = label
     }
 
     /// 단일 멀티쿼리로 게임 목록을 불러옵니다.
@@ -123,6 +121,24 @@ final class GameListSingleQueryViewModel: ObservableObject {
             }
         } catch {
             self.error = error
+        }
+    }
+
+    /// 특정 게임의 리뷰 통계만 다시 받아서 카드 점수만 갱신합니다.
+    func refreshReviewStats(for gameId: Int) async {
+        guard entities.contains(where: { $0.id == gameId }) else { return }
+
+        do {
+            let stats = try await reviewService.stats(gameId: gameId)
+            let review = GameReviewEntity(reviews: [], stats: stats, myReview: nil)
+            reviewById[gameId] = review
+        } catch {
+            // 리뷰 통계 갱신 실패 시 기존 값 유지
+        }
+
+        let emptyReview = GameReviewEntity(reviews: [], stats: nil, myReview: nil)
+        self.items = entities.map {
+            GameListItem(entity: $0, review: reviewById[$0.id] ?? emptyReview)
         }
     }
 

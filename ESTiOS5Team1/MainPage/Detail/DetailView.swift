@@ -15,6 +15,7 @@ struct DetailView: View {
     @StateObject private var viewModel: GameDetailViewModel
     @EnvironmentObject var tabBarState: TabBarState
     @State var showRoot: Bool = false
+    @Environment(\.dismiss) private var dismiss
     init(gameId: Int) {
         self.gameId = gameId
         self._viewModel = StateObject(wrappedValue: GameDetailViewModel(gameId: gameId))
@@ -25,6 +26,30 @@ struct DetailView: View {
             Color.black
                 .ignoresSafeArea()
             VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Button { dismiss() } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                    }
+                    
+                    Spacer()
+                    
+                    Text("상세 정보")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                    
+                    Spacer()
+                    
+                    Color.clear.frame(width: 44, height: 44)
+                }
+                .padding(.horizontal, 16)
+                
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 0.5)
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
@@ -70,7 +95,12 @@ struct DetailView: View {
 
                         GoChatBotBox(showRoot: $showRoot)
 
-                        ReviewSection(gameId: item.id)
+                        ReviewSection(
+                            gameId: item.id,
+                            onReviewChanged: {
+                                await viewModel.refreshReviewData()
+                            }
+                        )
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")
                             .padding()
@@ -89,22 +119,14 @@ struct DetailView: View {
         .navigationDestination(isPresented: $showRoot) {
             RootTabView()
         }
-        .onAppear { tabBarState.isHidden = true }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                HStack(spacing: 4) {
-                    Text("상세 정보")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                }
-            }
+        .onAppear {
+            tabBarState.isHidden = true
         }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(height: 0.5)
+        .onDisappear {
+            tabBarState.isHidden = false
         }
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
     }
 
     @ViewBuilder

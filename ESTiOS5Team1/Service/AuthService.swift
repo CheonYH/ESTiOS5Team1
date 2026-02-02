@@ -33,6 +33,10 @@ enum AuthEndpoint {
     case socialLogin
     case socialRegister
     case firebaseConfig
+    case deleteAccount
+    case me
+    case logout
+    case onboardingComplete
 
     /// API Path
     var path: String {
@@ -44,6 +48,10 @@ enum AuthEndpoint {
             case .firebaseConfig: return "/firebase/config"
             case .socialLogin: return "/auth/social"
             case .socialRegister: return "/auth/social-register"
+            case .deleteAccount: return "/auth/me"
+            case .me: return "/auth/me"
+            case .logout: return "/auth/logout"
+            case .onboardingComplete: return "/auth/onboarding-complete"
         }
     }
 
@@ -120,6 +128,32 @@ protocol AuthService: Sendable {
     func socialLogin(idToken: String, provider: String) async throws -> SocialLoginResult
 
     func socialRegister(provider: String, providerUid: String, nickname: String, email: String?) async throws -> TokenPair
+
+    /// 회원탈퇴 요청
+    ///
+    /// - Endpoint:
+    ///     `DELETE /auth/me`
+    func deleteAccount() async throws
+
+    /// 내 정보 조회 요청
+    ///
+    /// - Endpoint:
+    ///     `GET /auth/me`
+    func fetchMe() async throws -> MeResponse
+
+    /// 로그아웃 요청
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/logout`
+    func logout() async throws
+
+    func updateNickname(_ nickname: String) async throws
+
+    /// 온보딩 완료 상태를 서버에 반영합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/onboarding-complete`
+    func completeOnboarding() async throws -> OnboardingCompleteResponse
 }
 
 // MARK: - Auth Service Implementation
@@ -409,6 +443,148 @@ final class AuthServiceImpl: AuthService {
             case 422:
                 throw AuthError.validation("형식 오류")
 
+            default:
+                throw AuthError.server
+        }
+    }
+
+    func deleteAccount() async throws {
+        let url = AuthEndpoint.deleteAccount.url
+        let request = try authorizedRequest(url: url, method: "DELETE")
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+            case 204:
+                return
+            case 401:
+                throw AuthError.invalidCredentials
+            default:
+                throw AuthError.server
+        }
+    }
+
+    func fetchMe() async throws -> MeResponse {
+        let url = AuthEndpoint.me.url
+        let request = try authorizedRequest(url: url, method: "GET")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+            case 200:
+                if data.isEmpty {
+                    return MeResponse(userId: nil, onboardingCompleted: nil)
+                }
+                return try JSONDecoder().decode(MeResponse.self, from: data)
+            case 401:
+                throw AuthError.invalidCredentials
+            default:
+                throw AuthError.server
+        }
+    }
+
+    func logout() async throws {
+        guard let refreshToken = TokenStore.shared.refreshToken() else {
+            throw URLError(.userAuthenticationRequired)
+        }
+
+        let url = AuthEndpoint.logout.url
+        let body = RefreshRequest(
+            refreshToken: refreshToken,
+            deviceId: DeviceID.shared.value,
+            platform: "ios"
+        )
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+            case 200:
+                return
+            case 401:
+                throw AuthError.invalidCredentials
+            default:
+                throw AuthError.server
+        }
+    }
+
+    private func authorizedRequest(url: URL, method: String) throws -> URLRequest {
+        guard let token = TokenStore.shared.accessToken() else {
+            throw URLError(.userAuthenticationRequired)
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return request
+    }
+
+    func updateNickname(_ nickname: String) async throws {
+        let url = APIEnvironment.baseURL.appendingPathComponent("/auth/nickname-update")
+        let body = UpdateNicknameRequest(nickName: nickname)
+
+        var request = try authorizedRequest(url: url, method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let encoded = try JSONEncoder().encode(body)
+        request.httpBody = encoded
+
+        if let bodyText = String(data: encoded, encoding: .utf8) {
+            print("[AuthService] nickname-update request body:", bodyText)
+        } else {
+            print("[AuthService] nickname-update request body: <non-utf8>")
+        }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+        print("[AuthService] nickname-update status:", http.statusCode)
+        print("[AuthService] nickname-update body:", bodyText)
+
+        switch http.statusCode {
+            case 200: return
+            case 409: throw AuthError.conflict("nickname")
+            case 422: throw AuthError.validation("형식 오류")
+            default: throw AuthError.server
+        }
+    }
+
+    func completeOnboarding() async throws -> OnboardingCompleteResponse {
+        let url = AuthEndpoint.onboardingComplete.url
+        let request = try authorizedRequest(url: url, method: "POST")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+            case 200:
+                // 서버 응답 바디가 비어있거나 필드가 누락되어도 완료로 간주합니다.
+                if data.isEmpty {
+                    return OnboardingCompleteResponse(userId: nil, onboardingCompleted: true)
+                }
+                if let decoded = try? JSONDecoder().decode(OnboardingCompleteResponse.self, from: data) {
+                    return decoded
+                }
+                return OnboardingCompleteResponse(userId: nil, onboardingCompleted: true)
+            case 401:
+                throw AuthError.invalidCredentials
             default:
                 throw AuthError.server
         }

@@ -11,12 +11,14 @@ import SwiftUI
 struct BookMarkOverlay: View {
     let item: GameListItem
     @EnvironmentObject var favoriteManager: FavoriteManager
-
+    var needText: Bool = true
     var body: some View {
         HStack {
             // GameRatingBadge 통일 컴포넌트 사용
-            GameRatingBadge(ratingText: item.ratingText)
-
+            if needText {
+                GameRatingBadge(ratingText: item.ratingText)
+            }
+            
             Spacer()
 
             // [수정] GameListItem 직접 사용 - Game 변환 제거

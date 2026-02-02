@@ -76,9 +76,12 @@ final class AuthViewModel: ObservableObject {
         do {
             let start = CFAbsoluteTimeGetCurrent()
             print("[AuthVM] login START")
-            _ = try await service.login(email: email, password: password)
+            let response = try await service.login(email: email, password: password)
             let afterNetwork = CFAbsoluteTimeGetCurrent()
             print("[AuthVM] login network done in \(String(format: "%.3f", afterNetwork - start))s")
+            let me = try? await service.fetchMe()
+            appViewModel.onboardingCompleted = me?.onboardingCompleted ?? response.onboardingCompleted ?? false
+            UserDefaults.standard.set(appViewModel.onboardingCompleted, forKey: OnboardingData.hasSeenOnboardingKey)
             appViewModel.state = .signedIn
             let afterState = CFAbsoluteTimeGetCurrent()
             print("[AuthVM] login state updated in \(String(format: "%.3f", afterState - afterNetwork))s total \(String(format: "%.3f", afterState - start))s")
@@ -120,6 +123,8 @@ final class AuthViewModel: ObservableObject {
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
         signOutFromSocialProviders()
         TokenStore.shared.clear()
+        appViewModel.onboardingCompleted = false
+        UserDefaults.standard.removeObject(forKey: OnboardingData.hasSeenOnboardingKey)
         appViewModel.state = .signedOut
 
         return FeedbackEvent(
@@ -127,6 +132,35 @@ final class AuthViewModel: ObservableObject {
             status: .info,
             message: "로그아웃 되었습니다"
         )
+    }
+
+    /// 회원탈퇴 처리
+    ///
+    /// - Effects:
+    ///     - 서버 탈퇴 요청
+    ///     - 토큰 초기화
+    ///     - App 상태를 `.signedOut`로 변경
+    ///
+    /// - Example:
+    ///     ```swift
+    ///     let event = await viewModel.deleteAccount(appViewModel: appVM)
+    ///     toast.show(event)
+    ///     ```
+    @discardableResult
+    func deleteAccount(appViewModel: AppViewModel) async -> FeedbackEvent {
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await service.deleteAccount()
+            TokenStore.shared.clear()
+            appViewModel.onboardingCompleted = false
+            UserDefaults.standard.removeObject(forKey: OnboardingData.hasSeenOnboardingKey)
+            appViewModel.state = .signedOut
+            return FeedbackEvent(.auth, .success, "회원 탈퇴가 완료되었습니다.")
+        } catch {
+            return FeedbackEvent(.auth, .error, "회원 탈퇴에 실패했습니다.")
+        }
     }
 
     private func signOutFromSocialProviders() {
@@ -162,6 +196,9 @@ final class AuthViewModel: ObservableObject {
                     // 가입 완료 사용자 → 토큰 저장 + signedIn
                     print("[AuthVM] socialLogin -> signedIn")
                     TokenStore.shared.updateTokens(pair: tokens)
+                    let me = try? await service.fetchMe()
+                    appViewModel.onboardingCompleted = me?.onboardingCompleted ?? tokens.onboardingCompleted ?? false
+                    UserDefaults.standard.set(appViewModel.onboardingCompleted, forKey: OnboardingData.hasSeenOnboardingKey)
                     appViewModel.state = .signedIn
                     print("[AuthVM] STATE -> signedIn")
                     return FeedbackEvent(.auth, .success, "Google 로그인 성공!")
@@ -226,6 +263,33 @@ final class AuthViewModel: ObservableObject {
             }
 
             return root.presentedViewController ?? root
+        }
+    }
+
+    @discardableResult
+    func updateNickName(to newNickName: String) async -> FeedbackEvent {
+        guard !newNickName.isEmpty else {
+            return FeedbackEvent(.auth, .warning, "닉네임을 입력해주세요")
+        }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await service.updateNickname(newNickName)
+            return FeedbackEvent(.auth, .success, "닉네임 변경 완료")
+
+        } catch let authError as AuthError {
+            switch authError {
+                case .validation(let message):
+                    return FeedbackEvent(.auth, .warning, message)
+                case .conflict:
+                    return FeedbackEvent(.auth, .warning, "이미 사용 중인 닉네임입니다.")
+                default:
+                    return FeedbackEvent(.auth, .error, "닉네임 변경 실패")
+            }
+        } catch {
+            return FeedbackEvent(.auth, .error, "닉네임 변경 실패")
         }
     }
 }

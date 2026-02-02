@@ -69,6 +69,9 @@ final class SocialRegisterViewModel: ObservableObject {
 
             print("[SocialRegister] server returned token")
             TokenStore.shared.updateTokens(pair: token)
+            let me = try? await service.fetchMe()
+            appViewModel.onboardingCompleted = me?.onboardingCompleted ?? token.onboardingCompleted ?? false
+            UserDefaults.standard.set(appViewModel.onboardingCompleted, forKey: OnboardingData.hasSeenOnboardingKey)
 
             appViewModel.state = .signedIn
             let afterState = CFAbsoluteTimeGetCurrent()

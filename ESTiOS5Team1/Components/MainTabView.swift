@@ -19,11 +19,11 @@ struct MainTabView: View {
 
     @StateObject var favoriteManager = FavoriteManager()
 
-    @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow, label: "home-main")
+    @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
 
-    @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow, label: "home-trending")
+    @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
 
-    @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases, label: "home-newReleases")
+    @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
 
     @StateObject private var tabBarState = TabBarState()
 
@@ -85,6 +85,20 @@ struct MainTabView: View {
                                     .allowsHitTesting(selectedTab == .library)
                             }
                         }
+
+                        if loadedTabs.contains(.profile) {
+                            tabStack(isActive: selectedTab == .profile) {
+                                ProfileView(
+                                    onSearchTap: {
+                                        openSearchRequested = true
+                                        selectedTab = .discover
+                                        loadedTabs.insert(.discover)
+                                    }
+                                )
+                                    .opacity(selectedTab == .profile ? 1 : 0)
+                                    .allowsHitTesting(selectedTab == .profile)
+                            }
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -112,6 +126,16 @@ struct MainTabView: View {
                     shouldResetSearch = true
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .reviewDidChange)) { notification in
+                guard let gameId = notification.userInfo?["gameId"] as? Int else { return }
+
+                Task {
+                    await mainVM.refreshReviewStats(for: gameId)
+                    await trendingVM.refreshReviewStats(for: gameId)
+                    await releasesVM.refreshReviewStats(for: gameId)
+                }
+            }
+            .toolbar(.hidden, for: .navigationBar)
     }
 
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {
@@ -119,9 +143,6 @@ struct MainTabView: View {
             ZStack {
                 Color("BGColor").ignoresSafeArea()
                 content()
-            }
-            .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: tabBarState.isHidden ? 0 : tabBarHeight)
             }
         }
         .opacity(isActive ? 1 : 0)

@@ -31,6 +31,8 @@ final class AppViewModel: ObservableObject {
     @Published var prefilledEmail: String?
     /// 소셜 로그인 제공자 UID입니다.
     @Published var socialProviderUid: String?
+    /// 서버 기준 온보딩 완료 여부입니다.
+    @Published var onboardingCompleted: Bool = false
 
     /// Firebase 설정 완료 여부입니다.
     @Published var firebaseConfigured = false
@@ -86,7 +88,14 @@ final class AppViewModel: ObservableObject {
         }
 
         do {
-            try await authService.refresh()
+            _ = try await authService.refresh()
+            let me = try await authService.fetchMe()
+            if let onboardingCompleted = me.onboardingCompleted {
+                self.onboardingCompleted = onboardingCompleted
+                UserDefaults.standard.set(onboardingCompleted, forKey: OnboardingData.hasSeenOnboardingKey)
+            } else {
+                self.onboardingCompleted = UserDefaults.standard.bool(forKey: OnboardingData.hasSeenOnboardingKey)
+            }
             state = .signedIn
 
         } catch let authError as AuthError {

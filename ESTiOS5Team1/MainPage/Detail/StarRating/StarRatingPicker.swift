@@ -19,7 +19,7 @@ struct StarRatingPicker: View {
                     .foregroundStyle(StarRatingStyle.color(index: index, rating: rating))
                     .onTapGesture { rating = index }
                     .contentShape(Rectangle())
-                    .accessibilityLabel("\(index)점")
+                    //.accessibilityLabel("\(index)점")
             }
 
             Spacer()
@@ -29,7 +29,7 @@ struct StarRatingPicker: View {
                 .foregroundStyle(.textPrimary.opacity(0.8))
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Rating \(rating) out of \(maxStars)")
+        //.accessibilityLabel("Rating \(rating) out of \(maxStars)")
     }
 }
 
