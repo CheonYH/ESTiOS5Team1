@@ -83,15 +83,18 @@ final class RegisterViewModel: ObservableObject {
 
     /// 회원가입 요청 → FeedbackEvent 반환 방식
     ///
-    /// - Flow:
-    ///     1. 로컬 검증
-    ///     2. 서버 요청 (AuthService)
-    ///     3. 서버 검증 실패 시 AuthError 매핑
-    ///     4. FeedbackEvent 반환하여 Toast로 UI 출력
+    /// - Endpoint:
+    ///     `POST /auth/nickname-check`
+    ///     `POST /auth/register`
     ///
-    /// - UI Behavior:
-    ///     성공 → 로그인 화면 이동 + 이메일 자동 채움
-    ///     실패 → Toast로 검증 안내 또는 오류 출력
+    /// - Parameters:
+    ///     - appViewModel: 전역 앱 상태를 갱신할 ViewModel
+    ///
+    /// - Returns:
+    ///     회원가입 결과를 나타내는 `FeedbackEvent`
+    ///
+    /// - Throws:
+    ///     직접 throw 하지 않고 내부에서 에러를 `FeedbackEvent`로 매핑합니다.
     @discardableResult
     func register(appViewModel: AppViewModel) async -> FeedbackEvent {
         // 1) 로컬 검증: 빠른 피드백 제공

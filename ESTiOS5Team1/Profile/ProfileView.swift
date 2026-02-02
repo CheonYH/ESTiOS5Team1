@@ -8,6 +8,13 @@
 import SwiftUI
 import PhotosUI
 
+/// 사용자 프로필 화면입니다.
+///
+/// - 프로필 조회/이미지 변경
+/// - 닉네임 변경
+/// - 선호 장르 변경
+/// - 로그아웃/회원 탈퇴
+/// 기능을 한 화면에서 제공합니다.
 @MainActor
 struct ProfileView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
@@ -29,6 +36,7 @@ struct ProfileView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
     @State private var showPhotoPicker = false
+    /// 헤더 검색 버튼 탭 콜백입니다.
     let onSearchTap: () -> Void
 
     var body: some View {

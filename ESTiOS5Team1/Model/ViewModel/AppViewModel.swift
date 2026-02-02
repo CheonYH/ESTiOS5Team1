@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import Firebase
+import FirebaseCrashlytics
 import GoogleSignIn
 import Kingfisher
 
@@ -64,6 +65,8 @@ final class AppViewModel: ObservableObject {
             isInitialized = true
         } catch {
             print("Initialization Error: \(error)")
+            Crashlytics.crashlytics().record(error: error)
+            Crashlytics.crashlytics().log("App 초기화 실패")
             // 설정 실패 시 앱 진입을 막거나 에러 메시지 출력
             state = .signedOut
             toast.show(FeedbackEvent(.auth, .error, "서버 설정 로드 실패"))
@@ -104,6 +107,8 @@ final class AppViewModel: ObservableObject {
 
         } catch {
             state = .signedOut
+            Crashlytics.crashlytics().record(error: error)
+            Crashlytics.crashlytics().log("세션 복구 실패")
             toast.show(FeedbackEvent(.auth, .error, "알 수 없는 오류가 발생했습니다."))
         }
     }

@@ -8,9 +8,16 @@
 import SwiftUI
 import Kingfisher
 
+/// 프로필 아바타 이미지를 표시하는 공용 뷰입니다.
+///
+/// - URL이 유효하면 원격 이미지를 원형으로 렌더링합니다.
+/// - URL이 없거나 실패하면 SF Symbol 기본 아이콘을 표시합니다.
 struct AvatarPickerView: View {
+    /// 서버에서 내려온 아바타 이미지 URL 문자열입니다.
     let avatarURLString: String
+    /// 원형 아바타 전체 지름입니다.
     let avatarDiameter: CGFloat
+    /// 기본 아이콘(placeholder) 크기입니다.
     let avatarSize: CGFloat
 
     var body: some View {

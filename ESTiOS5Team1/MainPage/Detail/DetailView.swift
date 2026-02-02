@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WebKit
+import FirebaseCrashlytics
 
 struct DetailView: View {
 
@@ -164,10 +165,14 @@ private struct WebVideoPlayer: UIViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate {
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             print("[WebVideoPlayer] didFail:", error)
+            Crashlytics.crashlytics().record(error: error)
+            Crashlytics.crashlytics().log("WebVideoPlayer didFail")
         }
 
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
             print("[WebVideoPlayer] didFailProvisional:", error)
+            Crashlytics.crashlytics().record(error: error)
+            Crashlytics.crashlytics().log("WebVideoPlayer didFailProvisional")
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
