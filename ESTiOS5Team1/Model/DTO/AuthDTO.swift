@@ -205,3 +205,9 @@ struct NicknameCheckResponse: Decodable {
 struct UpdateNicknameRequest: Codable {
     let nickName: String
 }
+
+/// 온보딩 완료 요청 응답 모델입니다.
+struct OnboardingCompleteResponse: Codable {
+    let userId: Int?
+    let onboardingCompleted: Bool?
+}

@@ -13,6 +13,7 @@ struct ProfileView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @EnvironmentObject private var toast: ToastManager
     @EnvironmentObject private var authVM: AuthViewModel
+    @EnvironmentObject private var tabBarState: TabBarState
     @StateObject private var profileVM = ProfileViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -20,10 +21,12 @@ struct ProfileView: View {
     @State private var showNickNameAlert = false
     @State private var newNickname = ""
     @State private var avatarURLString: String = ""
+    @State private var showRoot = false
 
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
     @State private var showPhotoPicker = false
+    let onSearchTap: () -> Void
 
     var body: some View {
         // 화면 크기에 따라 스타일 묶음 구성
@@ -34,71 +37,81 @@ struct ProfileView: View {
 
             GeometryReader { geo in
                 let maxContentWidth = min(geo.size.width * 0.94, 900)
-                VStack {
-                    // 상단: 아바타/닉네임/편집
-                    ProfileHeaderView(
-                        style: style,
-                        avatarURLString: avatarURLString,
-                        nicknameText: profileVM.nickname.isEmpty ? "닉네임" : profileVM.nickname,
-                        showPhotoPicker: $showPhotoPicker,
-                        selectedItem: $selectedItem,
-                        onPhotoPicked: { newItem in
-                            Task {
-                                selectedImageData = try? await newItem?.loadTransferable(type: Data.self)
-                                if let data = selectedImageData {
-                                    let ok = await profileVM.updateAvatar(with: data)
-                                    if ok {
-                                        avatarURLString = profileVM.avatarUrl
-                                        toast.show(FeedbackEvent(.profile, .success, "프로필 이미지 변경 완료"))
-                                    } else {
-                                        toast.show(FeedbackEvent(.profile, .error, profileVM.errorMessage.isEmpty ? "이미지 업로드 실패" : profileVM.errorMessage))
+                VStack(spacing: 0) {
+                    CustomNavigationHeader(
+                        title: "프로필",
+                        showSearchButton: true,
+                        isSearchActive: false,
+                        onSearchTap: { onSearchTap() },
+                        showRoot: $showRoot
+                    )
+
+                    VStack {
+                        // 상단: 아바타/닉네임/편집
+                        ProfileHeaderView(
+                            style: style,
+                            avatarURLString: avatarURLString,
+                            nicknameText: profileVM.nickname.isEmpty ? "닉네임" : profileVM.nickname,
+                            showPhotoPicker: $showPhotoPicker,
+                            selectedItem: $selectedItem,
+                            onPhotoPicked: { newItem in
+                                Task {
+                                    selectedImageData = try? await newItem?.loadTransferable(type: Data.self)
+                                    if let data = selectedImageData {
+                                        let ok = await profileVM.updateAvatar(with: data)
+                                        if ok {
+                                            avatarURLString = profileVM.avatarUrl
+                                            toast.show(FeedbackEvent(.profile, .success, "프로필 이미지 변경 완료"))
+                                        } else {
+                                            toast.show(FeedbackEvent(.profile, .error, profileVM.errorMessage.isEmpty ? "이미지 업로드 실패" : profileVM.errorMessage))
+                                        }
+                                    }
+                                }
+                            },
+                            showNickNameAlert: $showNickNameAlert,
+                            newNickname: $newNickname,
+                            onConfirmNickname: {
+                                Task {
+                                    let event = await authVM.updateNickName(to: newNickname)
+                                    toast.show(event)
+                                    if event.status == .success {
+                                        profileVM.nickname = newNickname
+                                        await profileVM.updateProfile()
                                     }
                                 }
                             }
-                        },
-                        showNickNameAlert: $showNickNameAlert,
-                        newNickname: $newNickname,
-                        onConfirmNickname: {
-                            Task {
-                                let event = await authVM.updateNickName(to: newNickname)
+                        )
+
+                        // 하단: 액션 버튼 영역
+                        ProfileActionListView(
+                            style: style,
+                            onNicknameTap: {},
+                            onLogoutTap: {
+                                let event = authVM.logout(appViewModel: appViewModel)
                                 toast.show(event)
-                                if event.status == .success {
-                                    profileVM.nickname = newNickname
-                                    await profileVM.updateProfile()
+                            },
+                            onDeleteTap: {
+                                showDeleteAlert = true
+                            }
+                        )
+                        .padding(.horizontal)
+                        .alert("회원 탈퇴", isPresented: $showDeleteAlert) {
+                            Button("취소", role: .cancel) {}
+                            Button("탈퇴하기", role: .destructive) {
+                                Task {
+                                    let event = await authVM.deleteAccount(appViewModel: appViewModel)
+                                    toast.show(event)
                                 }
                             }
+                        } message: {
+                            Text("계정이 비활성화됩니다. 정말 탈퇴하시겠어요?")
                         }
-                    )
-
-                    // 하단: 액션 버튼 영역
-                    ProfileActionListView(
-                        style: style,
-                        onNicknameTap: {},
-                        onLogoutTap: {
-                            let event = authVM.logout(appViewModel: appViewModel)
-                            toast.show(event)
-                        },
-                        onDeleteTap: {
-                            showDeleteAlert = true
-                        }
-                    )
-                    .padding(.horizontal)
-                    .alert("회원 탈퇴", isPresented: $showDeleteAlert) {
-                        Button("취소", role: .cancel) {}
-                        Button("탈퇴하기", role: .destructive) {
-                            Task {
-                                let event = await authVM.deleteAccount(appViewModel: appViewModel)
-                                toast.show(event)
-                            }
-                        }
-                    } message: {
-                        Text("계정이 비활성화됩니다. 정말 탈퇴하시겠어요?")
                     }
+                    .frame(maxWidth: maxContentWidth)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal, Spacing.pv10 * 2)
+                    .padding(.top, style.topPadding)
                 }
-                .frame(maxWidth: maxContentWidth)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.horizontal, Spacing.pv10 * 2)
-                .padding(.top, style.topPadding)
             }
 
             if profileVM.isLoading {
@@ -116,6 +129,12 @@ struct ProfileView: View {
             await profileVM.fetchProfile()
             avatarURLString = profileVM.avatarUrl
         }
+        .navigationDestination(isPresented: $showRoot) {
+            RootTabView()
+                .onAppear { tabBarState.isHidden = true }
+                .onDisappear { tabBarState.isHidden = false }
+        }
+        .onAppear { tabBarState.isHidden = false }
     }
 
 }
@@ -124,8 +143,10 @@ struct ProfileView: View {
     let toast = ToastManager()
     let authVM = AuthViewModel(service: AuthServiceImpl())
     let appVM = AppViewModel(authService: AuthServiceImpl(), toast: toast)
-    ProfileView()
+    let tabBarState = TabBarState()
+    ProfileView(onSearchTap: {})
         .environmentObject(toast)
         .environmentObject(appVM)
         .environmentObject(authVM)
+        .environmentObject(tabBarState)
 }

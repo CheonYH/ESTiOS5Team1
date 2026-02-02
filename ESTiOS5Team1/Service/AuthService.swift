@@ -35,6 +35,7 @@ enum AuthEndpoint {
     case firebaseConfig
     case deleteAccount
     case logout
+    case onboardingComplete
 
     /// API Path
     var path: String {
@@ -48,6 +49,7 @@ enum AuthEndpoint {
             case .socialRegister: return "/auth/social-register"
             case .deleteAccount: return "/auth/me"
             case .logout: return "/auth/logout"
+            case .onboardingComplete: return "/auth/onboarding-complete"
         }
     }
 
@@ -138,6 +140,12 @@ protocol AuthService: Sendable {
     func logout() async throws
 
     func updateNickname(_ nickname: String) async throws
+
+    /// 온보딩 완료 상태를 서버에 반영합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/onboarding-complete`
+    func completeOnboarding() async throws -> OnboardingCompleteResponse
 }
 
 // MARK: - Auth Service Implementation
@@ -523,6 +531,25 @@ final class AuthServiceImpl: AuthService {
             case 409: throw AuthError.conflict("nickname")
             case 422: throw AuthError.validation("형식 오류")
             default: throw AuthError.server
+        }
+    }
+
+    func completeOnboarding() async throws -> OnboardingCompleteResponse {
+        let url = AuthEndpoint.onboardingComplete.url
+        let request = try authorizedRequest(url: url, method: "POST")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+            case 200:
+                return try JSONDecoder().decode(OnboardingCompleteResponse.self, from: data)
+            case 401:
+                throw AuthError.invalidCredentials
+            default:
+                throw AuthError.server
         }
     }
 }

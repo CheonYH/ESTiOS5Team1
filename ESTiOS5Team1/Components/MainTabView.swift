@@ -85,6 +85,20 @@ struct MainTabView: View {
                                     .allowsHitTesting(selectedTab == .library)
                             }
                         }
+
+                        if loadedTabs.contains(.profile) {
+                            tabStack(isActive: selectedTab == .profile) {
+                                ProfileView(
+                                    onSearchTap: {
+                                        openSearchRequested = true
+                                        selectedTab = .discover
+                                        loadedTabs.insert(.discover)
+                                    }
+                                )
+                                    .opacity(selectedTab == .profile ? 1 : 0)
+                                    .allowsHitTesting(selectedTab == .profile)
+                            }
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
