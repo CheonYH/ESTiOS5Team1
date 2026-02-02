@@ -5,13 +5,14 @@
 //  Created by 이찬희 on 1/6/26.
 //
 //  [수정] Game → GameListItem 통일
+//  [리팩토링] FavoriteManagerProtocol 채택
 
 import SwiftUI
 import Combine
 
 // MARK: - Favorite Manager
 @MainActor
-class FavoriteManager: ObservableObject {
+class FavoriteManager: ObservableObject, FavoriteManagerProtocol {
     // [수정] Set<String> → Set<Int> (GameListItem.id는 Int)
     @Published var favoriteItemIds: Set<Int> = []
 

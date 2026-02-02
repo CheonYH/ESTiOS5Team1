@@ -16,10 +16,13 @@ struct ESTiOS5Team1App: App {
 
     @StateObject private var toastManager: ToastManager
     @StateObject private var appViewModel: AppViewModel
+    @StateObject private var authViewModel: AuthViewModel
 
     init() {
         let toast = ToastManager()
+        let authVM = AuthViewModel(service: AuthServiceImpl())
         _toastManager = StateObject(wrappedValue: toast)
+        _authViewModel = StateObject(wrappedValue: authVM)
         _appViewModel = StateObject(
             wrappedValue: AppViewModel(
                 authService: AuthServiceImpl(),
@@ -41,8 +44,17 @@ struct ESTiOS5Team1App: App {
                     LoginView()
 
                 case .signedIn:
-                     MainTabView()
-                   // LogoutTestView()
+                    // 서버에서 내려준 온보딩 완료 여부 기준으로 분기
+                    if appViewModel.onboardingCompleted {
+                        MainTabView()
+                    } else {
+                        OnboardingView(
+                            isOnboardingComplete: Binding(
+                                get: { appViewModel.onboardingCompleted },
+                                set: { appViewModel.onboardingCompleted = $0 }
+                            )
+                        )
+                    }
 
                 case .socialNeedsRegister:
                     NicknameCreateView(prefilledEmail: appViewModel.prefilledEmail)
@@ -67,6 +79,9 @@ struct ESTiOS5Team1App: App {
     var body: some Scene {
         WindowGroup {
              ZStack {
+                 Color.BG
+                     .ignoresSafeArea()
+                     .ignoresSafeArea(.keyboard)
                  content
                 // MainTabView()
 
@@ -74,6 +89,7 @@ struct ESTiOS5Team1App: App {
              .frame(maxWidth: .infinity, maxHeight: .infinity)
              .environmentObject(toastManager)
              .environmentObject(appViewModel)
+             .environmentObject(authViewModel)
              .onOpenURL { url in
                  GIDSignIn.sharedInstance.handle(url)
              }

@@ -109,8 +109,14 @@ struct LibraryView: View {
 
 // MARK: - Preview
 struct LibraryView_Previews: PreviewProvider {
+    static let favoriteManager = FavoriteManager()
+    static let tabBarState = TabBarState()
+
     static var previews: some View {
-        LibraryView()
-            .environmentObject(FavoriteManager())
+        NavigationStack {
+            LibraryView()
+                .environmentObject(favoriteManager)
+                .environmentObject(tabBarState)
+        }
     }
 }

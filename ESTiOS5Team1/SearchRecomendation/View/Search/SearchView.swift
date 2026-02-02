@@ -93,7 +93,7 @@ struct SearchView: View {
                         isSearchActive: isSearchActive
                     )
                     .refreshable {
-                        await viewModel.forceRefreshAllGames()
+                        await viewModel.forceRefresh()
                     }
                     // 필터 변경 시 상단으로 스크롤
                     .onChange(of: selectedPlatform) { _ in
@@ -157,11 +157,7 @@ struct SearchView: View {
         }
         .onChange(of: searchText) { _ in applyFilters() }
         .onChange(of: advancedFilterState) { _ in applyFilters() }
-        .onChange(of: viewModel.discoverItems) { _ in applyFilters() }
-        .onChange(of: viewModel.trendingItems) { _ in applyFilters() }
-        .onChange(of: viewModel.newReleaseItems) { _ in applyFilters() }
-        .onChange(of: viewModel.searchItems) { _ in applyFilters() }
-        .onChange(of: viewModel.genreItems) { _ in applyFilters() }  // [추가] 장르 데이터 변경 감지
+        // [리팩토링] ViewModel 내부에서 자동 업데이트되므로 개별 데이터 관찰 불필요
     }
 
     // MARK: - Private Methods
@@ -169,7 +165,7 @@ struct SearchView: View {
     /// [수정] 중복 onAppear 통합 - 데이터 로드 + 홈화면 검색 요청 처리
     private func handleOnAppear() {
         // 데이터 로드
-        if viewModel.discoverItems.isEmpty {
+        if viewModel.allItems.isEmpty {
             Task { await viewModel.loadAllGames() }
         }
         // 홈화면에서 검색 요청 시 처리
@@ -201,14 +197,19 @@ struct SearchView: View {
 
 // MARK: - Preview
 struct SearchView_Previews: PreviewProvider {
+    static let favoriteManager = FavoriteManager()
+    static let tabBarState = TabBarState()
+
     static var previews: some View {
         Group {
-            SearchView(favoriteManager: FavoriteManager())
-                .environmentObject(FavoriteManager())
+            SearchView(favoriteManager: favoriteManager)
+                .environmentObject(favoriteManager)
+                .environmentObject(tabBarState)
                 .previewDisplayName("기본")
 
-            SearchView(favoriteManager: FavoriteManager(), initialGenre: .shooter)
-                .environmentObject(FavoriteManager())
+            SearchView(favoriteManager: favoriteManager, initialGenre: .shooter)
+                .environmentObject(favoriteManager)
+                .environmentObject(tabBarState)
                 .previewDisplayName("장르 선택됨")
         }
     }

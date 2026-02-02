@@ -12,7 +12,7 @@ import Foundation
 // 저장된 값이 비어 있으면 이 기본값으로 강제로 채운다.
 private enum AlanDefaults {
     static let defaultEndpoint = "https://kdt-api-function.azurewebsites.net"
-    static let defaultClientKey = "3833f10d-f734-4ee3-8ec3-a94897a1d9b4"
+    static let defaultClientKey = "c358e44a-da12-4388-be42-781f2289ecba"
 }
 
 struct AlanSettings: Codable, Hashable {
