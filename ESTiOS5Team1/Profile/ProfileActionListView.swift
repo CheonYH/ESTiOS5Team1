@@ -10,8 +10,14 @@ import SwiftUI
 struct ProfileActionListView: View {
     let style: ProfileStyle
     let onNicknameTap: () -> Void
+    let onGenrePreferenceTap: () -> Void
     let onLogoutTap: () -> Void
     let onDeleteTap: () -> Void
+    let nicknameText: String
+
+    @Binding var showNickNameAlert: Bool
+    @Binding var newNickname: String
+    let onConfirmNickname: () -> Void
 
     var body: some View {
         VStack(spacing: style.buttonSpacing) {
@@ -20,6 +26,29 @@ struct ProfileActionListView: View {
                 actionRow(
                     icon: "person.fill",
                     title: "닉네임 변경",
+                    iconColor: .purplePrimary,
+                    iconBackground: Color(red: 42/255, green: 25/255, blue: 58/255),
+                    borderColor: .purplePrimary.opacity(0.7),
+                    textColor: .textPrimary,
+                    cardColor: Color(red: 19/255, green: 13/255, blue: 23/255),
+                    cardBorder: .purplePrimary.opacity(0.8)
+                )
+            }
+            .buttonStyle(.plain)
+            .alert("닉네임 변경", isPresented: $showNickNameAlert) {
+                TextField("새 닉네임", text: $newNickname)
+                Button("취소", role: .cancel) {}
+                Button("변경") {
+                    onConfirmNickname()
+                }
+            } message: {
+                Text("새 닉네임을 입력해 주세요")
+            }
+
+            Button(action: onGenrePreferenceTap) {
+                actionRow(
+                    icon: "slider.horizontal.3",
+                    title: "선호 장르 변경",
                     iconColor: .purplePrimary,
                     iconBackground: Color(red: 42/255, green: 25/255, blue: 58/255),
                     borderColor: .purplePrimary.opacity(0.7),

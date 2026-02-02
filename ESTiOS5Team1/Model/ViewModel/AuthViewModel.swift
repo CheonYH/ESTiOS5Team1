@@ -15,6 +15,7 @@ enum AuthError: Error {
     case invalidCredentials
     case conflict(String) // email or nickname
     case validation(String)
+    case accountDeleted
     case server
     case network
 }
@@ -95,6 +96,8 @@ final class AuthViewModel: ObservableObject {
                     return FeedbackEvent(.auth, .error, "\(field)이 이미 사용 중입니다.")
                 case .validation(let message):
                     return FeedbackEvent(.auth, .warning, message)
+                case .accountDeleted:
+                    return FeedbackEvent(.auth, .warning, "탈퇴한 계정입니다. 새로 가입해주세요.")
                 case .network:
                     return FeedbackEvent(.auth, .warning, "네트워크 연결을 확인해주세요.")
                 case .server:
@@ -210,6 +213,11 @@ final class AuthViewModel: ObservableObject {
             }
 
         } catch {
+            if let authError = error as? AuthError {
+                if case .accountDeleted = authError {
+                    return FeedbackEvent(.auth, .warning, "탈퇴한 계정입니다. 새로 가입해주세요.")
+                }
+            }
             print("[AuthVM] ERROR:", error)
             return FeedbackEvent(.auth, .error, "Google 로그인 실패")
         }
@@ -264,15 +272,27 @@ final class AuthViewModel: ObservableObject {
 
     @discardableResult
     func updateNickName(to newNickName: String) async -> FeedbackEvent {
-        guard !newNickName.isEmpty else {
-            return FeedbackEvent(.auth, .warning, "닉네임을 입력해주세요")
+        let trimmed = newNickName.trimmingCharacters(in: .whitespacesAndNewlines)
+        switch NicknameValidator.validate(trimmed) {
+            case .valid:
+                break
+            case .empty:
+                return FeedbackEvent(.auth, .warning, "닉네임을 입력해주세요.")
+            case .length:
+                return FeedbackEvent(.auth, .warning, "닉네임은 2~12자로 입력해주세요.")
+            case .emoji:
+                return FeedbackEvent(.auth, .warning, "닉네임에는 이모지를 사용할 수 없습니다.")
+            case .repeating:
+                return FeedbackEvent(.auth, .warning, "동일 문자는 3회 이상 반복할 수 없습니다.")
+            case .numericOnly:
+                return FeedbackEvent(.auth, .warning, "닉네임은 숫자만 사용할 수 없습니다.")
         }
 
         isLoading = true
         defer { isLoading = false }
 
         do {
-            try await service.updateNickname(newNickName)
+            try await service.updateNickname(trimmed)
             return FeedbackEvent(.auth, .success, "닉네임 변경 완료")
 
         } catch let authError as AuthError {

@@ -38,42 +38,15 @@ struct ProfileHeaderView: View {
                 onPhotoPicked(newItem)
             }
 
-            // 닉네임 표시 + 편집 버튼
+            // 닉네임 표시 +
             HStack {
                 Text(nicknameText)
                     .foregroundStyle(.textPrimary)
                     .font(style.nameFont)
 
-                Button {
-                    showNickNameAlert = true
-                } label: {
-                    Image(systemName: "pencil")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: style.avatarSize, height: style.avatarSize)
-                        .foregroundStyle(.purplePrimary)
-                        .padding(Spacing.pv10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color(red: 37/255, green: 37/255, blue: 57/255))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(.purplePrimary.opacity(0.6), lineWidth: 1)
-                        )
-                        .padding()
-                }
-                .alert("닉네임 변경", isPresented: $showNickNameAlert) {
-                    TextField("새 닉네임", text: $newNickname)
-                    Button("취소", role: .cancel) {}
-                    Button("변경") {
-                        onConfirmNickname()
-                    }
-                } message: {
-                    Text("새 닉네임을 입력해 주세요")
-                }
             }
-            .padding(.vertical, Spacing.cr)
+            .padding(.top, Spacing.pv10)
+            .padding(.bottom, Spacing.pv10)
         }
     }
 }

@@ -20,10 +20,8 @@ final class OnboardingViewModel: ObservableObject {
 
     /// 선호 장르 저장 + 서버 온보딩 완료 반영을 한 번에 처리합니다.
     func completeOnboarding() async throws -> Bool {
-        let ids = selectedGenres.compactMap(\.igdbGenreId)
-        PreferenceStore.preferredGenreIds = ids
-        PreferenceStore.preferredGenreId = ids.first
-        NotificationCenter.default.post(name: .preferredGenresDidChange, object: nil)
+        GenrePreferenceStore.save(selectedGenres)
+        GenrePreferenceStore.notifyDidChange()
 
         let response = try await authService.completeOnboarding()
         return response.onboardingCompleted ?? true
