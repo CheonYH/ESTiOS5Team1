@@ -8,7 +8,21 @@
 
 import SwiftUI
 
-/// 검색 화면의 필터 섹션 (플랫폼 + 장르 + 고급 필터)
+// MARK: - Search Filter Section
+
+/// 검색 화면의 필터 섹션 컴포넌트입니다.
+///
+/// - Responsibilities:
+///     - 플랫폼 필터 (PlatformFilter) 표시
+///     - 장르 필터 (GenreFilter) 표시
+///     - 고급 필터 버튼 바 (FilterButtonBar) 표시
+///
+/// - Parameters:
+///     - selectedPlatform: 선택된 플랫폼 바인딩
+///     - selectedGenre: 선택된 장르 바인딩
+///     - advancedFilterState: 고급 필터 상태 바인딩
+///     - showFilterSheet: 필터 시트 표시 상태 바인딩
+///     - allItems: 전체 게임 아이템 배열
 struct SearchFilterSection: View {
     @Binding var selectedPlatform: PlatformFilterType
     @Binding var selectedGenre: GenreFilterType

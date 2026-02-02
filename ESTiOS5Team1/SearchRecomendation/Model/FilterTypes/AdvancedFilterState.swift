@@ -8,6 +8,13 @@
 import SwiftUI
 
 // MARK: - Sort Type
+
+/// 게임 목록의 정렬 기준을 정의하는 열거형입니다.
+///
+/// - popularity: 인기순 (기본값, API 응답 순서 유지)
+/// - newest: 최신순 (출시 연도 내림차순)
+/// - rating: 평점순 (평점 내림차순)
+/// - nameAsc: 이름순 (가나다/ABC 오름차순)
 enum SortType: String, CaseIterable, Identifiable {
     case popularity = "인기순"
     case newest = "최신순"
@@ -16,6 +23,7 @@ enum SortType: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// SF Symbols 아이콘 이름
     var icon: String {
         switch self {
         case .popularity: return "flame.fill"
@@ -26,12 +34,15 @@ enum SortType: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Rating Filter (슬라이더용)
-
-/// 0.0 ~ 5.0 범위의 최소 평점 값
-/// 0.0이면 필터 비활성화 (모든 평점 표시)
-
 // MARK: - Release Period Filter
+
+/// 게임 출시 시기 필터를 정의하는 열거형입니다.
+///
+/// - all: 전체 기간
+/// - month1: 최근 1개월 이내 출시
+/// - month6: 최근 6개월 이내 출시
+/// - thisYear: 올해 출시작
+/// - classic: 5년 이상 된 명작
 enum ReleasePeriodFilter: String, CaseIterable, Identifiable {
     case all = "전체"
     case month1 = "최근 1개월"
@@ -41,6 +52,7 @@ enum ReleasePeriodFilter: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// SF Symbols 아이콘 이름
     var icon: String {
         switch self {
         case .all: return "calendar"
@@ -51,6 +63,7 @@ enum ReleasePeriodFilter: String, CaseIterable, Identifiable {
         }
     }
 
+    /// 필터 설명 텍스트
     var description: String {
         switch self {
         case .all: return "모든 기간"
@@ -61,6 +74,10 @@ enum ReleasePeriodFilter: String, CaseIterable, Identifiable {
         }
     }
 
+    /// 게임의 출시 연도가 이 필터 조건에 맞는지 확인합니다.
+    ///
+    /// - Parameter releaseYear: 게임의 출시 연도 문자열
+    /// - Returns: 필터 조건 충족 여부
     func matches(releaseYear: String) -> Bool {
         guard releaseYear != "–" else { return self == .all }
         guard let year = Int(releaseYear) else { return self == .all }
@@ -81,7 +98,14 @@ enum ReleasePeriodFilter: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Category Filter (Trending, New Releases 등)
+// MARK: - Category Filter
+
+/// 게임 카테고리 필터를 정의하는 열거형입니다.
+///
+/// - all: 전체 카테고리
+/// - trending: 현재 인기 상승 중인 게임
+/// - newReleases: 최근 출시된 신작
+/// - discover: 추천 게임
 enum CategoryFilter: String, CaseIterable, Identifiable {
     case all = "전체"
     case trending = "Trending Now"
@@ -90,6 +114,7 @@ enum CategoryFilter: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// SF Symbols 아이콘 이름
     var icon: String {
         switch self {
         case .all: return "square.grid.2x2"
@@ -99,6 +124,7 @@ enum CategoryFilter: String, CaseIterable, Identifiable {
         }
     }
 
+    /// 카테고리별 테마 색상
     var color: Color {
         switch self {
         case .all: return .gray
@@ -110,13 +136,46 @@ enum CategoryFilter: String, CaseIterable, Identifiable {
 }
 
 // MARK: - Advanced Filter State
+
+/// 고급 필터의 전체 상태를 관리하는 구조체입니다.
+///
+/// - Responsibilities:
+///     - 정렬, 평점, 출시 기간, 카테고리 필터 상태 저장
+///     - 활성화된 필터 개수 및 라벨 계산
+///     - 필터 초기화 기능 제공
+///
+/// - Important:
+///     `Equatable`을 채택하여 SwiftUI의 `onChange`에서 변경 감지가 가능합니다.
+///
+/// - Example:
+///     ```swift
+///     @State private var filterState = AdvancedFilterState()
+///
+///     // 필터 적용
+///     filterState.sortType = .newest
+///     filterState.minimumRating = 4.0
+///
+///     // 필터 초기화
+///     filterState.reset()
+///     ```
 struct AdvancedFilterState: Equatable {
+
+    /// 정렬 기준 (기본값: 인기순)
     var sortType: SortType = .popularity
-    /// 최소 평점 (0.0 ~ 5.0), 0.0이면 필터 비활성화
+
+    /// 최소 평점 필터 (0.0 ~ 5.0)
+    /// - Note: 0.0이면 필터 비활성화 (모든 평점 표시)
     var minimumRating: Double = 0.0
+
+    /// 출시 기간 필터 (기본값: 전체)
     var releasePeriod: ReleasePeriodFilter = .all
+
+    /// 카테고리 필터 (기본값: 전체)
     var category: CategoryFilter = .all
 
+    // MARK: - Computed Properties
+
+    /// 하나 이상의 필터가 활성화되어 있는지 여부
     var hasActiveFilters: Bool {
         sortType != .popularity ||
         minimumRating > 0 ||
@@ -124,6 +183,7 @@ struct AdvancedFilterState: Equatable {
         category != .all
     }
 
+    /// 활성화된 필터의 개수
     var activeFilterCount: Int {
         var count = 0
         if sortType != .popularity { count += 1 }
@@ -133,6 +193,7 @@ struct AdvancedFilterState: Equatable {
         return count
     }
 
+    /// 활성화된 필터들의 라벨 배열
     var activeFilterLabels: [String] {
         var labels: [String] = []
         if sortType != .popularity { labels.append(sortType.rawValue) }
@@ -142,7 +203,7 @@ struct AdvancedFilterState: Equatable {
         return labels
     }
 
-    /// 평점 표시 텍스트
+    /// 평점 필터의 표시 텍스트
     var ratingDisplayText: String {
         if minimumRating == 0 {
             return "전체"
@@ -151,6 +212,9 @@ struct AdvancedFilterState: Equatable {
         }
     }
 
+    // MARK: - Methods
+
+    /// 모든 필터를 기본값으로 초기화합니다.
     mutating func reset() {
         sortType = .popularity
         minimumRating = 0.0

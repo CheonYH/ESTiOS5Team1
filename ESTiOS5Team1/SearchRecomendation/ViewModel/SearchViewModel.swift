@@ -14,6 +14,26 @@ import Combine
 
 // MARK: - SearchViewModel
 
+/// 게임 검색 및 필터링을 담당하는 ViewModel입니다.
+///
+/// - Responsibilities:
+///     - IGDB API를 통한 게임 데이터 로드 (Discover, Trending, New Releases)
+///     - 검색어 기반 게임 검색 및 결과 관리
+///     - 플랫폼, 장르, 고급 필터 적용
+///     - 무한 스크롤을 위한 페이지네이션 처리
+///     - 정적 캐싱을 통한 데이터 재사용
+///
+/// - Important:
+///     - View에서 관찰이 필요한 상태만 `@Published`로 선언합니다.
+///     - 내부 상태는 `private(set)`으로 외부 변경을 방지합니다.
+///     - `SearchViewModelProtocol`을 채택하여 테스트 가능한 구조를 제공합니다.
+///
+/// - Example:
+///     ```swift
+///     let viewModel = SearchViewModel(favoriteManager: favoriteManager)
+///     await viewModel.loadAllGames()
+///     await viewModel.performSearch(query: "zelda")
+///     ```
 @MainActor
 final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
@@ -91,7 +111,16 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     // MARK: - Public Methods (Protocol)
 
-    /// 모든 카테고리 데이터 로드
+    /// 모든 카테고리(Discover, Trending, New Releases)의 게임 데이터를 로드합니다.
+    ///
+    /// - Effects:
+    ///     - 캐시가 존재하면 캐시 데이터 사용
+    ///     - 캐시가 없으면 병렬 API 호출 후 캐시에 저장
+    ///     - `isLoading` 상태 업데이트
+    ///     - `FavoriteManager`에 로드된 아이템 등록
+    ///
+    /// - Note:
+    ///     앱 재시작 전까지 정적 캐시를 통해 데이터를 재사용합니다.
     func loadAllGames() async {
         // 캐시 확인
         if Self.hasLoadedData {
@@ -154,13 +183,25 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         isLoading = false
     }
 
-    /// 강제 새로고침
+    /// 캐시를 무시하고 강제로 모든 데이터를 새로고침합니다.
+    ///
+    /// - Effects:
+    ///     - 정적 캐시 초기화
+    ///     - `loadAllGames()` 재호출
     func forceRefresh() async {
         Self.hasLoadedData = false
         await loadAllGames()
     }
 
-    /// 검색 실행
+    /// 검색어를 기반으로 게임을 검색합니다.
+    ///
+    /// - Parameter query: 검색할 게임 제목 또는 키워드
+    ///
+    /// - Effects:
+    ///     - 빈 검색어는 무시하고 검색 결과 초기화
+    ///     - 결과가 없으면 fallback 검색 실행
+    ///     - `isSearching` 상태 업데이트
+    ///     - 검색 결과를 `FavoriteManager`에 등록
     func performSearch(query: String) async {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -203,7 +244,13 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         isSearching = false
     }
 
-    /// 다음 페이지 로드
+    /// 무한 스크롤을 위한 다음 페이지 데이터를 로드합니다.
+    ///
+    /// - Effects:
+    ///     - 장르 선택 시: 해당 장르의 다음 페이지 로드
+    ///     - 검색 중: 검색 결과의 다음 페이지 로드
+    ///     - 기본: 현재 카테고리의 다음 페이지 로드
+    ///     - `isLoadingMore` 상태 업데이트
     func loadNextPage() async {
         // 장르가 선택된 경우
         if currentGenre != .all {
@@ -221,7 +268,12 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         await loadNextCategoryPage()
     }
 
-    /// 검색 결과 초기화
+    /// 검색 결과 및 검색 상태를 초기화합니다.
+    ///
+    /// - Effects:
+    ///     - 검색 아이템 목록 비우기
+    ///     - 검색어 및 오프셋 초기화
+    ///     - 필터링된 결과 업데이트
     func clearSearchResults() {
         searchItems = []
         lastSearchQuery = ""
@@ -231,7 +283,17 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         updateFilteredItems()
     }
 
-    /// 필터 적용
+    /// 선택된 필터 조건을 적용하여 게임 목록을 필터링합니다.
+    ///
+    /// - Parameters:
+    ///   - platform: 플랫폼 필터 타입 (PC, PlayStation, Xbox 등)
+    ///   - genre: 장르 필터 타입 (RPG, 액션, 슈팅 등)
+    ///   - searchText: 로컬 검색 필터용 텍스트
+    ///   - advancedFilter: 정렬, 평점, 출시 기간 등 고급 필터 상태
+    ///
+    /// - Effects:
+    ///     - 필터 상태 저장
+    ///     - 전체 아이템 및 필터링된 결과 업데이트
     func applyFilters(
         platform: PlatformFilterType,
         genre: GenreFilterType,
@@ -249,7 +311,15 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     // MARK: - Genre Methods
 
-    /// 장르별 데이터 로드
+    /// 특정 장르의 게임 데이터를 서버에서 로드합니다.
+    ///
+    /// - Parameter genre: 로드할 장르 타입
+    ///
+    /// - Effects:
+    ///     - `.all` 장르는 장르 데이터 초기화
+    ///     - 동일 장르가 이미 로드되어 있으면 스킵
+    ///     - `isGenreLoading` 상태 업데이트
+    ///     - 로드된 아이템을 `FavoriteManager`에 등록
     func loadGamesForGenre(_ genre: GenreFilterType) async {
         guard genre != .all, let genreId = genre.igdbGenreId else {
             currentLoadedGenre = .all
@@ -290,7 +360,16 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         isGenreLoading = false
     }
 
-    /// 장르 로딩 준비 (즉시 로딩 상태로 전환)
+    /// 장르 로딩 시작 전 UI 상태를 미리 준비합니다.
+    ///
+    /// - Parameter genre: 로딩 예정인 장르 타입
+    ///
+    /// - Effects:
+    ///     - `isGenreLoading`을 즉시 `true`로 설정
+    ///     - 기존 장르 아이템 초기화
+    ///
+    /// - Note:
+    ///     `loadGamesForGenre` 호출 전에 사용하여 즉각적인 로딩 UI를 표시합니다.
     func prepareGenreLoading(_ genre: GenreFilterType) {
         guard genre != .all else { return }
         isGenreLoading = true
@@ -299,13 +378,21 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     // MARK: - Helper Methods
 
-    /// 원격 검색 활성화 여부
+    /// 현재 원격 검색이 활성화되어 있는지 확인합니다.
+    ///
+    /// - Parameter searchText: 현재 검색 텍스트
+    /// - Returns: 마지막 검색어와 현재 검색 텍스트가 일치하면 `true`
     func isRemoteSearchActive(searchText: String) -> Bool {
         !lastSearchQuery.isEmpty &&
         lastSearchQuery == searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// 헤더 타이틀 생성
+    /// 현재 필터 상태에 따른 결과 헤더 타이틀을 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - platform: 선택된 플랫폼 필터
+    ///   - genre: 선택된 장르 필터
+    /// - Returns: 필터 조합에 맞는 헤더 문자열 (예: "PC · RPG 게임")
     func headerTitle(platform: PlatformFilterType, genre: GenreFilterType) -> String {
         var components: [String] = []
 
@@ -326,7 +413,7 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     // MARK: - Private Methods
 
-    /// 다음 검색 페이지 로드
+    /// 검색 결과의 다음 페이지를 로드합니다.
     private func loadNextSearchPage() async {
         guard !lastSearchQuery.isEmpty else { return }
 
@@ -353,7 +440,7 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         isLoadingMore = false
     }
 
-    /// 다음 장르 페이지 로드
+    /// 장르 필터링된 결과의 다음 페이지를 로드합니다.
     private func loadNextGenrePage() async {
         guard let genreId = currentLoadedGenre.igdbGenreId else { return }
 
@@ -380,7 +467,7 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         isLoadingMore = false
     }
 
-    /// 다음 카테고리 페이지 로드
+    /// 현재 선택된 카테고리의 다음 페이지를 로드합니다.
     private func loadNextCategoryPage() async {
         isLoadingMore = true
 
@@ -433,7 +520,10 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         isLoadingMore = false
     }
 
-    /// 전체 아이템 업데이트
+    /// 현재 상태에 따라 표시할 전체 아이템 목록을 업데이트합니다.
+    ///
+    /// - Note:
+    ///     우선순위: 검색 결과 > 장르 데이터 > 카테고리 데이터
     private func updateAllItems() {
         let trimmedSearch = currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let isRemoteSearch = !lastSearchQuery.isEmpty && lastSearchQuery == trimmedSearch
@@ -472,7 +562,10 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         }
     }
 
-    /// 필터링된 결과 업데이트
+    /// 현재 필터 조건을 적용하여 필터링된 결과를 업데이트합니다.
+    ///
+    /// - Note:
+    ///     플랫폼, 장르, 검색어, 평점, 출시 기간 필터 순차 적용 후 정렬
     private func updateFilteredItems() {
         let trimmedSearch = currentSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let isRemoteSearch = !lastSearchQuery.isEmpty && lastSearchQuery == trimmedSearch
@@ -506,7 +599,10 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         filteredItems = result
     }
 
-    /// 정렬 적용
+    /// 고급 필터의 정렬 타입에 따라 아이템을 정렬합니다.
+    ///
+    /// - Parameter items: 정렬할 게임 아이템 배열
+    /// - Returns: 정렬된 게임 아이템 배열
     private func sortItems(_ items: [GameListItem]) -> [GameListItem] {
         switch currentAdvancedFilter.sortType {
         case .popularity:
