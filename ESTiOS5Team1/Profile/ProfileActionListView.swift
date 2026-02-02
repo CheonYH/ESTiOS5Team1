@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+/// 프로필 액션 버튼 목록 뷰입니다.
+///
+/// - Parameters:
+///   - onNicknameTap: 닉네임 변경 버튼 탭 콜백
+///   - onGenrePreferenceTap: 선호 장르 변경 버튼 탭 콜백
+///   - onLogoutTap: 로그아웃 버튼 탭 콜백
+///   - onDeleteTap: 회원 탈퇴 버튼 탭 콜백
 struct ProfileActionListView: View {
     let style: ProfileStyle
     let onNicknameTap: () -> Void
@@ -90,6 +97,7 @@ struct ProfileActionListView: View {
     }
 
     @ViewBuilder
+    /// 공통 액션 카드 UI를 생성합니다.
     private func actionRow(
         icon: String,
         title: String,

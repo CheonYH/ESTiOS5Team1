@@ -35,6 +35,12 @@ final class ProfileViewModel: ObservableObject {
     }
 
     /// 프로필을 조회합니다.
+    ///
+    /// - Endpoint:
+    ///     `GET /profile`
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `profile`/`nickname`/`avatarUrl` 갱신)
     func fetchProfile() async {
         isLoading = true
         defer { isLoading = false }
@@ -52,6 +58,12 @@ final class ProfileViewModel: ObservableObject {
     }
 
     /// 프로필을 생성합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /profile`
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `profile` 갱신)
     func createProfile() async {
         isLoading = true
         defer { isLoading = false }
@@ -65,6 +77,12 @@ final class ProfileViewModel: ObservableObject {
     }
 
     /// 프로필을 업데이트합니다.
+    ///
+    /// - Endpoint:
+    ///     `PATCH /profile`
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `profile` 갱신)
     func updateProfile() async {
         isLoading = true
         defer { isLoading = false }
@@ -78,6 +96,16 @@ final class ProfileViewModel: ObservableObject {
     }
 
     /// R2 업로드용 프리사인 URL을 요청합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /r2/presign`
+    ///
+    /// - Parameters:
+    ///     - filename: 업로드 파일명
+    ///     - expiresIn: presigned URL 만료 시간(초)
+    ///
+    /// - Returns:
+    ///     성공 시 `R2PresignResponse`, 실패 시 `nil`
     func presign(filename: String, expiresIn: Int = 900) async -> R2PresignResponse? {
         print("[Presign] start filename=\(filename) expiresIn=\(expiresIn)")
         do {
@@ -92,6 +120,17 @@ final class ProfileViewModel: ObservableObject {
     }
 
     /// 프리사인 URL로 파일을 업로드합니다.
+    ///
+    /// - Endpoint:
+    ///     presigned `PUT` URL (Cloudflare R2)
+    ///
+    /// - Parameters:
+    ///     - uploadUrl: presigned 업로드 URL
+    ///     - data: 업로드 데이터
+    ///     - contentType: MIME 타입
+    ///
+    /// - Returns:
+    ///     업로드 성공 여부
     func uploadToPresignedUrl(_ uploadUrl: String, data: Data, contentType: String = "image/png") async -> Bool {
         guard let url = URL(string: uploadUrl) else {
             return false
@@ -115,6 +154,17 @@ final class ProfileViewModel: ObservableObject {
     }
 
     /// 프로필 이미지를 업로드하고 avatarUrl을 업데이트합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /r2/presign`
+    ///     presigned `PUT` URL
+    ///     `PATCH /profile`
+    ///
+    /// - Parameters:
+    ///     - data: 업로드할 이미지 데이터
+    ///
+    /// - Returns:
+    ///     전체 갱신 성공 여부
     func updateAvatar(with data: Data) async -> Bool {
         guard let presign = await presign(filename: "avatar.png", expiresIn: 900) else {
             errorMessage = "업로드 준비 실패"

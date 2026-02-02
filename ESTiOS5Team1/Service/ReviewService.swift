@@ -50,21 +50,98 @@ enum ReviewSortOption: String, Sendable {
     case oldest
 }
 
+/// 리뷰 API 에러 타입입니다.
 enum ReviewServiceError: Error {
     case unauthenticated          // 토큰 없음
     case invalidResponse          // HTTPURLResponse 캐스팅 실패
     case serverError(statusCode: Int) // 4xx, 5xx 등
 }
 
+/// 리뷰 API 계약입니다.
 protocol ReviewService {
+    /// 리뷰를 생성합니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /reviews`
+    ///
+    /// - Parameters:
+    ///   - gameId: 대상 게임 ID
+    ///   - rating: 별점
+    ///   - content: 리뷰 내용
+    ///
+    /// - Returns:
+    ///   `ReviewResponse`
+    ///
+    /// - Throws:
+    ///   인증 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func create(gameId: Int, rating: Int, content: String) async throws -> ReviewResponse
+    /// 리뷰를 수정합니다.
+    ///
+    /// - Endpoint:
+    ///   `PATCH /reviews/{id}`
+    ///
+    /// - Parameters:
+    ///   - id: 리뷰 ID
+    ///   - rating: 수정 별점(옵션)
+    ///   - content: 수정 내용(옵션)
+    ///
+    /// - Throws:
+    ///   인증 오류 / 네트워크 오류 / 서버 응답 오류
     func update(id: Int, rating: Int?, content: String?) async throws
+    /// 리뷰를 삭제합니다.
+    ///
+    /// - Endpoint:
+    ///   `DELETE /reviews/{id}`
+    ///
+    /// - Parameters:
+    ///   - id: 리뷰 ID
+    ///
+    /// - Throws:
+    ///   인증 오류 / 네트워크 오류 / 서버 응답 오류
     func delete(id: Int) async throws
+    /// 게임별 리뷰 목록을 조회합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /reviews/game/{gameId}`
+    ///
+    /// - Parameters:
+    ///   - gameId: 대상 게임 ID
+    ///   - sort: 정렬 옵션
+    ///
+    /// - Returns:
+    ///   `[ReviewResponse]`
+    ///
+    /// - Throws:
+    ///   네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func fetchByGame(gameId: Int, sort: ReviewSortOption?) async throws -> [ReviewResponse]
+    /// 게임별 리뷰 통계를 조회합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /reviews/game/{gameId}/stats`
+    ///
+    /// - Parameters:
+    ///   - gameId: 대상 게임 ID
+    ///
+    /// - Returns:
+    ///   `ReviewStatsResponse`
+    ///
+    /// - Throws:
+    ///   네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func stats(gameId: Int) async throws -> ReviewStatsResponse
+    /// 내 리뷰 목록을 조회합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /reviews/me`
+    ///
+    /// - Returns:
+    ///   `[ReviewResponse]`
+    ///
+    /// - Throws:
+    ///   인증 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func me() async throws -> [ReviewResponse]
 }
 
+/// 리뷰 API의 실제 네트워크 구현체입니다.
 final class ReviewServiceManager: ReviewService {
 
     private let tokenStore: TokenStore
@@ -83,6 +160,7 @@ final class ReviewServiceManager: ReviewService {
         self.encoder = encoder
     }
 
+    /// 리뷰 생성 요청을 전송합니다.
     func create(gameId: Int, rating: Int, content: String) async throws -> ReviewResponse {
         guard let token = tokenStore.accessToken() else {
             throw ReviewServiceError.unauthenticated
@@ -116,6 +194,7 @@ final class ReviewServiceManager: ReviewService {
 
     }
 
+    /// 리뷰 수정 요청을 전송합니다.
     func update(id: Int, rating: Int?, content: String?) async throws {
         guard let token = tokenStore.accessToken() else {
             throw ReviewServiceError.unauthenticated
@@ -149,6 +228,7 @@ final class ReviewServiceManager: ReviewService {
         }
     }
 
+    /// 리뷰 삭제 요청을 전송합니다.
     func delete(id: Int) async throws {
         guard let token = tokenStore.accessToken() else {
             throw ReviewServiceError.unauthenticated
@@ -181,6 +261,7 @@ final class ReviewServiceManager: ReviewService {
         }
     }
 
+    /// 게임별 리뷰 목록 조회 요청을 전송합니다.
     func fetchByGame(gameId: Int, sort: ReviewSortOption?) async throws -> [ReviewResponse] {
         let endpoint = ReviewEndpoint.fetchByGame(id: gameId, sort: sort)
         var request = URLRequest(url: endpoint.url)
@@ -203,6 +284,7 @@ final class ReviewServiceManager: ReviewService {
         }
     }
 
+    /// 게임별 리뷰 통계 조회 요청을 전송합니다.
     func stats(gameId: Int) async throws -> ReviewStatsResponse {
         let endpoint = ReviewEndpoint.stats(id: gameId)
         var request = URLRequest(url: endpoint.url)
@@ -224,6 +306,7 @@ final class ReviewServiceManager: ReviewService {
         }
     }
 
+    /// 내 리뷰 목록 조회 요청을 전송합니다.
     func me() async throws -> [ReviewResponse] {
         guard let token = tokenStore.accessToken() else {
             throw ReviewServiceError.unauthenticated

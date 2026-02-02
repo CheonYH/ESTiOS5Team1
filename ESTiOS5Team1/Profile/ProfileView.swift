@@ -8,6 +8,13 @@
 import SwiftUI
 import PhotosUI
 
+/// 사용자 프로필 메인 화면입니다.
+///
+/// - 기능:
+///   - 프로필 조회/아바타 변경
+///   - 닉네임 변경
+///   - 선호 장르 변경
+///   - 로그아웃/회원 탈퇴
 @MainActor
 struct ProfileView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
@@ -150,6 +157,7 @@ struct ProfileView: View {
         .onAppear { tabBarState.isHidden = false }
     }
 
+    /// 닉네임 변경 요청을 전송하고 결과를 화면에 반영합니다.
     private func submitNicknameChange() {
         Task {
             let event = await authVM.updateNickName(to: newNickname)

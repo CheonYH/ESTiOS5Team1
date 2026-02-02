@@ -35,6 +35,15 @@ final class GameDetailViewModel: ObservableObject {
     }
 
     /// 단일 게임 상세 정보를 불러옵니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /v4/games` (IGDB 상세)
+    ///     `GET /reviews/game/{gameId}/stats`
+    ///     `GET /reviews/game/{gameId}`
+    ///     `GET /reviews/me`
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `item` 갱신)
     func load() async {
         isLoading = true
         defer { isLoading = false }
@@ -59,6 +68,14 @@ final class GameDetailViewModel: ObservableObject {
     }
 
     /// 리뷰 변경 후 평점/리뷰 정보를 다시 불러와 화면을 갱신합니다.
+    ///
+    /// - Endpoint:
+    ///     `GET /reviews/game/{gameId}/stats`
+    ///     `GET /reviews/game/{gameId}`
+    ///     `GET /reviews/me`
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `item` 갱신)
     func refreshReviewData() async {
         guard let detailEntity = cachedDetailEntity else { return }
 

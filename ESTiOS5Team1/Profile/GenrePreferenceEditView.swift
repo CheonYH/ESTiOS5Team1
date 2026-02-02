@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+/// 프로필에서 선호 장르를 수정하는 시트 화면입니다.
+///
+/// 저장 시 `PreferenceStore`를 갱신하고 장르 변경 노티를 발행합니다.
 struct GenrePreferenceEditView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var toast: ToastManager
@@ -42,6 +45,7 @@ struct GenrePreferenceEditView: View {
         }
     }
 
+    /// 선택한 장르를 저장하고 화면을 닫습니다.
     private func saveAndClose() {
         GenrePreferenceStore.save(selectedGenres)
         GenrePreferenceStore.notifyDidChange()

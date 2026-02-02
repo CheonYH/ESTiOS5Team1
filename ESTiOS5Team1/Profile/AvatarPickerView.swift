@@ -8,6 +8,12 @@
 import SwiftUI
 import Kingfisher
 
+/// 프로필 아바타 렌더링 뷰입니다.
+///
+/// - Parameters:
+///   - avatarURLString: 서버에서 받은 아바타 URL 문자열
+///   - avatarDiameter: 아바타 원의 전체 지름
+///   - avatarSize: 기본 아이콘 크기
 struct AvatarPickerView: View {
     let avatarURLString: String
     let avatarDiameter: CGFloat

@@ -32,7 +32,33 @@ typealias IGDBRawResponse = [String: [[String: Any]]]
 ///
 /// ViewModel은 이 프로토콜에 의존합니다.
 protocol IGDBService {
+    /// IGDB 멀티쿼리 요청을 수행합니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/multiquery` (프록시 서버 경유)
+    ///
+    /// - Parameters:
+    ///   - batch: 쿼리 블록 배열
+    ///
+    /// - Returns:
+    ///   섹션 이름별 원시 응답 딕셔너리
+    ///
+    /// - Throws:
+    ///   URL 구성 오류 / 네트워크 오류 / 서버 응답 오류 / 파싱 오류
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse
+    /// 게임 상세 정보를 조회합니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/games` (프록시 서버 경유)
+    ///
+    /// - Parameters:
+    ///   - id: IGDB 게임 ID
+    ///
+    /// - Returns:
+    ///   `IGDBGameListDTO`
+    ///
+    /// - Throws:
+    ///   URL 구성 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO
 }
 
@@ -41,8 +67,10 @@ protocol IGDBService {
 /// 서버 프록시를 통해 IGDB와 통신합니다.
 final class IGDBServiceManager: IGDBService {
 
+    /// IGDB 프록시 서버의 베이스 URL입니다.
     private let baseURL = "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app"
 
+    /// 멀티쿼리 배치 요청을 전송합니다.
     func fetch(_ batch: [IGDBBatchItem]) async throws -> IGDBRawResponse {
         let start = CFAbsoluteTimeGetCurrent()
         let batchNames = batch.map { $0.name }.joined(separator: ",")
@@ -92,6 +120,7 @@ final class IGDBServiceManager: IGDBService {
         return result
     }
 
+    /// 단일 게임 상세 정보를 전송/디코딩합니다.
     func fetchDetail(id: Int) async throws -> IGDBGameListDTO {
         let start = CFAbsoluteTimeGetCurrent()
         print("[IGDB] fetchDetail START - id=\(id)")
