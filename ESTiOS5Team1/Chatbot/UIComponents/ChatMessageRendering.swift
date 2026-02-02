@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// 말풍선 모양을 커스텀하기 위한 Shape
-// 네 모서리의 라운드 정도를 각각 지정해서, 좌/우 말풍선 느낌을 만들 수 있다.
 struct ChatBubbleShape: Shape {
     var topLeft: CGFloat
     var topRight: CGFloat
@@ -65,12 +63,6 @@ struct ChatBubbleShape: Shape {
     }
 }
 
-// 채팅 한 줄(메시지 하나)을 말풍선 형태로 렌더링한다.
-// 흐름:
-// 1) author(bot/guest)에 따라 좌/우 정렬 결정
-// 2) 메시지 텍스트를 링크/일반 텍스트로 분리(LinkSegmenter)
-// 3) 일반 텍스트는 마크다운 블록 파서(MarkdownBlockView)로 렌더링
-// 4) 링크는 Link 버튼 형태로 렌더링
 struct MessageBubbleView: View {
     let message: ChatMessage
 
@@ -95,10 +87,8 @@ struct MessageBubbleView: View {
 
     private var bubbleClipShape: ChatBubbleShape {
         if message.author == .bot {
-            // bot(좌측): 좌하단만 각지게
             return ChatBubbleShape(topLeft: 16, topRight: 16, bottomLeft: 0, bottomRight: 16)
         }
-        // guest(우측): 우하단만 각지게
         return ChatBubbleShape(topLeft: 16, topRight: 16, bottomLeft: 16, bottomRight: 0)
     }
 
@@ -212,8 +202,6 @@ struct MessageBubbleView: View {
     }
 }
 
-// 답변 생성 중 표시하는 타이핑 버블
-// 일정 주기로 점이 바뀌면서 입력 중인 느낌을 만든다.
 struct TypingBubbleView: View {
     @State private var phase = 0
     @State private var timer: Timer?
@@ -264,8 +252,6 @@ struct TypingBubbleView: View {
     }
 }
 
-// 마크다운의 아주 단순한 형태(헤딩/불릿/일반 텍스트)만 처리한다.
-// SwiftUI의 Text(.init(markdown))을 사용하되, 줄 단위로 블록을 나눠서 레이아웃을 예측 가능하게 만든다.
 struct MarkdownBlockView: View {
     let text: String
 

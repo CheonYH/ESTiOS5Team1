@@ -10,6 +10,8 @@ import SwiftUI
 struct ChatRoomView: View {
     @StateObject private var roomViewModel: ChatRoomViewModel
     @ObservedObject private var roomsViewModel: ChatRoomsViewModel
+    @ObservedObject private var alanCoordinator: AlanCoordinator
+
     @State private var isPresentingRooms = false
     @FocusState private var isComposerFocused: Bool
 
@@ -18,15 +20,19 @@ struct ChatRoomView: View {
     init(
         room: ChatRoom,
         store: ChatSwiftDataStore,
-        roomsViewModel: ChatRoomsViewModel
+        roomsViewModel: ChatRoomsViewModel,
+        alanCoordinator: AlanCoordinator
     ) {
+        self.roomsViewModel = roomsViewModel
+        self.alanCoordinator = alanCoordinator
+
         _roomViewModel = StateObject(
             wrappedValue: ChatRoomViewModel(
                 room: room,
-                store: store
+                store: store,
+                alanCoordinator: alanCoordinator
             )
         )
-        self.roomsViewModel = roomsViewModel
     }
 
     var body: some View {
@@ -49,6 +55,7 @@ struct ChatRoomView: View {
                     )
                     .frame(height: 44)
                     .allowsHitTesting(false)
+
                     composerBar
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
@@ -73,9 +80,7 @@ struct ChatRoomView: View {
                 await roomViewModel.loadInitialMessages()
                 focusComposerSoon()
             }
-            .onAppear {
-                focusComposerSoon()
-            }
+            .onAppear { focusComposerSoon() }
         }
     }
 
@@ -86,7 +91,14 @@ struct ChatRoomView: View {
             HStack(spacing: 0) {
                 Button {
                     Task {
-                        await roomsViewModel.startNewConversation()
+                        let sourceRoomId = roomViewModel.room.identifier
+                        let archivedRoom = await roomsViewModel.startNewConversation()
+
+                        if let archivedRoom {
+                            roomViewModel.redirectCompletions(from: sourceRoomId, to: archivedRoom.identifier)
+                            alanCoordinator.redirectActiveRoom(from: sourceRoomId, to: archivedRoom.identifier) // ✅ 추가
+                        }
+
                         await roomViewModel.reload(room: roomsViewModel.defaultRoom)
                         roomsViewModel.select(room: roomsViewModel.defaultRoom)
                         focusComposerSoon()
@@ -126,6 +138,10 @@ struct ChatRoomView: View {
         }
     }
 
+    private var isCurrentProcessingRoom: Bool {
+        alanCoordinator.isBusy && alanCoordinator.activeRoomId == roomViewModel.room.identifier
+    }
+
     private var messagesList: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -135,7 +151,8 @@ struct ChatRoomView: View {
                             .id(message.identifier)
                     }
 
-                    if roomViewModel.isSending {
+                    // ✅ 현재 처리 중인 방만 도트 표시
+                    if isCurrentProcessingRoom {
                         TypingBubbleView()
                             .transition(.opacity)
                     }
@@ -164,7 +181,10 @@ struct ChatRoomView: View {
             .onChange(of: roomViewModel.messages) { _, _ in
                 scrollToBottom(proxy: proxy, animated: true)
             }
-            .onChange(of: roomViewModel.isSending) { _, _ in
+            .onChange(of: alanCoordinator.isBusy) { _, _ in
+                scrollToBottom(proxy: proxy, animated: true)
+            }
+            .onChange(of: alanCoordinator.activeRoomId) { _, _ in
                 scrollToBottom(proxy: proxy, animated: true)
             }
             .onChange(of: isComposerFocused) { _, focused in
@@ -182,8 +202,7 @@ struct ChatRoomView: View {
             Text("답변에는 부정확하거나 오래된 정보가 포함될 수 있습니다.\n중요한 판단은 반드시 공식 자료를 확인해 주세요.")
                 .font(.footnote)
 
-            Divider()
-                .opacity(0.4)
+            Divider().opacity(0.4)
 
             Text("This chat provides AI-generated content.")
                 .font(.callout.weight(.semibold))
@@ -209,11 +228,15 @@ struct ChatRoomView: View {
         }
     }
 
+    private var placeholderText: String {
+        alanCoordinator.isBusy ? "사용 중입니다" : "게임에 대해 질문하세요"
+    }
+
     private var composerBar: some View {
         HStack(spacing: 10) {
-            TextField("게임에 대해 질문하세요", text: $roomViewModel.inputText, axis: .vertical)
+            TextField(placeholderText, text: $roomViewModel.inputText, axis: .vertical)
                 .lineLimit(1...4)
-                .disabled(roomViewModel.isSending)
+                .disabled(alanCoordinator.isBusy)
                 .focused($isComposerFocused)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
@@ -232,7 +255,7 @@ struct ChatRoomView: View {
                     .clipShape(Circle())
             }
             .disabled(
-                roomViewModel.isSending ||
+                alanCoordinator.isBusy ||
                 roomViewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             )
             .accessibilityLabel("메시지 전송")

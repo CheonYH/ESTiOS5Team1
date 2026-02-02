@@ -7,9 +7,6 @@
 
 import Foundation
 
-// 지금 단계에서는 endpoint와 client_id가 반드시 있어야 서버 호출이 가능하다.
-// 나중에 로컬 파일/보안 저장소로 옮길 예정이므로, 여기 하드코딩은 임시 방편이다.
-// 저장된 값이 비어 있으면 이 기본값으로 강제로 채운다.
 private enum AlanDefaults {
     static let defaultEndpoint = "https://kdt-api-function.azurewebsites.net"
     static let defaultClientKey = "c358e44a-da12-4388-be42-781f2289ecba"
@@ -53,7 +50,6 @@ struct AppSettings: Codable, Hashable {
     static func load() -> AppSettings {
         if let data = UserDefaults.standard.data(forKey: storageKey),
            var decoded = try? JSONDecoder().decode(AppSettings.self, from: data) {
-            // 예전에 저장된 값이 빈 문자열로 남아있을 수 있어, 로드 시점에 한 번 보정한다.
             decoded.alan.applyFallbacksIfNeeded()
             return decoded
         }

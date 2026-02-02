@@ -153,7 +153,6 @@ actor ChatSwiftDataStore {
     func saveMessages(_ messages: [ChatMessage], roomIdentifier: UUID) async {
         guard let context = self.context else { return }
         do {
-            // 해당 방의 기존 메시지만 삭제
             let existing = try context.fetch(FetchDescriptor<ChatMessageRecord>(predicate: #Predicate { $0.roomIdentifier == roomIdentifier }))
             for rec in existing { context.delete(rec) }
 
