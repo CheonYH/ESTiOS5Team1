@@ -19,9 +19,12 @@ struct ProfileView: View {
 
     @State private var showDeleteAlert = false
     @State private var showNickNameAlert = false
+    @State private var showNicknameErrorAlert = false
+    @State private var nicknameErrorMessage = ""
     @State private var newNickname = ""
     @State private var avatarURLString: String = ""
     @State private var showRoot = false
+    @State private var showGenrePreferenceSheet = false
 
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
@@ -70,30 +73,31 @@ struct ProfileView: View {
                             },
                             showNickNameAlert: $showNickNameAlert,
                             newNickname: $newNickname,
-                            onConfirmNickname: {
-                                Task {
-                                    let event = await authVM.updateNickName(to: newNickname)
-                                    toast.show(event)
-                                    if event.status == .success {
-                                        profileVM.nickname = newNickname
-                                        await profileVM.updateProfile()
-                                    }
-                                }
-                            }
+                            onConfirmNickname: submitNicknameChange
                         )
+                        .padding(.bottom, Spacing.pv10)
 
                         // 하단: 액션 버튼 영역
                         ProfileActionListView(
-                            style: style,
-                            onNicknameTap: {},
-                            onLogoutTap: {
-                                let event = authVM.logout(appViewModel: appViewModel)
-                                toast.show(event)
-                            },
-                            onDeleteTap: {
-                                showDeleteAlert = true
-                            }
-                        )
+                              style: style,
+                              onNicknameTap: {
+                                  showNickNameAlert = true
+                              },
+                              onGenrePreferenceTap: {
+                                  showGenrePreferenceSheet = true
+                              },
+                              onLogoutTap: {
+                                  let event = authVM.logout(appViewModel: appViewModel)
+                                  toast.show(event)
+                              },
+                              onDeleteTap: {
+                                  showDeleteAlert = true
+                              },
+                              nicknameText: profileVM.nickname,
+                              showNickNameAlert: $showNickNameAlert,
+                              newNickname: $newNickname,
+                              onConfirmNickname: submitNicknameChange
+                          )
                         .padding(.horizontal)
                         .alert("회원 탈퇴", isPresented: $showDeleteAlert) {
                             Button("취소", role: .cancel) {}
@@ -134,9 +138,32 @@ struct ProfileView: View {
                 .onAppear { tabBarState.isHidden = true }
                 .onDisappear { tabBarState.isHidden = false }
         }
+        .sheet(isPresented: $showGenrePreferenceSheet) {
+            GenrePreferenceEditView()
+                .environmentObject(toast)
+        }
+        .alert("", isPresented: $showNicknameErrorAlert) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text(nicknameErrorMessage)
+        }
         .onAppear { tabBarState.isHidden = false }
     }
 
+    private func submitNicknameChange() {
+        Task {
+            let event = await authVM.updateNickName(to: newNickname)
+            if event.status == .success {
+                toast.show(event)
+                profileVM.nickname = newNickname
+                await profileVM.updateProfile()
+                showNickNameAlert = false
+            } else {
+                nicknameErrorMessage = event.message
+                showNicknameErrorAlert = true
+            }
+        }
+    }
 }
 
 #Preview {

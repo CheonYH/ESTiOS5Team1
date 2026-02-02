@@ -29,7 +29,7 @@ final class TopRatedByGenreViewModel: ObservableObject {
     }
 
     /// UserDefaults에 저장된 선호 장르 기준으로 목록을 로드합니다.
-    func loadPreferredGenre() async {
+    func loadPreferredGenre(showLoading: Bool = true) async {
         let genreIds = PreferenceStore.preferredGenreIds
         let singleGenreId = PreferenceStore.preferredGenreId
         // 저장된 장르가 없으면 목록을 비웁니다.
@@ -40,7 +40,8 @@ final class TopRatedByGenreViewModel: ObservableObject {
             return
         }
 
-        isLoading = true
+        // 이미 목록이 있으면 새 데이터가 올 때까지 화면을 유지합니다.
+        isLoading = showLoading && items.isEmpty
         error = nil
 
         // 복수 장르: 장르별 5개씩 조회 후 합산
@@ -98,6 +99,6 @@ final class TopRatedByGenreViewModel: ObservableObject {
 
     /// 외부에서 강제 갱신할 때 호출
     func refresh() async {
-        await loadPreferredGenre()
+        await loadPreferredGenre(showLoading: false)
     }
 }

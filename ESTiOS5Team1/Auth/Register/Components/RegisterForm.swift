@@ -112,6 +112,7 @@ struct RegisterForm: View {
                 .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
                 .focused(focusedField, equals: .nickname)
+                .textInputAutocapitalization(.never)
                 .id(RegisterField.nickname)
                 .background(
                     RoundedRectangle(cornerRadius: 10)

@@ -205,6 +205,12 @@ final class AuthServiceImpl: AuthService {
                 TokenStore.shared.updateTokens(pair: decoded)
                 return decoded
 
+            case 403:
+                if isDeletedAccountError(data: data) {
+                    throw AuthError.accountDeleted
+                }
+                throw AuthError.server
+
             case 401:
                 throw AuthError.invalidCredentials
 
@@ -392,6 +398,12 @@ final class AuthServiceImpl: AuthService {
         case 202:
             let decoded = try JSONDecoder().decode(RegistrationNeededResponse.self, from: data)
             return .needsRegister(email: decoded.email, providerUid: decoded.providerUid)
+
+        case 403:
+            if isDeletedAccountError(data: data) {
+                throw AuthError.accountDeleted
+            }
+            throw AuthError.server
 
         default:
             throw AuthError.server
@@ -588,5 +600,10 @@ final class AuthServiceImpl: AuthService {
             default:
                 throw AuthError.server
         }
+    }
+
+    private func isDeletedAccountError(data: Data) -> Bool {
+        let bodyText = String(data: data, encoding: .utf8)?.lowercased() ?? ""
+        return bodyText.contains("account deleted")
     }
 }
