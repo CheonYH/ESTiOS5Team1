@@ -73,14 +73,15 @@ final class AppViewModel: ObservableObject {
 
     /// 이전 세션을 복구합니다 (자동 로그인)
     ///
-    /// - Flow:
-    ///     1. refreshToken 존재 여부 확인
-    ///     2. refresh() 호출하여 accessToken 재발급 시도
-    ///     3. 성공 → signedIn
-    ///     4. 실패 → signedOut + 안내 메시지 출력
+    /// - Endpoint:
+    ///     `POST /auth/refresh`
+    ///     `GET /auth/me`
     ///
-    /// - Important:
-    ///     refreshToken이 만료될 수 있으므로 실패 시 사용자 안내 필요
+    /// - Returns:
+    ///     없음 (내부 상태 `state`/`onboardingCompleted` 갱신)
+    ///
+    /// - Throws:
+    ///     직접 throw 하지 않고 내부에서 실패를 signedOut + 토스트로 처리합니다.
     func restoreSession() async {
         guard TokenStore.shared.refreshToken() != nil else {
             state = .signedOut
@@ -109,6 +110,12 @@ final class AppViewModel: ObservableObject {
     }
 
     /// 서버에서 Firebase 설정을 받아 초기화합니다.
+    ///
+    /// - Endpoint:
+    ///     `GET /firebase/config`
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 디코딩 오류 / Firebase 구성 오류
     func setupFirebase() async throws {
 
         guard let url = URL(string: "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app/firebase/config") else { return }
