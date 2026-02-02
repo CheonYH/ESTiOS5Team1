@@ -36,6 +36,5 @@ struct NewReleasesView: View {
         .navigationDestination(isPresented: $showAll) {
             GameListSeeAll(title: "신규 출시", query: IGDBQuery.newReleases)
         }
-
     }
 }

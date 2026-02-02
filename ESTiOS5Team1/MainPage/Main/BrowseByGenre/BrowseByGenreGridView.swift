@@ -16,9 +16,7 @@ struct BrowseByGenreGridView: View {
     ]
     var body: some View {
         VStack(alignment: .leading) {
-            Text("장르")
-                .font(.title2.bold())
-                .foregroundStyle(Color("TextPrimary"))
+            TitleBox(title: "장르", onSeeAllTap: nil)
 
             ScrollView(.horizontal, showsIndicators: false) {
 

@@ -30,11 +30,14 @@ struct MainView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
+
                     if let item = viewModel.items.first {
                         MainPoster(item: item)
                     }
 
                     TrendingNowGameView(viewModel: trendingVM)
+                    
+                    TopRatedByGenreCard()
 
                     BrowseByGenreGridView(onGenreTap: onGenreTap)
 

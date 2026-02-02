@@ -126,6 +126,7 @@ struct MainTabView: View {
                     shouldResetSearch = true
                 }
             }
+            .toolbar(.hidden, for: .navigationBar)
     }
 
     private func tabStack<Content: View>(isActive: Bool, @ViewBuilder content: () -> Content) -> some View {
@@ -133,9 +134,6 @@ struct MainTabView: View {
             ZStack {
                 Color("BGColor").ignoresSafeArea()
                 content()
-            }
-            .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: tabBarState.isHidden ? 0 : tabBarHeight)
             }
         }
         .opacity(isActive ? 1 : 0)

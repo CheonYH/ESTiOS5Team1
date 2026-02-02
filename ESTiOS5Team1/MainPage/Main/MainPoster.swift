@@ -38,27 +38,26 @@ struct MainPoster: View {
                         .padding(.horizontal, 10)
                         .background(.purple, in: Capsule())
 
-                    Text(item.ratingText)// 임시
-                        .font(.callout)
-                        .foregroundStyle(.textPrimary)
-                        .bold()
-                        .padding(.vertical, 5)
-                        .padding(.horizontal, 10)
-                        .background(.yellow, in: Capsule())
+                    GameRatingBadge(ratingText: item.ratingText)
                 }
 
                 Text(item.title)
-                    .font(.largeTitle)
+                    .font(.title.bold())
                     .foregroundStyle(.textPrimary)
-
+                    .shadow(color: .black.opacity(0.9), radius: 1, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.55), radius: 6, x: 0, y: 3)
+                
                 Text(item.genre.joined(separator: " · "))
-                    .font(.caption2)
-                    .foregroundColor(.textPrimary.opacity(0.7))
-
+                    .font(.callout)
+                    .foregroundColor(.textPrimary)
+                    .shadow(color: .black.opacity(0.9), radius: 1, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.55), radius: 6, x: 0, y: 3)
+                
                 ForEach(item.platformCategories, id: \.rawValue) { platform in
                     Image(systemName: platform.iconName)
-                        .foregroundStyle(.textPrimary.opacity(0.6))
-                        .font(.caption)
+                        .foregroundStyle(.textPrimary)
+                        .font(.callout).shadow(color: .black.opacity(0.9), radius: 1, x: 0, y: 1)
+                        .shadow(color: .black.opacity(0.55), radius: 6, x: 0, y: 3)
                 }
 
                 HStack {

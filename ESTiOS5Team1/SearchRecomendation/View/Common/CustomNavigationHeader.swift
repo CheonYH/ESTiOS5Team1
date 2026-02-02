@@ -18,26 +18,27 @@ struct CustomNavigationHeader: View {
     @Binding var showRoot: Bool
 
     var body: some View {
-        HStack {
-            Button { showRoot = true } label: {
-                Image(systemName: "book")
-
-            }
-
-            Spacer()
-
+        ZStack {
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
-
-            Spacer()
+                .frame(maxWidth: .infinity)
+        }
+        .overlay(alignment: .leading) {
+            Button { showRoot = true } label: {
+                Image("ChatImg4")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 58, height: 58)
+                    .font(.title3)
+            }
         }
         .overlay(alignment: .trailing) {
             if showSearchButton {
                 Button(action: { onSearchTap?() }) {
                     Image(systemName: isSearchActive ? "xmark" : "magnifyingglass")
-                        .foregroundColor(.white)
+                        .foregroundColor(.purple)
                         .font(.title3)
                 }
 //                .padding(.trailing, 16)
