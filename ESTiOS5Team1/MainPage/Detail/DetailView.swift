@@ -43,11 +43,10 @@ struct DetailView: View {
                     
                     Spacer()
                     
-                    // 가운데 타이틀 정렬용 더미
                     Color.clear.frame(width: 44, height: 44)
                 }
                 .padding(.horizontal, 16)
-                // ✅ 얇은 구분선(너가 쓰던 safeAreaInset 대신 여기로)
+                
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
                     .frame(height: 0.5)

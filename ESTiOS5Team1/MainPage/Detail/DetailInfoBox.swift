@@ -36,8 +36,8 @@ struct DetailInfoBox: View {
                     Text(item.title)
                         .font(.title2.bold())
                         .lineLimit(2)
-                        .minimumScaleFactor(0.7) // 기억
-//리퀴드
+                        .minimumScaleFactor(0.7)
+                    
                     Text(item.genre.joined(separator: " · "))
                         .font(.caption)
                         .foregroundStyle(.pink.opacity(0.75))
