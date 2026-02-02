@@ -34,6 +34,7 @@ enum AuthEndpoint {
     case socialRegister
     case firebaseConfig
     case deleteAccount
+    case me
     case logout
     case onboardingComplete
 
@@ -48,6 +49,7 @@ enum AuthEndpoint {
             case .socialLogin: return "/auth/social"
             case .socialRegister: return "/auth/social-register"
             case .deleteAccount: return "/auth/me"
+            case .me: return "/auth/me"
             case .logout: return "/auth/logout"
             case .onboardingComplete: return "/auth/onboarding-complete"
         }
@@ -132,6 +134,12 @@ protocol AuthService: Sendable {
     /// - Endpoint:
     ///     `DELETE /auth/me`
     func deleteAccount() async throws
+
+    /// 내 정보 조회 요청
+    ///
+    /// - Endpoint:
+    ///     `GET /auth/me`
+    func fetchMe() async throws -> MeResponse
 
     /// 로그아웃 요청
     ///
@@ -459,6 +467,28 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    func fetchMe() async throws -> MeResponse {
+        let url = AuthEndpoint.me.url
+        let request = try authorizedRequest(url: url, method: "GET")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.server
+        }
+
+        switch http.statusCode {
+            case 200:
+                if data.isEmpty {
+                    return MeResponse(userId: nil, onboardingCompleted: nil)
+                }
+                return try JSONDecoder().decode(MeResponse.self, from: data)
+            case 401:
+                throw AuthError.invalidCredentials
+            default:
+                throw AuthError.server
+        }
+    }
+
     func logout() async throws {
         guard let refreshToken = TokenStore.shared.refreshToken() else {
             throw URLError(.userAuthenticationRequired)
@@ -545,7 +575,14 @@ final class AuthServiceImpl: AuthService {
 
         switch http.statusCode {
             case 200:
-                return try JSONDecoder().decode(OnboardingCompleteResponse.self, from: data)
+                // 서버 응답 바디가 비어있거나 필드가 누락되어도 완료로 간주합니다.
+                if data.isEmpty {
+                    return OnboardingCompleteResponse(userId: nil, onboardingCompleted: true)
+                }
+                if let decoded = try? JSONDecoder().decode(OnboardingCompleteResponse.self, from: data) {
+                    return decoded
+                }
+                return OnboardingCompleteResponse(userId: nil, onboardingCompleted: true)
             case 401:
                 throw AuthError.invalidCredentials
             default:

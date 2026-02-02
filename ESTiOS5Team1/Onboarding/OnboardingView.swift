@@ -128,7 +128,8 @@ struct OnboardingView: View {
         Task {
             do {
                 let response = try await authService.completeOnboarding()
-                guard response.onboardingCompleted == true else { return }
+                // 서버가 값을 생략해도(또는 빈 바디여도) 200이면 완료로 처리합니다.
+                guard response.onboardingCompleted ?? true else { return }
                 OnboardingData.markOnboardingComplete()
                 await MainActor.run {
                     withAnimation(.easeInOut(duration: 0.3)) {

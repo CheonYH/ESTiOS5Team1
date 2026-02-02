@@ -79,7 +79,9 @@ final class AuthViewModel: ObservableObject {
             let response = try await service.login(email: email, password: password)
             let afterNetwork = CFAbsoluteTimeGetCurrent()
             print("[AuthVM] login network done in \(String(format: "%.3f", afterNetwork - start))s")
-            appViewModel.onboardingCompleted = response.onboardingCompleted ?? false
+            let me = try? await service.fetchMe()
+            appViewModel.onboardingCompleted = me?.onboardingCompleted ?? response.onboardingCompleted ?? false
+            UserDefaults.standard.set(appViewModel.onboardingCompleted, forKey: OnboardingData.hasSeenOnboardingKey)
             appViewModel.state = .signedIn
             let afterState = CFAbsoluteTimeGetCurrent()
             print("[AuthVM] login state updated in \(String(format: "%.3f", afterState - afterNetwork))s total \(String(format: "%.3f", afterState - start))s")
@@ -121,6 +123,8 @@ final class AuthViewModel: ObservableObject {
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
         signOutFromSocialProviders()
         TokenStore.shared.clear()
+        appViewModel.onboardingCompleted = false
+        UserDefaults.standard.removeObject(forKey: OnboardingData.hasSeenOnboardingKey)
         appViewModel.state = .signedOut
 
         return FeedbackEvent(
@@ -150,6 +154,8 @@ final class AuthViewModel: ObservableObject {
         do {
             try await service.deleteAccount()
             TokenStore.shared.clear()
+            appViewModel.onboardingCompleted = false
+            UserDefaults.standard.removeObject(forKey: OnboardingData.hasSeenOnboardingKey)
             appViewModel.state = .signedOut
             return FeedbackEvent(.auth, .success, "회원 탈퇴가 완료되었습니다.")
         } catch {
@@ -190,7 +196,9 @@ final class AuthViewModel: ObservableObject {
                     // 가입 완료 사용자 → 토큰 저장 + signedIn
                     print("[AuthVM] socialLogin -> signedIn")
                     TokenStore.shared.updateTokens(pair: tokens)
-                    appViewModel.onboardingCompleted = tokens.onboardingCompleted ?? false
+                    let me = try? await service.fetchMe()
+                    appViewModel.onboardingCompleted = me?.onboardingCompleted ?? tokens.onboardingCompleted ?? false
+                    UserDefaults.standard.set(appViewModel.onboardingCompleted, forKey: OnboardingData.hasSeenOnboardingKey)
                     appViewModel.state = .signedIn
                     print("[AuthVM] STATE -> signedIn")
                     return FeedbackEvent(.auth, .success, "Google 로그인 성공!")

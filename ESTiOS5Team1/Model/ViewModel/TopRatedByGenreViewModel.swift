@@ -59,8 +59,16 @@ final class TopRatedByGenreViewModel: ObservableObject {
                 if let err = vm.error { lastError = err }
             }
 
+            let sorted = combined.sorted {
+                let lhs = Double($0.ratingText.replacingOccurrences(of: "/5", with: "")) ?? 0
+                let rhs = Double($1.ratingText.replacingOccurrences(of: "/5", with: "")) ?? 0
+                return lhs > rhs
+            }
+
+            var seen = Set<Int>()
+
             self.innerVM = nil
-            self.items = combined.shuffled()
+            self.items = sorted.filter { seen.insert($0.id).inserted }
             self.error = lastError
             self.isLoading = false
             return

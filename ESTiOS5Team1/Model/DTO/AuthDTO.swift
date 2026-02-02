@@ -211,3 +211,9 @@ struct OnboardingCompleteResponse: Codable {
     let userId: Int?
     let onboardingCompleted: Bool?
 }
+
+/// 내 정보 조회 응답 모델입니다.
+struct MeResponse: Codable {
+    let userId: Int?
+    let onboardingCompleted: Bool?
+}

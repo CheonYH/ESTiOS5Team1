@@ -95,7 +95,12 @@ struct DetailView: View {
 
                         GoChatBotBox(showRoot: $showRoot)
 
-                        ReviewSection(gameId: item.id)
+                        ReviewSection(
+                            gameId: item.id,
+                            onReviewChanged: {
+                                await viewModel.refreshReviewData()
+                            }
+                        )
                     } else if viewModel.isLoading {
                         ProgressView("Loading...")
                             .padding()
@@ -113,6 +118,12 @@ struct DetailView: View {
         }
         .navigationDestination(isPresented: $showRoot) {
             RootTabView()
+        }
+        .onAppear {
+            tabBarState.isHidden = true
+        }
+        .onDisappear {
+            tabBarState.isHidden = false
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)

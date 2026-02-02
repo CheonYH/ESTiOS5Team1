@@ -24,6 +24,8 @@ final class GameDetailViewModel: ObservableObject {
     private let gameService: IGDBService
     /// 리뷰 API 서비스입니다.
     private let reviewService: ReviewService
+    /// 상세 엔티티 캐시입니다. (리뷰/평점 실시간 갱신용)
+    private var cachedDetailEntity: GameDetailEntity?
 
     /// 게임 ID와 서비스 의존성을 주입받습니다.
     init(gameId: Int, service: IGDBService? = nil, reviewService: ReviewService? = nil) {
@@ -49,6 +51,24 @@ final class GameDetailViewModel: ObservableObject {
             let reviewEntity = GameReviewEntity(reviews: list, stats: stats, myReview: myReview)
 
             let detailEntity = GameDetailEntity(gameListDTO: dto, reviewDTO: stats)
+            self.cachedDetailEntity = detailEntity
+            self.item = GameDetailItem(detail: detailEntity, review: reviewEntity)
+        } catch {
+            self.error = error
+        }
+    }
+
+    /// 리뷰 변경 후 평점/리뷰 정보를 다시 불러와 화면을 갱신합니다.
+    func refreshReviewData() async {
+        guard let detailEntity = cachedDetailEntity else { return }
+
+        do {
+            let stats = try await reviewService.stats(gameId: gameId)
+            let list = try await reviewService.fetchByGame(gameId: gameId, sort: .latest)
+            let myReviews = try? await reviewService.me()
+            let myReview = myReviews?.first(where: { $0.gameId == gameId })
+
+            let reviewEntity = GameReviewEntity(reviews: list, stats: stats, myReview: myReview)
             self.item = GameDetailItem(detail: detailEntity, review: reviewEntity)
         } catch {
             self.error = error
