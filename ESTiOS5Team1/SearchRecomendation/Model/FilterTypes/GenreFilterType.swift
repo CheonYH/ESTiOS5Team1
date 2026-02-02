@@ -10,28 +10,6 @@ import SwiftUI
 // MARK: - Genre Filter Type
 
 /// 검색 화면에서 사용하는 장르 필터 타입입니다.
-///
-/// - Responsibilities:
-///     - 게임 장르별 필터링 조건 정의
-///     - UI 표시용 이름, 아이콘, 색상 제공
-///     - IGDB API 장르 ID 및 키워드 매핑
-///     - `GameGenreModel`과의 호환성 제공
-///
-/// - Important:
-///     IGDB API의 장르 ID를 사용하여 서버 사이드 필터링을 지원합니다.
-///     각 장르는 `matchingKeywords`를 통해 다양한 장르 표기와 매칭됩니다.
-///
-/// - Example:
-///     ```swift
-///     let selectedGenre: GenreFilterType = .rolePlaying
-///
-///     // UI 표시
-///     Text(selectedGenre.displayName)  // "RPG"
-///     Image(systemName: selectedGenre.iconName)
-///
-///     // 필터링
-///     if selectedGenre.matches(genre: "Role-playing") { ... }
-///     ```
 enum GenreFilterType: String, CaseIterable, Identifiable {
     case all = "전체"
     case pinball = "Pinball"
@@ -195,13 +173,7 @@ enum GenreFilterType: String, CaseIterable, Identifiable {
 
     // swiftlint:disable cyclomatic_complexity
 
-    /// `GameGenreModel`을 `GenreFilterType`으로 변환합니다.
-    ///
-    /// - Parameter gameGenre: 변환할 `GameGenreModel` 값
-    /// - Returns: 대응하는 `GenreFilterType` 값
-    ///
-    /// - Note:
-    ///     홈 화면의 장르 버튼에서 검색 화면으로 이동할 때 사용됩니다.
+    /// GameGenreModel을 GenreFilterType으로 변환합니다.
     static func from(gameGenre: GameGenreModel) -> GenreFilterType {
         switch gameGenre {
             case .pinball: return .pinball

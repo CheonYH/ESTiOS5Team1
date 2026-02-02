@@ -13,20 +13,6 @@ import Kingfisher
 // MARK: - Game List Card
 
 /// 게임 목록에서 사용하는 통일된 게임 카드 컴포넌트입니다.
-///
-/// - Responsibilities:
-///     - 게임 커버 이미지 표시 (Kingfisher 캐싱)
-///     - 평점 배지 표시 (좌상단)
-///     - 즐겨찾기 버튼 (우상단)
-///     - 게임 제목, 장르, 플랫폼 아이콘 표시
-///
-/// - Parameters:
-///     - item: 표시할 `GameListItem`
-///     - isFavorite: 즐겨찾기 여부
-///     - onToggleFavorite: 즐겨찾기 토글 클로저
-///
-/// - Note:
-///     SearchView와 LibraryView에서 공통으로 사용됩니다.
 struct GameListCard: View {
     // [수정] Game → GameListItem
     let item: GameListItem

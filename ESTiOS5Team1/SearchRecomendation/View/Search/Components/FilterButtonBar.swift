@@ -10,15 +10,6 @@ import SwiftUI
 // MARK: - Filter Button Bar
 
 /// 필터 버튼과 활성화된 필터 캡슐을 표시하는 가로 스크롤 바입니다.
-///
-/// - Responsibilities:
-///     - 고급 필터 시트 열기 버튼 제공
-///     - 활성화된 필터를 캡슐 형태로 표시
-///     - 개별 필터 캡슐의 X 버튼으로 필터 해제
-///
-/// - Parameters:
-///     - filterState: `AdvancedFilterState` 바인딩
-///     - showFilterSheet: 필터 시트 표시 상태 바인딩
 struct FilterButtonBar: View {
     @Binding var filterState: AdvancedFilterState
     @Binding var showFilterSheet: Bool
@@ -93,11 +84,7 @@ struct FilterButtonBar: View {
 
 // MARK: - Filter Button
 
-/// 고급 필터 시트를 여는 버튼 컴포넌트입니다.
-///
-/// - Features:
-///     - 활성화된 필터 개수 배지 표시
-///     - 필터 활성화 시 강조 스타일 적용
+/// 필터 버튼 컴포넌트입니다.
 struct FilterButton: View {
     let hasActiveFilters: Bool
     let activeCount: Int
@@ -142,11 +129,7 @@ struct FilterButton: View {
 
 // MARK: - Active Filter Capsule
 
-/// 활성화된 필터를 캡슐 형태로 표시하는 컴포넌트입니다.
-///
-/// - Features:
-///     - 아이콘, 라벨, 제거 버튼으로 구성
-///     - X 버튼 탭 시 해당 필터 해제
+/// 활성 필터 캡슐 컴포넌트입니다.
 struct ActiveFilterCapsule: View {
     let label: String
     let color: Color

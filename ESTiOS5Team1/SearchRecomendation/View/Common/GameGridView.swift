@@ -11,18 +11,6 @@ import SwiftUI
 // MARK: - Game Grid View
 
 /// 2열 그리드 형태의 게임 카드 목록 컴포넌트입니다.
-///
-/// - Responsibilities:
-///     - `LazyVGrid`를 사용한 2열 그리드 레이아웃
-///     - 게임 카드 탭 시 DetailView로 네비게이션
-///     - 마지막 아이템 도달 시 무한 스크롤 콜백
-///
-/// - Parameters:
-///     - items: 표시할 `GameListItem` 배열
-///     - onReachedEnd: 마지막 아이템 도달 시 호출되는 클로저 (페이지네이션용)
-///
-/// - Note:
-///     `FavoriteManager`를 `@EnvironmentObject`로 주입받습니다.
 struct GameGridView: View {
     let items: [GameListItem]
     var onReachedEnd: (() -> Void)?

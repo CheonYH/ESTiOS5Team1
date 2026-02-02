@@ -11,16 +11,6 @@ import SwiftUI
 // MARK: - Search Header Section
 
 /// 검색 화면의 헤더 섹션 컴포넌트입니다.
-///
-/// - Responsibilities:
-///     - 커스텀 네비게이션 헤더 표시 (타이틀: "게임 탐색")
-///     - 검색 버튼 토글로 검색바 표시/숨김
-///     - 루트 탭 뷰로의 네비게이션
-///
-/// - Parameters:
-///     - isSearchActive: 검색 활성화 상태 바인딩
-///     - searchText: 검색어 바인딩
-///     - onSearchSubmit: 검색 실행 클로저
 struct SearchHeaderSection: View {
     @Binding var isSearchActive: Bool
     @Binding var searchText: String

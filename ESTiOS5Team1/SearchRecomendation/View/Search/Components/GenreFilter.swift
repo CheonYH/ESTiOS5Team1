@@ -11,15 +11,6 @@ import SwiftUI
 // MARK: - Genre Filter
 
 /// 장르별 필터를 제공하는 가로 스크롤 컴포넌트입니다.
-///
-/// - Responsibilities:
-///     - 전체 장르 목록을 텍스트 버튼으로 표시
-///     - 선택된 장르에 밑줄 강조
-///     - 하단 구분선 포함
-///
-/// - Parameters:
-///     - selectedGenre: 현재 선택된 `GenreFilterType` 바인딩
-///     - items: 게임 아이템 배열 (장르 카운트 표시용, 선택적)
 struct GenreFilter: View {
     @Binding var selectedGenre: GenreFilterType
     // [수정] games → items, Game → GameListItem

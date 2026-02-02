@@ -10,13 +10,6 @@ import SwiftUI
 // MARK: - Platform Filter
 
 /// 플랫폼별 필터를 제공하는 가로 스크롤 컴포넌트입니다.
-///
-/// - Responsibilities:
-///     - PC, PlayStation, Xbox, Nintendo, Mobile 플랫폼 필터 버튼 제공
-///     - 선택된 플랫폼 시각적 강조
-///
-/// - Parameters:
-///     - selectedPlatform: 현재 선택된 `PlatformFilterType` 바인딩
 struct PlatformFilter: View {
     @Binding var selectedPlatform: PlatformFilterType
 

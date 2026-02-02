@@ -11,9 +11,6 @@ import SwiftUI
 // MARK: - Loading View
 
 /// 데이터 로딩 중 표시하는 공통 로딩 뷰 컴포넌트입니다.
-///
-/// - Parameters:
-///     - message: 로딩 메시지 (기본값: "게임 정보를 불러오는 중...")
 struct LoadingView: View {
     var message: String = "게임 정보를 불러오는 중..."
 

@@ -11,15 +11,6 @@ import SwiftUI
 // MARK: - Empty State View
 
 /// 콘텐츠가 없을 때 표시하는 공통 빈 상태 뷰 컴포넌트입니다.
-///
-/// - Responsibilities:
-///     - 아이콘, 타이틀, 메시지로 구성된 빈 상태 UI 제공
-///     - 다양한 상황에 맞는 프리셋 제공 (검색 결과 없음, 라이브러리 비어있음 등)
-///
-/// - Parameters:
-///     - icon: SF Symbols 아이콘 이름
-///     - title: 메인 타이틀 텍스트
-///     - message: 상세 설명 메시지
 struct EmptyStateView: View {
     let icon: String
     let title: String
@@ -52,11 +43,6 @@ struct EmptyStateView: View {
 extension EmptyStateView {
 
     /// 검색 결과가 없을 때 표시하는 프리셋입니다.
-    ///
-    /// - Parameters:
-    ///   - platform: 현재 선택된 플랫폼 필터
-    ///   - genre: 현재 선택된 장르 필터
-    /// - Returns: 필터 조합에 맞는 메시지가 포함된 `EmptyStateView`
     static func noSearchResults(platform: PlatformFilterType, genre: GenreFilterType) -> EmptyStateView {
         let message: String
         if platform != .all && genre != .all {

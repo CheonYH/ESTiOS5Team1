@@ -11,22 +11,6 @@ import SwiftUI
 // MARK: - Library View
 
 /// 사용자가 즐겨찾기한 게임 목록을 표시하는 라이브러리 화면입니다.
-///
-/// - Responsibilities:
-///     - 즐겨찾기된 게임 목록 2열 그리드 표시
-///     - 라이브러리 내 게임 검색 기능
-///     - 빈 상태 UI 표시 (저장된 게임 없음, 검색 결과 없음)
-///
-/// - Important:
-///     - `FavoriteManager`를 `@EnvironmentObject`로 주입받습니다.
-///     - 게임 카드 탭 시 `DetailView`로 네비게이션됩니다.
-///
-/// - Example:
-///     ```swift
-///     LibraryView()
-///         .environmentObject(favoriteManager)
-///         .environmentObject(tabBarState)
-///     ```
 struct LibraryView: View {
     @EnvironmentObject var favoriteManager: FavoriteManager
     @State private var isSearchActive = false

@@ -137,45 +137,13 @@ enum CategoryFilter: String, CaseIterable, Identifiable {
 
 // MARK: - Advanced Filter State
 
-/// 고급 필터의 전체 상태를 관리하는 구조체입니다.
-///
-/// - Responsibilities:
-///     - 정렬, 평점, 출시 기간, 카테고리 필터 상태 저장
-///     - 활성화된 필터 개수 및 라벨 계산
-///     - 필터 초기화 기능 제공
-///
-/// - Important:
-///     `Equatable`을 채택하여 SwiftUI의 `onChange`에서 변경 감지가 가능합니다.
-///
-/// - Example:
-///     ```swift
-///     @State private var filterState = AdvancedFilterState()
-///
-///     // 필터 적용
-///     filterState.sortType = .newest
-///     filterState.minimumRating = 4.0
-///
-///     // 필터 초기화
-///     filterState.reset()
-///     ```
+/// 고급 필터 상태를 관리하는 구조체입니다.
 struct AdvancedFilterState: Equatable {
-
-    /// 정렬 기준 (기본값: 인기순)
     var sortType: SortType = .popularity
-
-    /// 최소 평점 필터 (0.0 ~ 5.0)
-    /// - Note: 0.0이면 필터 비활성화 (모든 평점 표시)
     var minimumRating: Double = 0.0
-
-    /// 출시 기간 필터 (기본값: 전체)
     var releasePeriod: ReleasePeriodFilter = .all
-
-    /// 카테고리 필터 (기본값: 전체)
     var category: CategoryFilter = .all
 
-    // MARK: - Computed Properties
-
-    /// 하나 이상의 필터가 활성화되어 있는지 여부
     var hasActiveFilters: Bool {
         sortType != .popularity ||
         minimumRating > 0 ||
@@ -183,7 +151,6 @@ struct AdvancedFilterState: Equatable {
         category != .all
     }
 
-    /// 활성화된 필터의 개수
     var activeFilterCount: Int {
         var count = 0
         if sortType != .popularity { count += 1 }
@@ -193,7 +160,6 @@ struct AdvancedFilterState: Equatable {
         return count
     }
 
-    /// 활성화된 필터들의 라벨 배열
     var activeFilterLabels: [String] {
         var labels: [String] = []
         if sortType != .popularity { labels.append(sortType.rawValue) }
@@ -203,7 +169,6 @@ struct AdvancedFilterState: Equatable {
         return labels
     }
 
-    /// 평점 필터의 표시 텍스트
     var ratingDisplayText: String {
         if minimumRating == 0 {
             return "전체"
@@ -211,8 +176,6 @@ struct AdvancedFilterState: Equatable {
             return "\(String(format: "%.1f", minimumRating))점 이상"
         }
     }
-
-    // MARK: - Methods
 
     /// 모든 필터를 기본값으로 초기화합니다.
     mutating func reset() {

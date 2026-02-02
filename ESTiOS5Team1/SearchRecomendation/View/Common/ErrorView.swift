@@ -11,14 +11,6 @@ import SwiftUI
 // MARK: - Error View
 
 /// 에러 발생 시 표시하는 공통 에러 뷰 컴포넌트입니다.
-///
-/// - Responsibilities:
-///     - 에러 아이콘 및 메시지 표시
-///     - "다시 시도" 버튼 제공
-///
-/// - Parameters:
-///     - error: 표시할 `Error` 객체
-///     - retry: 재시도 버튼 탭 시 호출되는 클로저
 struct ErrorView: View {
     let error: Error
     let retry: () -> Void

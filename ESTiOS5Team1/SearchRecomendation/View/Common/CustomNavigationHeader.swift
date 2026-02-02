@@ -10,21 +10,6 @@ import SwiftUI
 // MARK: - Custom Navigation Header
 
 /// NavigationStack 중첩 문제 해결을 위한 커스텀 네비게이션 헤더입니다.
-///
-/// - Responsibilities:
-///     - 화면 타이틀 표시
-///     - 프로필 이미지 버튼 (루트 탭으로 이동)
-///     - 검색 버튼 (선택적)
-///
-/// - Parameters:
-///     - title: 헤더 타이틀
-///     - showSearchButton: 검색 버튼 표시 여부
-///     - isSearchActive: 검색 활성화 상태 (아이콘 변경용)
-///     - onSearchTap: 검색 버튼 탭 클로저
-///     - showRoot: 루트 탭 표시 상태 바인딩
-///
-/// - Note:
-///     SearchView, LibraryView에서 공통으로 사용됩니다.
 struct CustomNavigationHeader: View {
     let title: String
     var showSearchButton: Bool = false
