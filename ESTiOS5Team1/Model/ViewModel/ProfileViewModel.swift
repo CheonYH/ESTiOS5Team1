@@ -43,9 +43,11 @@ final class ProfileViewModel: ObservableObject {
             let result = try await profileService.fetch()
             profile = result
             nickname = result.nickname
-            avatarUrl = result.avatarUrl
+            avatarUrl = result.avatarUrl ?? ""
+            print("[ProfileVM] fetchProfile success:", result.nickname)
         } catch {
             errorMessage = "프로필 불러오기 실패"
+            print("[ProfileVM] fetchProfile failed:", error)
         }
     }
 
@@ -110,5 +112,28 @@ final class ProfileViewModel: ObservableObject {
             print("[Upload] failed error=\(error)")
             return false
         }
+    }
+
+    /// 프로필 이미지를 업로드하고 avatarUrl을 업데이트합니다.
+    func updateAvatar(with data: Data) async -> Bool {
+        guard let presign = await presign(filename: "avatar.png", expiresIn: 900) else {
+            errorMessage = "업로드 준비 실패"
+            return false
+        }
+
+        let ok = await uploadToPresignedUrl(presign.uploadUrl, data: data)
+        guard ok else {
+            errorMessage = "업로드 실패"
+            return false
+        }
+
+        guard let publicUrl = presign.publicUrl else {
+            errorMessage = "이미지 URL 생성 실패"
+            return false
+        }
+
+        avatarUrl = publicUrl
+        await updateProfile()
+        return true
     }
 }

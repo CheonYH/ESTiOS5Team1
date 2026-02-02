@@ -106,13 +106,11 @@ final class CreateMLTextClassifierAdapter: MessageIntentClassifying {
 
     private static func loadBackend(modelName: String) -> Backend? {
         if modelName == "GameNonGame_bert" {
-            do { return .typedBertNonGame(try GameNonGame_bert(configuration: MLModelConfiguration())) }
-            catch { return nil }
+            do { return .typedBertNonGame(try GameNonGame_bert(configuration: MLModelConfiguration())) } catch { return nil }
         }
 
         if modelName == "GameSort_bert" {
-            do { return .typedBertSort(try GameSort_bert(configuration: MLModelConfiguration())) }
-            catch { return nil }
+            do { return .typedBertSort(try GameSort_bert(configuration: MLModelConfiguration())) } catch { return nil }
         }
 
         // baseline 등은 번들에서 mlmodelc로 로드한다.

@@ -19,11 +19,11 @@ struct MainTabView: View {
 
     @StateObject var favoriteManager = FavoriteManager()
 
-    @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow, label: "home-main")
+    @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
 
-    @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow, label: "home-trending")
+    @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
 
-    @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases, label: "home-newReleases")
+    @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
 
     @StateObject private var tabBarState = TabBarState()
 
@@ -83,6 +83,20 @@ struct MainTabView: View {
                                 LibraryView()
                                     .opacity(selectedTab == .library ? 1 : 0)
                                     .allowsHitTesting(selectedTab == .library)
+                            }
+                        }
+
+                        if loadedTabs.contains(.profile) {
+                            tabStack(isActive: selectedTab == .profile) {
+                                ProfileView(
+                                    onSearchTap: {
+                                        openSearchRequested = true
+                                        selectedTab = .discover
+                                        loadedTabs.insert(.discover)
+                                    }
+                                )
+                                    .opacity(selectedTab == .profile ? 1 : 0)
+                                    .allowsHitTesting(selectedTab == .profile)
                             }
                         }
                     }

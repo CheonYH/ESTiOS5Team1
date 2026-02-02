@@ -24,5 +24,5 @@ struct ProfileResponse: Codable, Hashable {
     /// 사용자 닉네임입니다.
     let nickname: String
     /// 프로필 이미지 URL 문자열입니다.
-    let avatarUrl: String
+    let avatarUrl: String?
 }
