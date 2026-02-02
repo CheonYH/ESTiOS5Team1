@@ -13,6 +13,7 @@ struct RatingText: View {
         HStack(spacing: 4) {
             Image(systemName: "star.fill")
                 .font(.system(size: 10))
+            
             Text(item.ratingText)
                 .font(.caption2)
                 .fontWeight(.bold)

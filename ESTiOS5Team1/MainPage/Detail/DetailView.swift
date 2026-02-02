@@ -15,6 +15,7 @@ struct DetailView: View {
     @StateObject private var viewModel: GameDetailViewModel
     @EnvironmentObject var tabBarState: TabBarState
     @State var showRoot: Bool = false
+    @Environment(\.dismiss) private var dismiss
     init(gameId: Int) {
         self.gameId = gameId
         self._viewModel = StateObject(wrappedValue: GameDetailViewModel(gameId: gameId))
@@ -25,6 +26,31 @@ struct DetailView: View {
             Color.black
                 .ignoresSafeArea()
             VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Button { dismiss() } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                    }
+                    
+                    Spacer()
+                    
+                    Text("상세 정보")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                    
+                    Spacer()
+                    
+                    // 가운데 타이틀 정렬용 더미
+                    Color.clear.frame(width: 44, height: 44)
+                }
+                .padding(.horizontal, 16)
+                // ✅ 얇은 구분선(너가 쓰던 safeAreaInset 대신 여기로)
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 0.5)
                 ScrollView {
                     if let item = viewModel.item {
                         DetailInfoBox(item: item)
@@ -89,22 +115,8 @@ struct DetailView: View {
         .navigationDestination(isPresented: $showRoot) {
             RootTabView()
         }
-        .onAppear { tabBarState.isHidden = true }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                HStack(spacing: 4) {
-                    Text("상세 정보")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                }
-            }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(height: 0.5)
-        }
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
     }
 
     @ViewBuilder

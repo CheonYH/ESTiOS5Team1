@@ -14,8 +14,7 @@ struct DetailInfoBox: View {
     var body: some View {
         if let coverURL = item.coverURL {
             KFImage(coverURL)
-                .cacheOriginalImage()
-                .loadDiskFileSynchronously()
+                .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 160, height: 93)))
                 .placeholder {
                     GameListCardPlaceholder()
                 }
@@ -32,24 +31,6 @@ struct DetailInfoBox: View {
         }
 
         VStack(alignment: .leading) {
-            HStack {
-//                if let coverURL = item.coverURL {
-//                    KFImage(coverURL)
-//                        .cacheOriginalImage()
-//                        .loadDiskFileSynchronously()
-//                        .placeholder {
-//                            GameListCardPlaceholder()
-//                        }
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(height: 130)
-//                        .clipped()
-//                        .cornerRadius(Radius.cr8)
-//                } else {
-//                    GameListCardPlaceholder()
-//                        .frame(width: 100, height: 130)
-//                        .cornerRadius(Radius.cr8)
-//                }
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text(item.title)
@@ -69,11 +50,11 @@ struct DetailInfoBox: View {
                                 .foregroundStyle(.textPrimary.opacity(0.6))
                                 .font(.caption)
                         }
-                    }
                 }
             }
             .foregroundStyle(.textPrimary)
             .padding(.vertical, 5)
+            
             Divider()
                 .frame(height: 1)
                 .background(.textPrimary.opacity(0.2))

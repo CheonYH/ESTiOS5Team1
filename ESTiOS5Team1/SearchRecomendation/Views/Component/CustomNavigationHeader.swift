@@ -27,8 +27,10 @@ struct CustomNavigationHeader: View {
         }
         .overlay(alignment: .leading) {
             Button { showRoot = true } label: {
-                Image(systemName: "book")
-                    .foregroundColor(.white)
+                Image("ChatImg4")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 58, height: 58)
                     .font(.title3)
             }
         }
@@ -36,7 +38,7 @@ struct CustomNavigationHeader: View {
             if showSearchButton {
                 Button(action: { onSearchTap?() }) {
                     Image(systemName: isSearchActive ? "xmark" : "magnifyingglass")
-                        .foregroundColor(.white)
+                        .foregroundColor(.purple)
                         .font(.title3)
                 }
 //                .padding(.trailing, 16)
