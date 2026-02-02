@@ -63,34 +63,4 @@ enum OnboardingData {
             description: "챗봇을 통해 게임의 정보와\n공략을 함께 연구해보세요!"
         )
     ]
-
-    /// 온보딩 완료 여부 저장 키
-    static let hasSeenOnboardingKey = "hasSeenOnboarding"
-
-    /// 선호 장르 저장 키
-    static let preferredGenresKey = "preferredGenres"
-
-    /// 온보딩을 보여줄지 여부 결정
-    static func shouldShowOnboarding() -> Bool {
-        !UserDefaults.standard.bool(forKey: hasSeenOnboardingKey)
-    }
-
-    /// 온보딩 완료 처리
-    static func markOnboardingComplete() {
-        UserDefaults.standard.set(true, forKey: hasSeenOnboardingKey)
-    }
-
-    /// 선호 장르 저장
-    static func savePreferredGenres(_ genres: Set<GenreFilterType>) {
-        let genreStrings = genres.map { $0.rawValue }
-        UserDefaults.standard.set(genreStrings, forKey: preferredGenresKey)
-    }
-
-    /// 선호 장르 불러오기
-    static func loadPreferredGenres() -> Set<GenreFilterType> {
-        guard let genreStrings = UserDefaults.standard.stringArray(forKey: preferredGenresKey) else {
-            return []
-        }
-        return Set(genreStrings.compactMap { GenreFilterType(rawValue: $0) })
-    }
 }
