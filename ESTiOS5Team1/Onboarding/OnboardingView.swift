@@ -8,7 +8,6 @@
 //  로그인 이후 표시되며, 마지막 페이지에서 관심 장르를 선택합니다.
 
 import SwiftUI
-import FirebaseCrashlytics
 
 // MARK: - Onboarding View
 
@@ -131,8 +130,6 @@ struct OnboardingView: View {
                 }
             } catch {
                 print("[Onboarding] complete failed:", error)
-                Crashlytics.crashlytics().record(error: error)
-                Crashlytics.crashlytics().log("온보딩 완료 처리 실패")
             }
         }
     }

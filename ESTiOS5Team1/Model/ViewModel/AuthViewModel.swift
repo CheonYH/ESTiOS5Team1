@@ -3,7 +3,6 @@ import FirebaseCore
 import Foundation
 import GoogleSignIn
 import FirebaseAuth
-import FirebaseCrashlytics
 
 /// 인증 관련 에러 타입입니다.
 ///
@@ -59,19 +58,6 @@ final class AuthViewModel: ObservableObject {
     // MARK: - API
 
     /// 로그인 요청을 수행하고 결과 이벤트를 반환합니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /auth/login`
-    ///     `GET /auth/me` (온보딩 상태 동기화)
-    ///
-    /// - Parameters:
-    ///     - appViewModel: 전역 앱 상태를 갱신할 ViewModel
-    ///
-    /// - Returns:
-    ///     로그인 결과를 나타내는 `FeedbackEvent`
-    ///
-    /// - Throws:
-    ///     직접 throw 하지 않고 내부에서 에러를 `FeedbackEvent`로 매핑합니다.
     @discardableResult
     func login(appViewModel: AppViewModel) async -> FeedbackEvent {
 
@@ -123,19 +109,18 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    /// 로그아웃을 처리합니다.
+    /// 로그아웃 처리
     ///
-    /// - Endpoint:
-    ///     서버 호출 없음 (로컬 토큰/세션 정리)
+    /// - Effects:
+    ///     - 토큰 초기화
+    ///     - App 상태를 `.signedOut`로 변경
+    ///     - 안내용 FeedbackEvent 반환
     ///
-    /// - Parameters:
-    ///     - appViewModel: 전역 앱 상태를 갱신할 ViewModel
-    ///
-    /// - Returns:
-    ///     로그아웃 결과 안내용 `FeedbackEvent`
-    ///
-    /// - Throws:
-    ///     발생하지 않습니다.
+    /// - Example:
+    ///     ```swift
+    ///     let event = viewModel.logout(appViewModel: appVM)
+    ///     toast.show(event)
+    ///     ```
     @discardableResult
     func logout(appViewModel: AppViewModel) -> FeedbackEvent {
         signOutFromSocialProviders()
@@ -150,19 +135,18 @@ final class AuthViewModel: ObservableObject {
         )
     }
 
-    /// 회원탈퇴를 처리합니다.
+    /// 회원탈퇴 처리
     ///
-    /// - Endpoint:
-    ///     `DELETE /auth/me`
+    /// - Effects:
+    ///     - 서버 탈퇴 요청
+    ///     - 토큰 초기화
+    ///     - App 상태를 `.signedOut`로 변경
     ///
-    /// - Parameters:
-    ///     - appViewModel: 전역 앱 상태를 갱신할 ViewModel
-    ///
-    /// - Returns:
-    ///     탈퇴 결과를 나타내는 `FeedbackEvent`
-    ///
-    /// - Throws:
-    ///     직접 throw 하지 않고 내부에서 에러를 `FeedbackEvent`로 매핑합니다.
+    /// - Example:
+    ///     ```swift
+    ///     let event = await viewModel.deleteAccount(appViewModel: appVM)
+    ///     toast.show(event)
+    ///     ```
     @discardableResult
     func deleteAccount(appViewModel: AppViewModel) async -> FeedbackEvent {
         isLoading = true
@@ -185,25 +169,9 @@ final class AuthViewModel: ObservableObject {
             try Auth.auth().signOut()
         } catch {
             print("[AuthVM] Firebase signOut failed:", error)
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("Firebase signOut 실패")
         }
     }
 
-    /// Google 소셜 로그인을 처리합니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /auth/social`
-    ///     `GET /auth/me` (로그인 성공 시 온보딩 상태 동기화)
-    ///
-    /// - Parameters:
-    ///     - appViewModel: 전역 앱 상태를 갱신할 ViewModel
-    ///
-    /// - Returns:
-    ///     소셜 로그인 결과를 나타내는 `FeedbackEvent`
-    ///
-    /// - Throws:
-    ///     직접 throw 하지 않고 내부에서 에러를 `FeedbackEvent`로 매핑합니다.
     @discardableResult
     func signInWithGoogle(appViewModel: AppViewModel) async -> FeedbackEvent {
 
@@ -251,8 +219,6 @@ final class AuthViewModel: ObservableObject {
                 }
             }
             print("[AuthVM] ERROR:", error)
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("Google 로그인 실패")
             return FeedbackEvent(.auth, .error, "Google 로그인 실패")
         }
     }
@@ -304,19 +270,6 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    /// 닉네임 변경 요청을 처리합니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /auth/nickname-update`
-    ///
-    /// - Parameters:
-    ///     - newNickName: 사용자가 입력한 새 닉네임
-    ///
-    /// - Returns:
-    ///     변경 결과를 나타내는 `FeedbackEvent`
-    ///
-    /// - Throws:
-    ///     직접 throw 하지 않고 내부에서 에러를 `FeedbackEvent`로 매핑합니다.
     @discardableResult
     func updateNickName(to newNickName: String) async -> FeedbackEvent {
         let trimmed = newNickName.trimmingCharacters(in: .whitespacesAndNewlines)

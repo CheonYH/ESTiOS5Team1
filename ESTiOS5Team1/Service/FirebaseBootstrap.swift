@@ -6,7 +6,6 @@
 //
 import Foundation
 import Firebase
-import FirebaseCrashlytics
 
 /// 서버에서 내려온 Firebase 설정으로 SDK를 초기화합니다.
 ///
@@ -15,15 +14,6 @@ final class FirebaseBootstrap {
     static let shared = FirebaseBootstrap()
 
     /// 설정 성공/실패를 completion으로 전달합니다.
-    ///
-    /// - Endpoint:
-    ///     `GET /firebase/config` (내부 fetch 호출)
-    ///
-    /// - Parameters:
-    ///     - completion: 초기화 성공 여부 콜백
-    ///
-    /// - Returns:
-    ///     없음 (`completion`으로 결과 전달)
     func configure(completion: @escaping (Bool) -> Void) {
         Task {
             do {
@@ -38,8 +28,6 @@ final class FirebaseBootstrap {
                 }
             } catch {
                 print("❌ Firebase Configuration Failed: \(error)")
-                Crashlytics.crashlytics().record(error: error)
-                Crashlytics.crashlytics().log("FirebaseBootstrap configure 실패")
                 await MainActor.run {
                     completion(false)
                 }
@@ -47,16 +35,6 @@ final class FirebaseBootstrap {
         }
     }
 
-    /// 백엔드에서 Firebase 설정을 조회해 `FirebaseOptions`로 변환합니다.
-    ///
-    /// - Endpoint:
-    ///     `GET /firebase/config`
-    ///
-    /// - Returns:
-    ///     `FirebaseOptions`
-    ///
-    /// - Throws:
-    ///     네트워크 오류 / 디코딩 오류
     private func fetchFromBackend() async throws -> FirebaseOptions {
         let (data, _) = try await URLSession.shared.data(
             from: URL(string: "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app/firebase/config")!

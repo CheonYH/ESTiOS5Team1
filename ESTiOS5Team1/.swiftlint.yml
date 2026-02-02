@@ -1,35 +1,31 @@
 excluded:
-    - DerivedData
+  - DerivedData
 
 line_length:
-    warning: 200
-    error: 300
-    ignores_comments: true
-    ignores_urls: true
+  warning: 200
+  error: 300
+  ignores_comments: true
+  ignores_urls: true
 
 disabled_rules:
-    - multiple_closures_with_trailing_closure
-    - switch_case_alignment
+  - multiple_closures_with_trailing_closure
+  - switch_case_alignment
 
 force_cast:
-    severity: error
+  severity: error
 
 identifier_name:
-    min_length: 1
-    max_length: 60 # 너무 긴 것만 체크
+  min_length: 1
+  max_length: 60 # 너무 긴 것만 체크
 
 function_parameter_count:
-    warning: 8  # 7개부터 경고
-    error: 10   # 10개부터 에러
+  warning: 8  # 7개부터 경고
+  error: 10   # 10개부터 에러
 
 function_body_length:
-    warning: 150
-    error: 200
+  warning: 150
+  error: 200
 
 type_body_length:
-    warning: 450
-    error: 500
-
-cyclomatic_complexity:
-    warning: 15
-    error: 20
+  warning: 450
+  error: 500

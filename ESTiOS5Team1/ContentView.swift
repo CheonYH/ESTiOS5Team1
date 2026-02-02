@@ -12,13 +12,8 @@ struct ContentView: View {
 
     var body: some View {
         Button("Crash Test") {
-            Crashlytics.crashlytics().log("Crashlytics 테스트 로그")
-            let error = NSError(
-                domain: "CrashlyticsTest",
-                code: 9999,
-                userInfo: [NSLocalizedDescriptionKey: "수동 Crashlytics 테스트 에러"]
-            )
-            Crashlytics.crashlytics().record(error: error)
+            Crashlytics.crashlytics().log("SPM으로 설치후 두번째 테스트 중입니다.")
+            fatalError("🔥 Crashlytics SwiftUI Test Crash")
         }
         .padding()
     }

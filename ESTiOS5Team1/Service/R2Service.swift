@@ -20,20 +20,6 @@ enum R2Endpoint {
 
 /// R2 프리사인 URL 발급 API 계약입니다.
 protocol R2Service: Sendable {
-    /// 업로드용 presigned URL을 발급받습니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /r2/presign`
-    ///
-    /// - Parameters:
-    ///     - filename: 업로드할 파일명
-    ///     - expiresIn: 만료 시간(초)
-    ///
-    /// - Returns:
-    ///     `R2PresignResponse`
-    ///
-    /// - Throws:
-    ///     인증 오류 / 네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     func presign(filename: String, expiresIn: Int) async throws -> R2PresignResponse
 }
 
@@ -50,7 +36,6 @@ final class R2ServiceManager: R2Service {
         self.decoder = JSONDecoder()
     }
 
-    /// presigned URL 발급 요청을 전송합니다.
     func presign(filename: String, expiresIn: Int) async throws -> R2PresignResponse {
         // 프리사인 요청은 인증 토큰이 필요
         var request = try authorizedRequest(url: R2Endpoint.presign.url, method: "POST")

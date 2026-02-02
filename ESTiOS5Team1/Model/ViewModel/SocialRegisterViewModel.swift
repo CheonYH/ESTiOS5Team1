@@ -6,7 +6,6 @@
 //
 import Foundation
 import Combine
-import FirebaseCrashlytics
 
 /// 소셜 가입(닉네임 등록) 화면 상태를 관리하는 ViewModel입니다.
 @MainActor
@@ -25,20 +24,6 @@ final class SocialRegisterViewModel: ObservableObject {
     }
 
     /// 소셜 가입 요청을 수행하고 결과 이벤트를 반환합니다.
-    ///
-    /// - Endpoint:
-    ///     `POST /auth/nickname-check`
-    ///     `POST /auth/social-register`
-    ///     `GET /auth/me` (가입 완료 후 온보딩 상태 동기화)
-    ///
-    /// - Parameters:
-    ///     - appViewModel: 전역 앱 상태를 갱신할 ViewModel
-    ///
-    /// - Returns:
-    ///     소셜 가입 결과를 나타내는 `FeedbackEvent`
-    ///
-    /// - Throws:
-    ///     직접 throw 하지 않고 내부에서 에러를 `FeedbackEvent`로 매핑합니다.
     @discardableResult
     func submit(appViewModel: AppViewModel) async -> FeedbackEvent {
 
@@ -96,8 +81,6 @@ final class SocialRegisterViewModel: ObservableObject {
 
         } catch {
             print("[SocialRegister] ERROR:", error)
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("소셜 가입 실패")
             return FeedbackEvent(.auth, .error, "가입 실패")
         }
     }

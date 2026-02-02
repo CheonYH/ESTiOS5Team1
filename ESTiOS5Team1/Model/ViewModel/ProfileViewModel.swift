@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import FirebaseCrashlytics
 
 /// 프로필 조회/생성/업데이트 및 업로드 흐름을 담당하는 ViewModel입니다.
 @MainActor
@@ -49,8 +48,6 @@ final class ProfileViewModel: ObservableObject {
         } catch {
             errorMessage = "프로필 불러오기 실패"
             print("[ProfileVM] fetchProfile failed:", error)
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("프로필 조회 실패")
         }
     }
 
@@ -64,8 +61,6 @@ final class ProfileViewModel: ObservableObject {
             profile = result
         } catch {
             errorMessage = "프로필 생성 실패"
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("프로필 생성 실패")
         }
     }
 
@@ -79,8 +74,6 @@ final class ProfileViewModel: ObservableObject {
             profile = result
         } catch {
             errorMessage = "프로필 업데이트 실패"
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("프로필 업데이트 실패")
         }
     }
 
@@ -94,8 +87,6 @@ final class ProfileViewModel: ObservableObject {
         } catch {
             print("[Presign] failed error=\(error)")
             errorMessage = "프리사인 실패"
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("R2 presign 실패")
             return nil
         }
     }
@@ -119,8 +110,6 @@ final class ProfileViewModel: ObservableObject {
             return (200...299).contains(http.statusCode)
         } catch {
             print("[Upload] failed error=\(error)")
-            Crashlytics.crashlytics().record(error: error)
-            Crashlytics.crashlytics().log("R2 upload 실패")
             return false
         }
     }
