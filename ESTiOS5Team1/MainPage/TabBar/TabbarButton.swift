@@ -20,16 +20,16 @@ struct TabbarButton: View {
         Button {
             selectedTab = tab
         } label: {
-            VStack {
+            VStack() {
                 Image(systemName: icon)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 20)
+                    .frame(height: 14)
 
                 Text(iconName)
             }
             .foregroundStyle(isSelected ? .purple : .gray)
-            .frame(maxWidth: .infinity, minHeight: 44)
+            .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
         }
     }

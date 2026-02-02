@@ -35,8 +35,6 @@ struct MainTabView: View {
         mainVM.hasLoaded && trendingVM.hasLoaded && releasesVM.hasLoaded
     }
 
-    private let tabBarHeight: CGFloat = 86
-
     var body: some View {
             ZStack {
                 Color("BGColor")

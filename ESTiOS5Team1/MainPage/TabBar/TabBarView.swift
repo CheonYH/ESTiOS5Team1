@@ -10,11 +10,13 @@ import SwiftUI
 struct TabBarView: View {
     @Binding var selectedTab: Tab
 
+    private let height: CGFloat = 55
+    
     var body: some View {
             VStack {
-                Divider()
-                    .frame(height: 1)
-                    .background(.white.opacity(0.2))
+//                Divider()
+//                    .frame(height: 1)
+//                    .background(.white.opacity(0.2))
 
                 HStack(spacing: 10) {
                     TabbarButton(
@@ -55,8 +57,11 @@ struct TabBarView: View {
                     )
                     .frame(maxWidth: .infinity)
                 }
-                .padding()
-                .contentShape(Rectangle())
+                .padding(.horizontal, 18)
+                .padding(.top, 8)
+                .padding(.bottom, -15)
             }
+            .frame(height: height)
+            .background(Color.black.opacity(0.96))
     }
 }
