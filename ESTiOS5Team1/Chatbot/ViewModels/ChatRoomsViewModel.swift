@@ -71,17 +71,16 @@ final class ChatRoomsViewModel: ObservableObject {
         selectedRoomId = room.identifier
     }
 
-    func startNewConversation() async {
-        // 사용자가 +를 눌렀을 때 기대하는 동작
-        // 1) 기본방에 대화가 있으면 "새 채팅방"으로 저장해서 목록에 추가
-        // 2) 기본방은 비우고 새 대화를 시작
-
+    func startNewConversation() async -> ChatRoom? {
         let defaultMessages = await store.loadMessages(roomIdentifier: defaultRoom.identifier)
 
-        if defaultMessages.isEmpty == false {
-            let archivedRoom = makeArchivedRoom(from: defaultMessages)
+        var archivedRoom: ChatRoom?
 
-            await store.saveMessages(defaultMessages, roomIdentifier: archivedRoom.identifier)
+        if defaultMessages.isEmpty == false {
+            let room = makeArchivedRoom(from: defaultMessages)
+            archivedRoom = room
+
+            await store.saveMessages(defaultMessages, roomIdentifier: room.identifier)
 
             var storedRooms = await store.loadRooms()
 
@@ -89,13 +88,10 @@ final class ChatRoomsViewModel: ObservableObject {
                 storedRooms.append(defaultRoom)
             }
 
-            storedRooms.append(archivedRoom)
+            storedRooms.append(room)
             await store.saveRooms(storedRooms)
         }
 
-        // 기본방을 완전히 초기화한다.
-        // 서버 측 컨텍스트를 방별로 분리하는 구조가 아니라도,
-        // 클라이언트 식별자를 새로 발급해두면 섞임을 줄이는 데 도움이 된다.
         defaultRoom.title = defaultRoomTitle
         defaultRoom.alanClientIdentifier = "ios-\(UUID().uuidString)"
         defaultRoom.updatedAt = Date()
@@ -116,13 +112,13 @@ final class ChatRoomsViewModel: ObservableObject {
         selectedRoomIds.removeAll()
 
         await refreshRooms()
+        return archivedRoom
     }
 
     private func autoArchiveDefaultRoomIfNeeded() async {
         let defaultMessages = await store.loadMessages(roomIdentifier: defaultRoom.identifier)
         guard defaultMessages.isEmpty == false else { return }
 
-        // 메시지가 너무 많아지면 자동으로 보관
         guard defaultMessages.count >= defaultRoomMaxMessages else { return }
 
         let archivedRoom = makeArchivedRoom(from: defaultMessages)
@@ -139,8 +135,6 @@ final class ChatRoomsViewModel: ObservableObject {
     }
 
     private func makeArchivedRoom(from messages: [ChatMessage]) -> ChatRoom {
-        // 제목은 첫 사용자 메시지를 우선 사용한다.
-        // guest/bot 모델을 그대로 유지한다.
         let firstGuest = messages.first(where: { $0.author == .guest })
         let candidate = (firstGuest?.text ?? messages.first?.text ?? "")
         let title = normalizeRoomTitle(candidate)
@@ -155,10 +149,10 @@ final class ChatRoomsViewModel: ObservableObject {
     }
 
     private func normalizeRoomTitle(_ raw: String) -> String {
-        let trimmed = raw.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         let compact = trimmed
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let base = compact.isEmpty ? "Archived Chat" : compact
         let maxChars = 24
@@ -207,6 +201,6 @@ final class ChatRoomsViewModel: ObservableObject {
         let idle = Date().timeIntervalSince(last.createdAt)
         guard idle >= defaultRoomMaxIdleSeconds else { return }
 
-        await startNewConversation()
+        _ = await startNewConversation()
     }
 }

@@ -7,15 +7,11 @@
 
 import Foundation
 
-// 기존 코드 전반에서 guest/bot을 사용하고 있어서 구조를 유지한다.
-// 이후 필요하면 guest를 user로 바꾸는 리팩터는 "전 파일 동시 변경"으로 진행해야 안전하다.
 enum ChatAuthor: String, Codable, Hashable {
     case guest
     case bot
 }
 
-// 기존 코드에서 ChatMessage.identifier를 직접 참조하므로 그대로 유지한다.
-// Identifiable은 id를 identifier로 매핑해 SwiftUI에서 쓰기 편하게 한다.
 struct ChatMessage: Codable, Hashable, Identifiable {
     var identifier: UUID = UUID()
     var author: ChatAuthor
@@ -37,7 +33,6 @@ struct ChatMessage: Codable, Hashable, Identifiable {
     }
 }
 
-// 기존 코드에서 ChatRoom(identifier: ...) 생성 및 room.identifier 접근을 사용하므로 그대로 유지한다.
 struct ChatRoom: Codable, Hashable, Identifiable {
     var identifier: UUID
     var title: String
@@ -61,10 +56,6 @@ struct ChatRoom: Codable, Hashable, Identifiable {
         self.updatedAt = updatedAt
     }
 }
-
-// 여기부터는 "분류 모델 출력 라벨"을 문자열 하드코딩 없이 다루기 위한 타입들이다.
-// 모델 출력은 문자열이지만, 앱 내부에서는 enum으로 변환해 사용한다.
-// 이렇게 하면 오타/누락으로 인한 분기 버그를 줄일 수 있다.
 
 enum GameDomainLabel: String, CaseIterable, Sendable {
     case game

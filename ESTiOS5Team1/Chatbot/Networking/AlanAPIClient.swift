@@ -37,9 +37,6 @@ struct AlanAPIClient {
 
     private let configuration: Configuration
     private let urlSession: URLSession
-
-    // GET만 가능한 환경에서는 URL 길이 제한이 문제가 될 수 있다.
-    // 실 환경에서 문제가 생기면 이 값을 줄이거나, 서버가 POST를 지원하도록 개선하는 게 정석이다.
     private let maxContentCharactersForGET: Int = 1200
 
     init(configuration: Configuration, urlSession: URLSession = .shared) {
@@ -67,8 +64,6 @@ struct AlanAPIClient {
         return try parseAlanResponse(data: data, response: response)
     }
 
-    // 스웨거 기준: DELETE /api/v1/reset-state
-    // Request body: { "client_id": "string" }
     func resetState(clientId: String) async throws -> String {
         guard let url = URL(string: "/api/v1/reset-state", relativeTo: configuration.baseUrl) else {
             throw AlanAPIError.invalidUrl
@@ -92,7 +87,6 @@ struct AlanAPIClient {
             }
         }
 
-        // 서버 응답 형태가 일정하지 않을 수 있어 여러 후보를 순서대로 시도한다.
         if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
             if let answer = obj["answer"] as? String { return try nonEmpty(answer) }
             if let speak = obj["speak"] as? String { return try nonEmpty(speak) }
@@ -119,9 +113,6 @@ struct AlanAPIClient {
         return trimmed
     }
 
-    // GET 쿼리로 들어갈 텍스트를 안정적으로 정리한다.
-    // - 줄바꿈/중복 공백 축약
-    // - 최대 길이 제한
     private func sanitizeForQuery(_ text: String, maxCharacters: Int) -> String {
         let compact = text
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
