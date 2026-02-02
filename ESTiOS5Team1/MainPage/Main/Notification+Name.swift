@@ -9,4 +9,5 @@ import Foundation
 
 extension Notification.Name {
     static let preferredGenresDidChange = Notification.Name("preferredGenresDidChange")
+    static let reviewDidChange = Notification.Name("reviewDidChange")
 }

@@ -124,6 +124,24 @@ final class GameListSingleQueryViewModel: ObservableObject {
         }
     }
 
+    /// 특정 게임의 리뷰 통계만 다시 받아서 카드 점수만 갱신합니다.
+    func refreshReviewStats(for gameId: Int) async {
+        guard entities.contains(where: { $0.id == gameId }) else { return }
+
+        do {
+            let stats = try await reviewService.stats(gameId: gameId)
+            let review = GameReviewEntity(reviews: [], stats: stats, myReview: nil)
+            reviewById[gameId] = review
+        } catch {
+            // 리뷰 통계 갱신 실패 시 기존 값 유지
+        }
+
+        let emptyReview = GameReviewEntity(reviews: [], stats: nil, myReview: nil)
+        self.items = entities.map {
+            GameListItem(entity: $0, review: reviewById[$0.id] ?? emptyReview)
+        }
+    }
+
     private func fetchPage(offset: Int) async throws -> [GameEntity] {
         let pagedQuery = queryWithPagination(offset: offset)
         let batch = [

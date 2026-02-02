@@ -126,6 +126,15 @@ struct MainTabView: View {
                     shouldResetSearch = true
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .reviewDidChange)) { notification in
+                guard let gameId = notification.userInfo?["gameId"] as? Int else { return }
+
+                Task {
+                    await mainVM.refreshReviewStats(for: gameId)
+                    await trendingVM.refreshReviewStats(for: gameId)
+                    await releasesVM.refreshReviewStats(for: gameId)
+                }
+            }
             .toolbar(.hidden, for: .navigationBar)
     }
 

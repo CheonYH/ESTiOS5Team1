@@ -10,6 +10,7 @@ import UIKit
 
 struct ReviewSection: View {
     let gameId: Int
+    var onReviewChanged: (() async -> Void)? = nil
 
     @StateObject private var viewModel = ReviewViewModel(service: ReviewServiceManager())
     @State private var isEditingMyReview = false
@@ -65,6 +66,8 @@ struct ReviewSection: View {
                                 if event.status == .success {
                                     isEditingMyReview = false
                                     await viewModel.loadMine()
+                                    await onReviewChanged?()
+                                    notifyReviewChanged()
                                 }
                             }
                         }
@@ -85,6 +88,7 @@ struct ReviewSection: View {
                                 isEditingMyReview = true
                             }
                             .buttonStyle(.bordered)
+                            .foregroundStyle(.textPrimary)
 
                             Button("삭제") {
                                 Task {
@@ -92,10 +96,13 @@ struct ReviewSection: View {
                                     toastManager.show(event)
                                     if event.status == .success {
                                         await viewModel.loadMine()
+                                        await onReviewChanged?()
+                                        notifyReviewChanged()
                                     }
                                 }
                             }
                             .buttonStyle(.bordered)
+                            .foregroundStyle(.textPrimary)
                         }
                         .padding(.bottom, 8)
                     }
@@ -110,6 +117,8 @@ struct ReviewSection: View {
                             toastManager.show(event)
                             if event.status == .success {
                                 await viewModel.loadMine()
+                                await onReviewChanged?()
+                                notifyReviewChanged()
                             }
                         }
                     }
@@ -169,6 +178,14 @@ struct ReviewSection: View {
             }
         }
 
+    }
+
+    private func notifyReviewChanged() {
+        NotificationCenter.default.post(
+            name: .reviewDidChange,
+            object: nil,
+            userInfo: ["gameId": gameId]
+        )
     }
 }
 

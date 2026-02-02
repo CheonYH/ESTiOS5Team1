@@ -88,7 +88,14 @@ final class AppViewModel: ObservableObject {
         }
 
         do {
-            try await authService.refresh()
+            _ = try await authService.refresh()
+            let me = try await authService.fetchMe()
+            if let onboardingCompleted = me.onboardingCompleted {
+                self.onboardingCompleted = onboardingCompleted
+                UserDefaults.standard.set(onboardingCompleted, forKey: OnboardingData.hasSeenOnboardingKey)
+            } else {
+                self.onboardingCompleted = UserDefaults.standard.bool(forKey: OnboardingData.hasSeenOnboardingKey)
+            }
             state = .signedIn
 
         } catch let authError as AuthError {
