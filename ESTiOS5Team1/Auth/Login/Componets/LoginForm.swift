@@ -46,6 +46,7 @@ struct LoginForm: View {
                 .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
                 .focused(focusedField, equals: .email)
+                .textInputAutocapitalization(.never)
                 .id(LoginField.email)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
@@ -65,6 +66,7 @@ struct LoginForm: View {
                 .padding(Spacing.pv10)
                 .foregroundStyle(.textPrimary)
                 .focused(focusedField, equals: .password)
+                .textInputAutocapitalization(.never)
                 .id(LoginField.password)
                 .background(
                     RoundedRectangle(cornerRadius: 10)

@@ -13,6 +13,10 @@ import SwiftUI
 struct GenreSelectionView: View {
     @Binding var selectedGenres: Set<GenreFilterType>
     let onComplete: () -> Void
+    let titleText: String
+    let subtitleText: String
+    let emptyCompleteButtonTitle: String
+    let completeButtonTitle: String
 
     /// 선택 가능한 장르 목록 (전체 제외)
     private let availableGenres: [GenreFilterType] = GenreFilterType.allCases.filter { $0 != .all }
@@ -25,6 +29,22 @@ struct GenreSelectionView: View {
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
+
+    init(
+        selectedGenres: Binding<Set<GenreFilterType>>,
+        onComplete: @escaping () -> Void,
+        titleText: String = "관심 장르를 선택하세요",
+        subtitleText: String = "최대 4개까지 선택할 수 있어요",
+        emptyCompleteButtonTitle: String = "건너뛰고 시작하기",
+        completeButtonTitle: String = "시작하기"
+    ) {
+        self._selectedGenres = selectedGenres
+        self.onComplete = onComplete
+        self.titleText = titleText
+        self.subtitleText = subtitleText
+        self.emptyCompleteButtonTitle = emptyCompleteButtonTitle
+        self.completeButtonTitle = completeButtonTitle
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,12 +70,12 @@ struct GenreSelectionView: View {
 
     private var headerSection: some View {
         VStack(spacing: 8) {
-            Text("관심 장르를 선택하세요")
+            Text(titleText)
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
 
-            Text("최대 \(maxSelection)개까지 선택할 수 있어요")
+            Text(subtitleText)
                 .font(.subheadline)
                 .foregroundColor(.gray)
 
@@ -93,7 +113,7 @@ struct GenreSelectionView: View {
 
     private var startButton: some View {
         Button(action: onComplete) {
-            Text(selectedGenres.isEmpty ? "건너뛰고 시작하기" : "시작하기")
+            Text(selectedGenres.isEmpty ? emptyCompleteButtonTitle : completeButtonTitle)
                 .font(.headline)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
