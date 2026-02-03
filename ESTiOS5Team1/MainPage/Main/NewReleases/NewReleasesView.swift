@@ -21,13 +21,13 @@ import SwiftUI
 struct NewReleasesView: View {
     /// 신규 출시 목록 로딩을 담당하는 뷰모델
     @ObservedObject var viewModel: GameListSingleQueryViewModel
-    
+
     /// “전체 보기” 화면 전환 여부
     @State private var showAll: Bool = false
     var body: some View {
         VStack {
             TitleBox(title: "신규 출시", showsSeeAll: true, onSeeAllTap: { showAll = true})
-            
+
             LoadableList(
                 isLoading: viewModel.isLoading,
                 error: viewModel.error,

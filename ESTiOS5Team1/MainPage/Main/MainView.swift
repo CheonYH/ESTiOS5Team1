@@ -10,7 +10,6 @@ import Kingfisher
 
 // MARK: - View
 
-
 /// 메인(홈) 화면의 전체 레이아웃을 구성하는 SwiftUI 뷰입니다.
 ///
 /// 상단 커스텀 네비게이션 헤더와 함께 메인 포스터, 인기 게임, 맞춤 추천, 장르 탐색, 신작 섹션을 배치합니다.
@@ -39,20 +38,20 @@ struct MainView: View {
                 onSearchTap: { onSearchTap() },
                 showRoot: $showRoot
             )
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
-                    
+
                     if let item = viewModel.items.first {
                         MainPoster(item: item)
                     }
-                    
+
                     TrendingNowGameView(viewModel: trendingVM)
-                    
+
                     TopRatedByGenreCard()
-                    
+
                     BrowseByGenreGridView(onGenreTap: onGenreTap)
-                    
+
                     NewReleasesView(viewModel: newReleasesVM)
                 }
             }

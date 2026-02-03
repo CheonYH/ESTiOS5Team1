@@ -23,10 +23,10 @@ struct BrowseByGenreGridView: View {
     ///
     /// 현재 파일에서는 직접 사용하지 않지만, 상위/하위 뷰에서 동일 매니저를 공유하기 위해 주입합니다.
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     /// 장르 선택 이벤트 콜백
     let onGenreTap: (GameGenreModel) -> Void
-    
+
     /// LazyHGrid 레이아웃을 위한 고정 높이 2행 구성
     private let rows = [
         GridItem(.fixed(140), spacing: 16),
@@ -35,9 +35,9 @@ struct BrowseByGenreGridView: View {
     var body: some View {
         VStack(alignment: .leading) {
             TitleBox(title: "장르", onSeeAllTap: nil)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
-                
+
                 LazyHGrid(rows: rows, spacing: 15) {
                     ForEach(GameGenreModel.allCases) { genre in
                         Button {

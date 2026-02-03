@@ -22,10 +22,10 @@ import Kingfisher
 struct NewReleasesGameCard: View {
     /// 리스트에 표시할 게임 아이템
     let item: GameListItem
-    
+
     /// 즐겨찾기 상태를 관리하는 매니저
     @EnvironmentObject var favoriteManager: FavoriteManager
-    
+
     var body: some View {
         HStack {
             if let coverURL = item.coverURL {
@@ -44,30 +44,30 @@ struct NewReleasesGameCard: View {
                     .frame(width: 100, height: 100)
                     .cornerRadius(Radius.card)
             }
-            
+
             VStack(alignment: .leading, spacing: 5) {
                 Text(item.title)
                     .font(.title2)
-                
+
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption)
                     .foregroundColor(.textPrimary.opacity(0.7))
-                
+
                 HStack {
                     RatingText(item: item)
-                    
+
                     ForEach(item.platformCategories, id: \.rawValue) { platform in
                         Image(systemName: platform.iconName)
                             .foregroundStyle(.textPrimary.opacity(0.6))
                             .font(.caption)
                     }
-                    
+
                     Spacer()
-                    
+
                     GameFavoriteButton(isFavorite: favoriteManager.isFavorite(itemId: item.id), onToggle: {
                         favoriteManager.toggleFavorite(item: item)
                     }, frameWH: 36)
-                    
+
                 }
             }
             .foregroundStyle(.textPrimary)

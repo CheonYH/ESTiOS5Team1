@@ -37,8 +37,7 @@ struct Review: View {
     ///   - initialContent: 초기 리뷰 내용(기본 빈 문자열)
     ///   - submitTitle: 제출 버튼 타이틀(기본 "등록")
     ///   - onSubmit: 제출 콜백
-    
-    
+
     init(
         initialRating: Int = 1,
         initialContent: String = "",
@@ -50,15 +49,15 @@ struct Review: View {
         _rating = State(initialValue: initialRating)
         _content = State(initialValue: initialContent)
     }
-    
+
     var body: some View {
         VStack {
             Text("평가 남기기")
                 .font(.headline)
                 .foregroundStyle(.textPrimary)
-            
+
             StarRatingPicker(rating: $rating)
-            
+
             TextField("", text: $content, prompt: Text("게임의 평가를 남겨주세요.").foregroundStyle(.white.opacity(0.4)), axis: .vertical)
                 .lineLimit(3...8)
                 .focused($focused)
@@ -72,12 +71,12 @@ struct Review: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(.gray.opacity(0.6), lineWidth: 1)
                 )
-            
+
             HStack {
                 Spacer()
                 Button {
                     let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                    
+
                     guard !trimmed.isEmpty else { return }
                     onSubmit(rating, trimmed)
                     content = ""

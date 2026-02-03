@@ -17,12 +17,12 @@ import SwiftUI
 struct GameSummaryBox: View {
     /// 상세 화면에 표시할 게임 데이터 모델
     let item: GameDetailItem
-    
+
     /// 소개 텍스트의 펼침/접힘 상태
     @State private var isExpanded = false
     var body: some View {
         let description = item.summary?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        
+
         if description.isEmpty {
             EmptyView()
         } else {
@@ -30,12 +30,12 @@ struct GameSummaryBox: View {
                 Text("About")
                     .font(.headline)
                     .foregroundStyle(.textPrimary)
-                
+
                 Text(item.summary ?? "상세 설명 없음")
                     .font(.subheadline)
                     .foregroundStyle(.textPrimary.opacity(0.8))
                     .lineLimit(isExpanded ? nil : 4)
-                
+
                 Button {
                     isExpanded.toggle()
                 } label: {
@@ -43,7 +43,7 @@ struct GameSummaryBox: View {
                         .font(.caption.bold())
                         .foregroundStyle(.purplePrimary)
                 }
-                
+
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()

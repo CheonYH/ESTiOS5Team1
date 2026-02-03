@@ -11,7 +11,7 @@ import Foundation
 final class CreateMLTextClassifierAdapter: MessageIntentClassifying {
     private let requestedModelName: String
     private let resolvedModelName: String
-    
+
     private enum Backend {
         case typedBertNonGame(GameNonGame_bert)
         case typedBertSort(GameSort_bert)

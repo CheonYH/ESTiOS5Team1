@@ -39,10 +39,10 @@ enum GameGenreModel: CaseIterable, Identifiable {
     case sport
     case hackAndSlash
     case quizTrivia
-    
+
     /// `ForEach`에서 사용되는 식별자
     var id: Self { self }
-    
+
     /// UI에 노출할 한글 장르명
     var displayName: String {
         switch self {
@@ -68,7 +68,7 @@ enum GameGenreModel: CaseIterable, Identifiable {
             case .quizTrivia: return "퀴즈"
         }
     }
-    
+
     /// 장르 카드 배경으로 사용할 이미지 에셋 이름
     var imageName: String {
         switch self {
