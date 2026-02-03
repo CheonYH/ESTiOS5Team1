@@ -14,20 +14,20 @@ import SwiftUI
 /// - Important:
 ///     화면 배경 및 색상은 상위 View에서 결정합니다.
 struct LoginHeader: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     // MARK: - Body
     var body: some View {
-        VStack(spacing: Spacing.pv10) {
+        let isRegularWidth = horizontalSizeClass == .regular
+        let logoWidth: CGFloat = isRegularWidth ? 360 : 310
 
-            Image(systemName: "gamecontroller.fill")
+        VStack(spacing: 0) {
+            Image("mainLogo")
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(.purplePrimary)
-                .frame(width: 44, height: 44)
-
-            Text("PlayerLounge")
-                .font(.largeTitle)
-                .bold()
-                .foregroundStyle(.white)
+                .frame(width: logoWidth)
+                .padding(.top, Spacing.pv10)
+                .padding(.bottom, -35)
 
             Text("게임 리뷰·추천·정보를 한 곳에서")
                 .font(.headline)
