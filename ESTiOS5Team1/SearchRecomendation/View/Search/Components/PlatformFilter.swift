@@ -8,6 +8,15 @@
 import SwiftUI
 
 // MARK: - Platform Filter
+
+/// 플랫폼별 필터를 제공하는 가로 스크롤 컴포넌트입니다.
+///
+/// - Responsibilities:
+///     - PC, PlayStation, Xbox, Nintendo, Mobile 플랫폼 필터 버튼 제공
+///     - 선택된 플랫폼 시각적 강조
+///
+/// - Parameters:
+///     - selectedPlatform: 현재 선택된 `PlatformFilterType` 바인딩
 struct PlatformFilter: View {
     @Binding var selectedPlatform: PlatformFilterType
 
@@ -29,6 +38,15 @@ struct PlatformFilter: View {
 }
 
 // MARK: - Platform Filter Type
+
+/// 게임 플랫폼 필터를 정의하는 열거형입니다.
+///
+/// - all: 전체 플랫폼
+/// - pc: PC (Windows, Mac, Linux)
+/// - playstation: PlayStation 시리즈
+/// - xbox: Xbox 시리즈
+/// - nintendo: Nintendo 시리즈
+/// - mobile: iOS, Android
 enum PlatformFilterType: String, CaseIterable {
     case all = "전체"
     case pc = "PC"
@@ -49,8 +67,12 @@ enum PlatformFilterType: String, CaseIterable {
         }
     }
 
-    /// Platform enum으로 변환 (필터링 로직에서 사용)
-    /// - Returns: 대응하는 Platform, all인 경우 nil
+    /// `Platform` enum으로 변환합니다.
+    ///
+    /// - Returns: 대응하는 `Platform` 값, `.all`인 경우 `nil`
+    ///
+    /// - Note:
+    ///     필터링 로직에서 게임의 플랫폼과 비교할 때 사용됩니다.
     var toPlatform: Platform? {
         switch self {
         case .all: return nil
@@ -62,7 +84,10 @@ enum PlatformFilterType: String, CaseIterable {
         }
     }
 
-    /// Platform이 이 필터에 매칭되는지 확인
+    /// 주어진 `Platform`이 이 필터에 매칭되는지 확인합니다.
+    ///
+    /// - Parameter platform: 확인할 플랫폼
+    /// - Returns: 매칭 여부 (`.all`은 항상 `true`)
     func matches(_ platform: Platform) -> Bool {
         guard let targetPlatform = toPlatform else { return true }  // .all은 모든 플랫폼 매칭
         return platform == targetPlatform
@@ -70,6 +95,8 @@ enum PlatformFilterType: String, CaseIterable {
 }
 
 // MARK: - Platform Capsule Button
+
+/// 플랫폼 필터용 캡슐 형태 버튼 컴포넌트입니다.
 struct PlatformButton: View {
     let platform: PlatformFilterType
     let isSelected: Bool

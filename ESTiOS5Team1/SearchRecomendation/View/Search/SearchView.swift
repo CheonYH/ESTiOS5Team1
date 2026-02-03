@@ -10,6 +10,26 @@
 import SwiftUI
 
 // MARK: - Search View
+
+/// 게임 검색 및 탐색을 위한 메인 화면입니다.
+///
+/// - Responsibilities:
+///     - 검색바를 통한 게임 검색
+///     - 플랫폼, 장르, 고급 필터를 통한 게임 필터링
+///     - 2열 그리드 형태의 게임 목록 표시
+///     - 무한 스크롤을 통한 추가 데이터 로드
+///
+/// - Important:
+///     - `SearchViewModel`을 통해 비즈니스 로직을 처리합니다.
+///     - `FavoriteManager`를 `@EnvironmentObject`로 주입받습니다.
+///     - 홈 화면에서 장르 선택 시 `pendingGenre`를 통해 필터가 적용됩니다.
+///
+/// - Example:
+///     ```swift
+///     SearchView(favoriteManager: favoriteManager)
+///         .environmentObject(favoriteManager)
+///         .environmentObject(tabBarState)
+///     ```
 struct SearchView: View {
     @State private var searchText = ""
     @State private var selectedPlatform: PlatformFilterType
@@ -31,7 +51,15 @@ struct SearchView: View {
 
     // MARK: - Initialization
 
-    /// 통합 Initializer (기본값으로 3개 init 통합)
+    /// SearchView를 초기화합니다.
+    ///
+    /// - Parameters:
+    ///   - favoriteManager: 즐겨찾기 관리 매니저
+    ///   - initialGenre: 초기 장르 필터 (기본값: `.all`)
+    ///   - initialPlatform: 초기 플랫폼 필터 (기본값: `.all`)
+    ///   - openSearchRequested: 검색 활성화 요청 바인딩
+    ///   - pendingGenre: 대기 중인 장르 선택 바인딩 (홈에서 전달)
+    ///   - shouldResetSearch: 검색 초기화 요청 바인딩 (탭 전환 시 사용)
     init(
         favoriteManager: FavoriteManager,
         initialGenre: GenreFilterType = .all,
@@ -48,7 +76,17 @@ struct SearchView: View {
         _selectedGenre = State(initialValue: initialGenre)
     }
 
-    /// GameGenreModel을 사용하는 편의 Initializer (홈 화면 장르 버튼에서 사용)
+    /// `GameGenreModel`을 사용하는 편의 초기화 메서드입니다.
+    ///
+    /// - Parameters:
+    ///   - favoriteManager: 즐겨찾기 관리 매니저
+    ///   - gameGenre: 홈 화면에서 선택된 장르
+    ///   - openSearchRequested: 검색 활성화 요청 바인딩
+    ///   - pendingGenre: 대기 중인 장르 선택 바인딩
+    ///   - shouldResetSearch: 검색 초기화 요청 바인딩
+    ///
+    /// - Note:
+    ///     홈 화면의 장르 버튼 탭 시 사용됩니다.
     init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil), shouldResetSearch: Binding<Bool> = .constant(false)) {
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre

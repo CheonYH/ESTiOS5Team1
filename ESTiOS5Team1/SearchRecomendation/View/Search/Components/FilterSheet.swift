@@ -8,6 +8,17 @@
 import SwiftUI
 
 // MARK: - Filter Sheet
+
+/// 고급 필터 설정을 위한 바텀 시트 화면입니다.
+///
+/// - Responsibilities:
+///     - 카테고리 필터 (Trending, New Releases, Discover)
+///     - 정렬 옵션 (인기순, 최신순, 평점순, 이름순)
+///     - 평점 필터 (슬라이더로 최소 평점 설정)
+///     - 출시 시기 필터 (최근 1개월, 6개월, 올해, 클래식)
+///
+/// - Parameters:
+///     - filterState: `AdvancedFilterState` 바인딩
 struct FilterSheet: View {
     @Binding var filterState: AdvancedFilterState
     @Environment(\.dismiss) private var dismiss
@@ -87,6 +98,8 @@ struct FilterSheet: View {
 }
 
 // MARK: - Filter Section
+
+/// 필터 시트 내 개별 필터 섹션을 구성하는 컴포넌트입니다.
 struct FilterSection<Content: View>: View {
     let title: String
     let icon: String
@@ -111,6 +124,8 @@ struct FilterSection<Content: View>: View {
 }
 
 // MARK: - Category Filter Grid
+
+/// 카테고리 필터를 2열 그리드로 표시하는 컴포넌트입니다.
 struct CategoryFilterGrid: View {
     @Binding var selectedCategory: CategoryFilter
 
@@ -136,6 +151,8 @@ struct CategoryFilterGrid: View {
 }
 
 // MARK: - Category Filter Button
+
+/// 카테고리 필터용 버튼 컴포넌트입니다.
 struct CategoryFilterButton: View {
     let category: CategoryFilter
     let isSelected: Bool
@@ -171,6 +188,8 @@ struct CategoryFilterButton: View {
 }
 
 // MARK: - Sort Filter Grid
+
+/// 정렬 옵션을 2열 그리드로 표시하는 컴포넌트입니다.
 struct SortFilterGrid: View {
     @Binding var selectedSort: SortType
 
@@ -198,6 +217,13 @@ struct SortFilterGrid: View {
 }
 
 // MARK: - Rating Slider
+
+/// 최소 평점을 설정하는 커스텀 슬라이더 컴포넌트입니다.
+///
+/// - Features:
+///     - 0.0 ~ 5.0 범위의 평점 선택
+///     - 0.5 단위로 스냅
+///     - 별점 가이드 표시
 struct RatingSlider: View {
     @Binding var minimumRating: Double
 
@@ -299,6 +325,8 @@ struct RatingSlider: View {
 }
 
 // MARK: - Release Period Filter Grid
+
+/// 출시 기간 필터를 표시하는 컴포넌트입니다.
 struct ReleasePeriodFilterGrid: View {
     @Binding var selectedPeriod: ReleasePeriodFilter
 
@@ -342,6 +370,10 @@ struct ReleasePeriodFilterGrid: View {
 }
 
 // MARK: - Generic Filter Option Button
+
+/// 범용 필터 옵션 버튼 컴포넌트입니다.
+///
+/// 정렬, 출시 기간 등 다양한 필터에서 재사용됩니다.
 struct FilterOptionButton: View {
     let title: String
     let icon: String

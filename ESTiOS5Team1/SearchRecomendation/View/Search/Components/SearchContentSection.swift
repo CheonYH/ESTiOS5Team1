@@ -8,7 +8,22 @@
 
 import SwiftUI
 
-/// 검색 화면의 컨텐츠 섹션 (게임 목록)
+// MARK: - Search Content Section
+
+/// 검색 화면의 게임 목록 컨텐츠 섹션 컴포넌트입니다.
+///
+/// - Responsibilities:
+///     - 로딩 상태에 따른 UI 표시 (로딩, 에러, 빈 상태, 결과)
+///     - 2열 그리드 형태의 게임 카드 목록 표시
+///     - 무한 스크롤을 위한 페이지네이션 처리
+///
+/// - Parameters:
+///     - viewModel: `SearchViewModel` 인스턴스
+///     - searchText: 현재 검색어
+///     - selectedPlatform: 선택된 플랫폼 필터
+///     - selectedGenre: 선택된 장르 필터
+///     - advancedFilterState: 고급 필터 상태
+///     - isSearchActive: 검색 활성화 상태
 struct SearchContentSection: View {
     @ObservedObject var viewModel: SearchViewModel
     let searchText: String
