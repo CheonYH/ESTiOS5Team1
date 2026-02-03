@@ -58,7 +58,12 @@
 ## 🖥️ 앱 주요 화면
 | 홈화면 (MainView) | 게임찾기(SearchView) | 내 게임 (LibraryView) | 챗봇 (Chanbot) | 프로필 (Profile) |
 |:---:|:---:|:---:|:---:|:---:|
-| <img width="315" height="652" alt="MainView" src="https://github.com/user-attachments/assets/d84cb7d1-6c7c-4143-9b06-411e2e6e3e36" /> | <img width="315" height="652" alt="SearchView" src="https://github.com/user-attachments/assets/b00878f7-19fc-4cb7-8741-e91e8e0ad35b" /> | <img width="315" height="652" alt="LibraryView" src="https://github.com/user-attachments/assets/fc3a1b58-3e44-472f-9c59-8d36539d6f5d" /> | <img width="315" height="652" alt="Chatbot" src="https://github.com/user-attachments/assets/374dac9c-02a8-47cd-a006-053dafb5ba75" /> | <img width="315" height="652" alt="ProfileView" src="https://github.com/user-attachments/assets/fee8785b-26b9-4145-b312-82ac72bad38c" /> |
+| <img width="315" height="652" alt="MainView" src="https://github.com/user-attachments/assets/4f62654d-50ab-40be-9cd9-4d6a56da0693" /> | <img width="315" height="652" alt="SearchView" src="https://github.com/user-attachments/assets/b20ec6f6-7985-4523-987f-2567b803c1f0" /> | <img width="315" height="652" alt="LibraryView" src="https://github.com/user-attachments/assets/4e34c7c1-79d3-403f-b4c8-30b05f0735da" /> | <img width="315" height="652" alt="Chatbot" src="https://github.com/user-attachments/assets/56e32e02-aa67-44c6-89ce-48ceda1c468c" /> | <img width="315" height="652" alt="ProfileView" src="https://github.com/user-attachments/assets/78212894-66f3-4443-828a-1ad69b5895bc" />
+
+
+
+
+
 
 ## 🧑‍🤝‍🧑 협업 문화
 
