@@ -4,11 +4,15 @@
 //
 //  Created by Claude on 1/16/26.
 //
-//  [통일] 게임 카드 오버레이 컴포넌트 - 별점 배지 & 즐겨찾기 버튼
+//  게임 카드 오버레이 컴포넌트 - 별점 배지 & 즐겨찾기 버튼
 
 import SwiftUI
 
-// MARK: - Game Rating Badge (별점 배지)
+// MARK: - Game Rating Badge
+
+/// 게임 카드에 표시되는 별점 배지 컴포넌트입니다.
+///
+/// - Parameter ratingText: 표시할 평점 텍스트 (예: "8.9", "N/A")
 struct GameRatingBadge: View {
     let ratingText: String
 
@@ -28,7 +32,14 @@ struct GameRatingBadge: View {
     }
 }
 
-// MARK: - Game Favorite Button (즐겨찾기 하트 버튼)
+// MARK: - Game Favorite Button
+
+/// 게임 카드에 표시되는 즐겨찾기 하트 버튼 컴포넌트입니다.
+///
+/// - Parameters:
+///     - isFavorite: 현재 즐겨찾기 상태
+///     - onToggle: 버튼 탭 시 실행할 클로저
+///     - frameWH: 버튼 프레임 크기 (기본값: 32)
 struct GameFavoriteButton: View {
     let isFavorite: Bool
     let onToggle: () -> Void
