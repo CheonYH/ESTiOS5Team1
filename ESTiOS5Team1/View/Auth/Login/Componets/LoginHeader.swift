@@ -24,7 +24,7 @@ struct LoginHeader: View {
                 .foregroundStyle(.purplePrimary)
                 .frame(width: 44, height: 44)
 
-            Text("GameCompass")
+            Text("PlayerLounge")
                 .font(.largeTitle)
                 .bold()
                 .foregroundStyle(.white)
