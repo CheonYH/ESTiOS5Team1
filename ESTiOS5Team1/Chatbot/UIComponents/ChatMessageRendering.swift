@@ -26,16 +26,13 @@ struct ChatBubbleShape: Shape {
     var topRight: CGFloat
     var bottomLeft: CGFloat
     var bottomRight: CGFloat
-
     func path(in rect: CGRect) -> Path {
         let tl = min(min(topLeft, rect.width / 2), rect.height / 2)
         let tr = min(min(topRight, rect.width / 2), rect.height / 2)
         let bl = min(min(bottomLeft, rect.width / 2), rect.height / 2)
         let br = min(min(bottomRight, rect.width / 2), rect.height / 2)
-
         var p = Path()
         p.move(to: CGPoint(x: rect.minX + tl, y: rect.minY))
-
         p.addLine(to: CGPoint(x: rect.maxX - tr, y: rect.minY))
         p.addArc(
             center: CGPoint(x: rect.maxX - tr, y: rect.minY + tr),
@@ -44,7 +41,6 @@ struct ChatBubbleShape: Shape {
             endAngle: .degrees(0),
             clockwise: false
         )
-
         p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - br))
         p.addArc(
             center: CGPoint(x: rect.maxX - br, y: rect.maxY - br),
@@ -53,7 +49,6 @@ struct ChatBubbleShape: Shape {
             endAngle: .degrees(90),
             clockwise: false
         )
-
         p.addLine(to: CGPoint(x: rect.minX + bl, y: rect.maxY))
         p.addArc(
             center: CGPoint(x: rect.minX + bl, y: rect.maxY - bl),
@@ -62,7 +57,6 @@ struct ChatBubbleShape: Shape {
             endAngle: .degrees(180),
             clockwise: false
         )
-
         p.addLine(to: CGPoint(x: rect.minX, y: rect.minY + tl))
         p.addArc(
             center: CGPoint(x: rect.minX + tl, y: rect.minY + tl),
@@ -71,7 +65,6 @@ struct ChatBubbleShape: Shape {
             endAngle: .degrees(270),
             clockwise: false
         )
-
         p.closeSubpath()
         return p
     }
@@ -91,7 +84,6 @@ struct MessageBubbleView: View {
         formatter.dateFormat = "yyyy.MM.dd HH:mm"
         return formatter
     }()
-
     private let botAvatarSize: CGFloat = 25
     private let botAvatarTextSpacing: CGFloat = 10
 
@@ -138,7 +130,6 @@ struct MessageBubbleView: View {
         let timestampText = Text(Self.timestampFormatter.string(from: message.createdAt))
             .font(.caption2)
             .foregroundStyle(.secondary)
-
         if message.author == .bot {
             return AnyView(
                 VStack(alignment: .leading, spacing: 6) {
@@ -149,18 +140,15 @@ struct MessageBubbleView: View {
                         .foregroundStyle(.primary)
                         .padding(.leading, botAvatarSize + botAvatarTextSpacing)
                         .offset(x: -8, y: 12)
-
                     bubble
                         .overlay(alignment: .topLeading) {
                             botAvatarCircle
                                 .offset(x: 0, y: -17)
                         }
-
                     timestampText
                 }
             )
         }
-
         return AnyView(
             VStack(alignment: .trailing, spacing: 4) {
                 bubble
@@ -175,7 +163,6 @@ struct MessageBubbleView: View {
         let segments = LinkSegmenter.segments(from: message.text)
         let bubbleAlignment: Alignment = (message.author == .bot) ? .leading : .trailing
         let stackAlignment: HorizontalAlignment = (message.author == .bot) ? .leading : .trailing
-
         return VStack(alignment: stackAlignment, spacing: 10) {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(segments) { segment in
@@ -186,7 +173,6 @@ struct MessageBubbleView: View {
                         if cleaned.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
                             MarkdownBlockView(text: cleaned)
                         }
-
                     case .link(let url):
                         Link(destination: url) {
                             HStack(spacing: 6) {
@@ -228,7 +214,6 @@ struct MessageBubbleView: View {
         if message.author == .bot { return Color.white.opacity(0.12) }
         return Color.purple.opacity(0.50)
     }
-
     private func linkTitle(for url: URL) -> String {
         if let host = url.host, host.isEmpty == false { return host }
         return url.absoluteString
@@ -243,7 +228,6 @@ struct TypingBubbleView: View {
     // SwiftUI 생명주기와 연결되는 Timer 참조입니다.
     // 화면에서 사라질 때 invalidate하지 않으면 메모리/업데이트가 남을 수 있어 관리합니다.
     @State private var timer: Timer?
-
     var body: some View {
         HStack {
             bubble
@@ -260,7 +244,6 @@ struct TypingBubbleView: View {
             timer = nil
         }
     }
-
     private var bubble: some View {
         HStack(spacing: 6) {
             Dot(isOn: phase == 0)
@@ -282,7 +265,6 @@ struct TypingBubbleView: View {
     // phase 값에 따라 opacity를 바꾸고, animation은 값 변화에만 반응하도록 설정합니다.
     private struct Dot: View {
         let isOn: Bool
-
         var body: some View {
             Circle()
                 .frame(width: 7, height: 7)
@@ -302,7 +284,6 @@ struct TypingBubbleView: View {
 // - 서버 응답이 줄바꿈/불릿을 포함해도 읽기 쉽게 보이도록 최소한의 파서를 둡니다.
 struct MarkdownBlockView: View {
     let text: String
-
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             ForEach(parseBlocks(from: text)) { block in
@@ -313,19 +294,16 @@ struct MarkdownBlockView: View {
                         .fontWeight(.semibold)
                         .padding(.top, level <= 2 ? 6 : 4)
                         .fixedSize(horizontal: false, vertical: true)
-
                 case .bullet(let content):
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text("•")
                             .font(.body.weight(.semibold))
                             .fixedSize(horizontal: true, vertical: true)
-
                         Text(.init(content))
                             .font(.body)
                             .lineSpacing(3)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-
                 case .text(let content):
                     Text(.init(content))
                         .font(.body)
@@ -337,7 +315,6 @@ struct MarkdownBlockView: View {
         .textSelection(.enabled)
         .foregroundStyle(.primary)
     }
-
     private func headingFont(for level: Int) -> Font {
         switch level {
         case 1: return .title2
@@ -346,13 +323,11 @@ struct MarkdownBlockView: View {
         default: return .subheadline
         }
     }
-
     private enum BlockKind: Equatable {
         case heading(level: Int, content: String)
         case bullet(content: String)
         case text(content: String)
     }
-
     private struct Block: Identifiable, Equatable {
         let id = UUID()
         let kind: BlockKind
@@ -362,10 +337,8 @@ struct MarkdownBlockView: View {
     // 빈 줄이 나오면 버퍼를 flush해서 문단 단위가 유지되게 합니다.
     private func parseBlocks(from input: String) -> [Block] {
         let lines = input.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
-
         var blocks: [Block] = []
         var buffer: [String] = []
-
         func flushBufferIfNeeded() {
             let joined = buffer.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
             if joined.isEmpty == false {
@@ -373,45 +346,36 @@ struct MarkdownBlockView: View {
             }
             buffer.removeAll(keepingCapacity: true)
         }
-
         for rawLine in lines {
             let line = rawLine.trimmingCharacters(in: .whitespaces)
-
             if let heading = parseHeading(line) {
                 flushBufferIfNeeded()
                 blocks.append(heading)
                 continue
             }
-
             if let bullet = parseBullet(line) {
                 flushBufferIfNeeded()
                 blocks.append(bullet)
                 continue
             }
-
             if line.isEmpty {
                 flushBufferIfNeeded()
                 continue
             }
-
             buffer.append(rawLine)
         }
-
         flushBufferIfNeeded()
         return blocks
     }
-
     // 헤딩은 '# ' 패턴을 정규식으로 파싱합니다.
     // level은 1~6 범위로 제한해 폰트 매핑을 단순하게 유지합니다.
     private func parseHeading(_ line: String) -> Block? {
         let pattern = #"^(#{1,6})\s+(.+)$"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
-
         let nsLine = line as NSString
         let range = NSRange(location: 0, length: nsLine.length)
         guard let match = regex.firstMatch(in: line, range: range) else { return nil }
         guard match.numberOfRanges >= 3 else { return nil }
-
         let hashes = nsLine.substring(with: match.range(at: 1))
         let content = nsLine
             .substring(with: match.range(at: 2))
@@ -420,7 +384,6 @@ struct MarkdownBlockView: View {
         let level = min(max(hashes.count, 1), 6)
         return Block(kind: .heading(level: level, content: content))
     }
-
     // 불릿은 '- ' 또는 '• ' 두 케이스만 처리합니다.
     // 서버가 만든 목록이든 사용자 입력이든, 최소 규칙만으로 안정적으로 보여주는 목적입니다.
     private func parseBullet(_ line: String) -> Block? {

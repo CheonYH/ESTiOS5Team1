@@ -280,7 +280,11 @@ actor ChatSwiftDataStore {
         let data = Data(plaintext.utf8)
         let sealed = try AES.GCM.seal(data, using: key)
         guard let combined = sealed.combined else {
-            throw NSError(domain: "ChatSwiftDataStore", code: -10, userInfo: [NSLocalizedDescriptionKey: "Encryption failed"])
+            throw NSError(
+                domain: "ChatSwiftDataStore",
+                code: -10,
+                userInfo: [NSLocalizedDescriptionKey: "Encryption failed"]
+            )
         }
         return combined
     }
@@ -289,6 +293,13 @@ actor ChatSwiftDataStore {
     private func decrypt(_ combined: Data, using key: SymmetricKey) throws -> String {
         let box = try AES.GCM.SealedBox(combined: combined)
         let decrypted = try AES.GCM.open(box, using: key)
-        return String(decoding: decrypted, as: UTF8.self)
+        guard let text = String(bytes: decrypted, encoding: .utf8) else {
+            throw NSError(
+                domain: "ChatSwiftDataStore",
+                code: -11,
+                userInfo: [NSLocalizedDescriptionKey: "Decryption produced non-UTF8 text"]
+            )
+        }
+        return text
     }
 }
