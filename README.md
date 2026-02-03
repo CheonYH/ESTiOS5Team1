@@ -58,7 +58,45 @@
    * https://github.com/CheonYH/iOS5Team1
   
 ## 📁 프로젝트 구조
-
+    ESTiOS5Team1/
+    ├── App/                      # 앱의 진입점 및 전역 설정
+    │   └── ESTiOS5Team1App.swift
+    │
+    ├── Model/                    # 데이터 및 비즈니스 로직 (Domain Layer)
+    │   ├── Entity/               # 순수 도메인 모델 (Game, Review 등)
+    │   ├── DTO/                  # 서버 통신을 위한 데이터 객체 (Firebase, IGDB)
+    │   ├── Presentation/         # UI 전용 데이터 모델
+    │   └── ViewModel/            # 비즈니스 로직 및 상태 관리 (MVVM)
+    │       ├── Auth/             # 인증 및 회원가입 로직
+    │       ├── Chatbot/          # AI 챗봇 인터랙션 로직
+    │       ├── IGDB/             # 게임 데이터 연동 및 필터링
+    │       └── Search/           # 검색 및 즐겨찾기 관리
+    │
+    ├── View/                     # SwiftUI 기반 UI 계층 (Presentation Layer)
+    │   ├── Auth/                 # 로그인 및 회원가입 화면
+    │   ├── Main/                 # 홈, 장르별 탐색, 트렌딩 화면
+    │   ├── Detail/               # 게임 상세 정보 및 리뷰 섹션
+    │   ├── Chatbot/              # AI 챗봇 채팅 화면
+    │   ├── Search/               # 필터 기능이 포함된 검색 화면
+    │   └── Common/               # 앱 전역에서 재사용되는 UI 컴포넌트 (Toast, Card, etc.)
+    │
+    ├── Service/                  # 네트워크 및 외부 API 연동
+    │   ├── Auth/                 # Firebase/Social 인증 서비스
+    │   ├── IGDB/                 # IGDB 게임 데이터 API 서비스
+    │   └── Chatbot/              # Alan AI 챗봇 통신 클라이언트
+    │
+    ├── Security/                 # 보안 및 로컬 데이터 저장
+    │   └── Store/                # SwiftData, Keychain, UserDefaults 관리
+    │
+    ├── Support/                  # 앱 보조 유틸리티 및 AI 처리
+    │   ├── AlanCoordinator.swift # AI 음성/채팅 코디네이터
+    │   └── TextClassifier.swift  # ML 기반 텍스트 분류 어댑터
+    │
+    ├── Common/                   # 공통 유틸리티 및 확장(Extension)
+    │   ├── Extensions/           # SwiftUI 및 기초 타입 확장
+    │   └── Types/                # 공통 상수 및 유효성 검사 로직
+    │
+    └── Assets.xcassets/          # 이미지, 컬러셋 등 앱 리소스
 
 ## 🖥️ 앱 주요 화면
 | 홈화면 (MainView) | 게임찾기(SearchView) | 내 게임 (LibraryView) | 챗봇 (Chanbot) | 프로필 (Profile) |
