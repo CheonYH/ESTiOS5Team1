@@ -46,11 +46,13 @@
 1. 🗃️ 기술스택(Tech Stack)
    * 프레임워크: SwiftUI, Combine, Swift Concurrency(async/await, @MainActor, actor)
    * 데이터관리: SwiftData(채팅방/메시지 영속화)
-   * 라이브러리: SwiftUI Charts
    * 보안: CryptoKit(AES.GCM, 대화내용 암호화 저장), Keychain(암호화 키 저장/복호화용 키 관리)
    * 머신러닝: CoreML(Game vs Non-Game 분류모델, Game Intent 분류모델)
-   * 네트워킹: URLSession(REST API호출)
-   * UIUX: ipad(가로, 세로 대응), iphone 대응, Light, Dark Mode 대응
+   * API 연동: IGDB API, 자체 REST API
+   * 네트워킹: URLSession(비동기 API 통신)
+   * 서버: Vapor(Swift), JWT 인증, Google 소셜 로그인
+   * 서버 저장소: https://github.com/CheonYH/iOS5Team1
+   * UI/UX: iPad(가로, 세로 대응), iPhone 대응
   
 ## 📁 프로젝트 구조
 
