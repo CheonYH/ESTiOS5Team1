@@ -11,22 +11,22 @@ import SwiftData
 
 // MARK: - Overview
 
-/// 채팅 데이터의 로컬 영속화를 담당하는 SwiftData 저장소입니다.
-///
-/// 이 파일의 역할
-/// - 채팅방/메시지를 SwiftData로 저장하고 다시 복원합니다.
-/// - 메시지 본문은 AES.GCM으로 암호화해서 저장합니다.
-/// - 암호화 키는 KeychainStore를 통해 Keychain에 보관합니다.
-///
-/// 연동 위치
-/// - ChatRoomsViewModel: 방 목록 저장/로드, 기본 방 갱신 시 사용합니다.
-/// - ChatRoomViewModel: 메시지 저장/로드, 방의 updatedAt 갱신(touch) 시 사용합니다.
-/// - ChatModels: ChatRoom/ChatMessage와 authorRaw 매핑에 사용됩니다.
-///
-/// 구현 선택 이유
-/// - actor: ModelContext는 스레드 안전하지 않으므로, 저장소 접근을 단일 실행으로 직렬화합니다.
-/// - sequence: 정렬을 안정적으로 유지하기 위한 저장용 인덱스입니다.
-/// - 전체 교체 저장: 데이터 규모가 크지 않고, 리셋/아카이브 등으로 메시지 구성이 자주 바뀌므로 단순한 전략을 택합니다.
+// 채팅 데이터의 로컬 영속화를 담당하는 SwiftData 저장소입니다.
+//
+// 이 파일의 역할
+// - 채팅방/메시지를 SwiftData로 저장하고 다시 복원합니다.
+// - 메시지 본문은 AES.GCM으로 암호화해서 저장합니다.
+// - 암호화 키는 KeychainStore를 통해 Keychain에 보관합니다.
+//
+// 연동 위치
+// - ChatRoomsViewModel: 방 목록 저장/로드, 기본 방 갱신 시 사용합니다.
+// - ChatRoomViewModel: 메시지 저장/로드, 방의 updatedAt 갱신(touch) 시 사용합니다.
+// - ChatModels: ChatRoom/ChatMessage와 authorRaw 매핑에 사용됩니다.
+//
+// 구현 선택 이유
+// - actor: ModelContext는 스레드 안전하지 않으므로, 저장소 접근을 단일 실행으로 직렬화합니다.
+// - sequence: 정렬을 안정적으로 유지하기 위한 저장용 인덱스입니다.
+// - 전체 교체 저장: 데이터 규모가 크지 않고, 리셋/아카이브 등으로 메시지 구성이 자주 바뀌므로 단순한 전략을 택합니다.
 
 // MARK: - SwiftData Models
 
@@ -207,7 +207,7 @@ actor ChatSwiftDataStore {
             let records = try context.fetch(descriptor)
 
             let key = try await loadOrCreateKey()
-    
+
             let snapshots = records.map { rec in
                 let decryptedText = (try? decrypt(rec.encryptedText, using: key)) ?? ""
                 return MessageSnapshot(identifier: rec.identifier, authorRaw: rec.authorRaw,
@@ -280,7 +280,11 @@ actor ChatSwiftDataStore {
         let data = Data(plaintext.utf8)
         let sealed = try AES.GCM.seal(data, using: key)
         guard let combined = sealed.combined else {
-            throw NSError(domain: "ChatSwiftDataStore", code: -10, userInfo: [NSLocalizedDescriptionKey: "Encryption failed"])
+            throw NSError(
+                domain: "ChatSwiftDataStore",
+                code: -10,
+                userInfo: [NSLocalizedDescriptionKey: "Encryption failed"]
+            )
         }
         return combined
     }
@@ -289,6 +293,13 @@ actor ChatSwiftDataStore {
     private func decrypt(_ combined: Data, using key: SymmetricKey) throws -> String {
         let box = try AES.GCM.SealedBox(combined: combined)
         let decrypted = try AES.GCM.open(box, using: key)
-        return String(decoding: decrypted, as: UTF8.self)
+        guard let text = String(bytes: decrypted, encoding: .utf8) else {
+            throw NSError(
+                domain: "ChatSwiftDataStore",
+                code: -11,
+                userInfo: [NSLocalizedDescriptionKey: "Decryption produced non-UTF8 text"]
+            )
+        }
+        return text
     }
 }

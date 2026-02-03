@@ -29,22 +29,22 @@ enum Tab {
 ///
 /// 아이콘 + 텍스트를 세로로 배치하고, 현재 선택된 탭이면 강조 색상으로 표시합니다.
 struct TabbarButton: View {
-    
+
     /// SF Symbols 이름(예: `house.fill`)
     let icon: String
-    
+
     /// 탭 라벨 텍스트(예: “홈”, “프로필”)
     let iconName: String
-    
+
     /// 이 버튼이 담당하는 탭 값
     let tab: Tab
-    
+
     /// 현재 선택된 탭(부모 뷰와 상태 공유)
     @Binding var selectedTab: Tab
-    
+
     /// 현재 버튼이 선택 상태인지 여부
     var isSelected: Bool { selectedTab == tab }
-    
+
     var body: some View {
         Button {
             selectedTab = tab
@@ -54,7 +54,7 @@ struct TabbarButton: View {
                     .resizable()
                     .scaledToFit()
                     .frame(height: 14)
-                
+
                 Text(iconName)
             }
             .foregroundStyle(isSelected ? .purple : .gray)

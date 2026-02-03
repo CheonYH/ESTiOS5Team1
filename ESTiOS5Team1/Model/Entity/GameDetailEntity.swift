@@ -83,16 +83,16 @@ extension GameDetailEntity {
 
         self.officialWebsite = Self.officialWebsite(from: gameListDTO)
 
-        // 🔹 store links
+        // store links
         self.storeLinks = Self.storeLinks(from: gameListDTO)
 
-        // 🔹 트레일러 (Youtube ID)
+        // 트레일러 (Youtube ID)
         self.trailerUrls = Self.trailerURLs(from: gameListDTO)
 
-        // 🔹 개발사
+        // 개발사
         self.developers = Self.companyNames(from: gameListDTO, matching: { $0.developer == true })
 
-        // 🔹 배급사 / 유통사
+        // 배급사 / 유통사
         self.publishers = Self.companyNames(from: gameListDTO, matching: { $0.publisher == true })
     }
 }
@@ -157,38 +157,43 @@ private extension GameDetailEntity {
             .compactMap { site in
                 guard let urlString = site.url,
                       let url = URL(string: urlString) else { return nil }
-                if let category = site.category {
-                    switch category {
-                    case 5:  return StoreLink(store: .steam, url: url)
-                    case 10: return StoreLink(store: .epic, url: url)
-                    case 13: return StoreLink(store: .nintendo, url: url)
-                    case 14: return StoreLink(store: .xbox, url: url)
-                    case 15: return StoreLink(store: .playstation, url: url)
-                    case 6, 11:
-                        return StoreLink(store: .gog, url: url)
-                    default:
-                        return StoreLink(store: .other("unknown"), url: url)
-                    }
-                }
-
-                let host = url.host?.lowercased() ?? ""
-                switch true {
-                case host.contains("steampowered"):
-                    return StoreLink(store: .steam, url: url)
-                case host.contains("playstation"):
-                    return StoreLink(store: .playstation, url: url)
-                case host.contains("xbox"):
-                    return StoreLink(store: .xbox, url: url)
-                case host.contains("nintendo"):
-                    return StoreLink(store: .nintendo, url: url)
-                case host.contains("epicgames"):
-                    return StoreLink(store: .epic, url: url)
-                case host.contains("gog"):
-                    return StoreLink(store: .gog, url: url)
-                default:
-                    return StoreLink(store: .other("unknown"), url: url)
-                }
+                let store = site.category.map { Self.store(fromCategory: $0) } ?? Self.store(fromHost: url.host)
+                return StoreLink(store: store, url: url)
             } ?? []
+    }
+
+    /// 웹사이트 카테고리 값을 스토어 타입으로 변환합니다.
+    nonisolated static func store(fromCategory category: Int) -> Store {
+        switch category {
+        case 5:  return .steam
+        case 10: return .epic
+        case 13: return .nintendo
+        case 14: return .xbox
+        case 15: return .playstation
+        case 6, 11: return .gog
+        default: return .other("unknown")
+        }
+    }
+
+    /// 웹사이트 호스트 문자열을 스토어 타입으로 추론합니다.
+    nonisolated static func store(fromHost host: String?) -> Store {
+        let lowercasedHost = host?.lowercased() ?? ""
+        switch true {
+        case lowercasedHost.contains("steampowered"):
+            return .steam
+        case lowercasedHost.contains("playstation"):
+            return .playstation
+        case lowercasedHost.contains("xbox"):
+            return .xbox
+        case lowercasedHost.contains("nintendo"):
+            return .nintendo
+        case lowercasedHost.contains("epicgames"):
+            return .epic
+        case lowercasedHost.contains("gog"):
+            return .gog
+        default:
+            return .other("unknown")
+        }
     }
 
     /// 트레일러 URL 목록을 생성합니다.

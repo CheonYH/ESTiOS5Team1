@@ -22,7 +22,7 @@ enum StarRatingStyle {
     static func symbolName(index: Int, rating: Int) -> String {
         index <= rating ? "star.fill" : "star"
     }
-    
+
     /// 별 인덱스와 선택된 점수에 따라 표시할 색상을 반환합니다.
     ///
     /// - Parameters:

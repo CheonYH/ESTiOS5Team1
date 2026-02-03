@@ -17,7 +17,7 @@ import SwiftUI
 struct ReviewCellServer: View {
     /// 표시할 리뷰 데이터입니다.
     let review: ReviewResponse
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -29,18 +29,18 @@ struct ReviewCellServer: View {
                             .foregroundStyle(StarRatingStyle.color(index: index, rating: review.rating))
                     }
                 }
-                
+
                 Spacer()
-                
+
                 Text(review.createdAt.formatted())
                     .font(.caption2)
                     .foregroundStyle(.textPrimary.opacity(0.5))
             }
-            
+
             Text(review.content)
                 .font(.callout)
                 .foregroundStyle(.textPrimary.opacity(0.9))
-            
+
             Text("by \(review.nickname)")
                 .font(.caption2)
                 .foregroundStyle(.textPrimary.opacity(0.5))

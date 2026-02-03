@@ -44,9 +44,12 @@
 
 ## ✨ 핵심 기술
 1. 🗃️ 기술스택(Tech Stack)
-   * 프레임워크: SwiftUI
-   * 데이터관리: swiftData
+   * 프레임워크: SwiftUI, Combine, Swift Concurrency(async/await, @MainActor, actor)
+   * 데이터관리: SwiftData(채팅방/메시지 영속화)
    * 라이브러리: SwiftUI Charts
+   * 보안: CryptoKit(AES.GCM, 대화내용 암호화 저장), Keychain(암호화 키 저장/복호화용 키 관리)
+   * 머신러닝: CoreML(Game vs Non-Game 분류모델, Game Intent 분류모델)
+   * 네트워킹: URLSession(REST API호출)
    * UIUX: ipad(가로, 세로 대응), iphone 대응, Light, Dark Mode 대응
   
 ## 📁 프로젝트 구조
@@ -58,6 +61,12 @@
 ## 🧑‍🤝‍🧑 협업 문화
 
 ## 🧩 특징
+
+## 🗓️ 개발 기간
+2025.12.30.화 - 2026.02.04.수 (약 25일)
+***
+
+
 
 ## 👯 팀원 소개
 

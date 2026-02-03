@@ -20,7 +20,7 @@ struct StarRatingPicker: View {
     var maxStars: Int = 5
     /// 선택된 별점 값입니다.
     @Binding var rating: Int
-    
+
     var body: some View {
         HStack(spacing: 5) {
             ForEach(1...maxStars, id: \.self) { index in
@@ -30,9 +30,9 @@ struct StarRatingPicker: View {
                     .onTapGesture { rating = index }
                     .contentShape(Rectangle())
             }
-            
+
             Spacer()
-            
+
             Text("\(rating)/\(maxStars)")
                 .font(.subheadline)
                 .foregroundStyle(.textPrimary.opacity(0.8))

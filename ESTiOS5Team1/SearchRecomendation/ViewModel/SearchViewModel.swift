@@ -92,7 +92,7 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     /// 의존성
     private let service: GameDataServiceProtocol
-    private let favoriteManager: FavoriteManagerProtocol
+    private let favoriteManager: any FavoriteManagerProtocol
     private let pageSize: Int = 30
 
     // MARK: - Static Cache
@@ -104,7 +104,7 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     // MARK: - Initialization
 
-    init(service: GameDataServiceProtocol? = nil, favoriteManager: FavoriteManagerProtocol) {
+    init(service: GameDataServiceProtocol? = nil, favoriteManager: any FavoriteManagerProtocol) {
         self.service = service ?? IGDBServiceManager()
         self.favoriteManager = favoriteManager
     }

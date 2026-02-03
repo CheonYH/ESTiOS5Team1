@@ -9,22 +9,22 @@ import Foundation
 
 // MARK: - Overview
 
-/// 사용자 입력을 서버로 보내기 전에 1차 필터링을 수행하는 게이트입니다.
-///
-/// 이 파일의 역할
-/// - 게임 전용 챗봇 정책을 클라이언트에서 먼저 보장합니다.
-/// - 비용 절감: 불필요한 네트워크 호출을 줄입니다.
-/// - 안전성: 프롬프트 인젝션/민감정보 요청/욕설을 서버 호출 전에 차단합니다.
-///
-/// 연동 위치
-/// - ChatRoomViewModel: sendMessage 흐름에서 입력 직후 evaluate로 allow/block를 결정합니다.
-/// - ChatbotPrompts: block일 때 안내 문구를 봇 메시지로 즉시 반환하는 흐름과 연결됩니다.
-/// - TextClassifierAdapter: classifier 구현체가 CoreML 모델을 감싸서 label/confidence를 제공합니다.
-/// - ChatModels.GameDomainLabel: 모델 라벨 문자열을 앱 내부 표준(game/non_game/unknown)으로 정규화합니다.
-///
-/// 구현 선택 이유
-/// - “가벼운 규칙”을 먼저 적용하고, 마지막에만 ML 분류기를 호출해 성능을 지킵니다.
-/// - unknown/신뢰도 낮은 결과는 보수적으로 차단해 제품 컨셉을 흔들리지 않게 합니다.
+// 사용자 입력을 서버로 보내기 전에 1차 필터링을 수행하는 게이트입니다.
+//
+// 이 파일의 역할
+// - 게임 전용 챗봇 정책을 클라이언트에서 먼저 보장합니다.
+// - 비용 절감: 불필요한 네트워크 호출을 줄입니다.
+// - 안전성: 프롬프트 인젝션/민감정보 요청/욕설을 서버 호출 전에 차단합니다.
+//
+// 연동 위치
+// - ChatRoomViewModel: sendMessage 흐름에서 입력 직후 evaluate로 allow/block를 결정합니다.
+// - ChatbotPrompts: block일 때 안내 문구를 봇 메시지로 즉시 반환하는 흐름과 연결됩니다.
+// - TextClassifierAdapter: classifier 구현체가 CoreML 모델을 감싸서 label/confidence를 제공합니다.
+// - ChatModels.GameDomainLabel: 모델 라벨 문자열을 앱 내부 표준(game/non_game/unknown)으로 정규화합니다.
+//
+// 구현 선택 이유
+// - "가벼운 규칙"을 먼저 적용하고, 마지막에만 ML 분류기를 호출해 성능을 지킵니다.
+// - unknown/신뢰도 낮은 결과는 보수적으로 차단해 제품 컨셉을 흔들리지 않게 합니다.
 
 // MARK: - Decision
 

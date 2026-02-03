@@ -14,10 +14,10 @@ import Kingfisher
 /// 홈 화면의 장르 그리드에서 재사용합니다.
 
 struct GenreCard: View {
-    
+
     /// 표시할 장르 모델
     let genre: GameGenreModel
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Image(genre.imageName)
@@ -26,7 +26,7 @@ struct GenreCard: View {
                 .frame(width: 220, height: 140)
                 .clipped()
                 .cornerRadius(Radius.cr16)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(genre.displayName)
                     .font(.headline)

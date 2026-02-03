@@ -24,7 +24,7 @@ struct DetailInfoBox: View {
     ///
     /// `GameDetailViewModel`에서 받아온 `GameDetailItem`을 주입받습니다.
     let item: GameDetailItem
-    
+
     var body: some View {
         if let coverURL = item.coverURL {
             KFImage(coverURL)
@@ -37,21 +37,21 @@ struct DetailInfoBox: View {
                 .frame(height: 400)
                 .clipped()
                 .cornerRadius(Radius.card)
-            
+
         } else {
             GameListCardPlaceholder()
                 .frame(height: 400)
                 .cornerRadius(Radius.card)
         }
-        
+
         VStack(alignment: .leading) {
-            
+
             VStack(alignment: .leading, spacing: 10) {
                 Text(item.title)
                     .font(.title2.bold())
                     .lineLimit(2)
                     .minimumScaleFactor(0.7)
-                
+
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption)
                     .foregroundStyle(.pink.opacity(0.75))
@@ -68,18 +68,18 @@ struct DetailInfoBox: View {
             }
             .foregroundStyle(.textPrimary)
             .padding(.vertical, 5)
-            
+
             Divider()
                 .frame(height: 1)
                 .background(.textPrimary.opacity(0.2))
             HStack {
                 StatView(value: item.ratingText, title: "User Score", color: .mint)
                     .frame(maxWidth: .infinity)
-                
+
                 Divider()
                     .frame(height: 40)
                     .background(.textPrimary.opacity(0.2))
-                
+
                 StatView(value: item.metaScore, title: "Metacritic", color: .mint)
                     .frame(maxWidth: .infinity)
             }
@@ -89,6 +89,6 @@ struct DetailInfoBox: View {
             RoundedRectangle(cornerRadius: Radius.card)
                 .fill(.textPrimary.opacity(0.06))
         )
-        
+
     }
 }

@@ -25,8 +25,8 @@ struct ReviewSection: View {
     /// 리뷰 변경 후(성공 시) 추가로 실행할 콜백입니다.
     ///
     /// 예: 상세 화면 상단의 통계 새로고침 등
-    var onReviewChanged: (() async -> Void)? = nil
-    
+    var onReviewChanged: (() async -> Void)?
+
     /// 리뷰 목록/내 리뷰/통계를 로드하고 CRUD를 수행하는 ViewModel 입니다.
     @StateObject private var viewModel = ReviewViewModel(service: ReviewServiceManager())
     /// 내 리뷰를 수정 모드로 열었는지 여부입니다.
@@ -37,17 +37,17 @@ struct ReviewSection: View {
     @State private var keyboardHeight: CGFloat = 0
     /// '전체 보기' 화면으로 네비게이션할지 여부입니다.
     @State private var showAll: Bool = false
-    
+
     /// 현재 게임에 대한 내 리뷰(있으면)입니다.
     private var myReview: ReviewResponse? {
         viewModel.myReviews.first(where: { $0.gameId == gameId })
     }
-    
+
     /// 리뷰 편집(수정) 또는 신규 작성 UI가 활성화되어 있는지 여부입니다.
     private var isEditingOrCreating: Bool {
         isEditingMyReview || myReview == nil
     }
-    
+
     /// '내 리뷰'를 제외한 최신 리뷰 3개 목록입니다.
     private var latestThree: [ReviewResponse] {
         let filtered = viewModel.reviews.filter { $0.id != myReview?.id }
@@ -61,19 +61,19 @@ struct ReviewSection: View {
         ScrollViewReader { proxy in
             VStack(alignment: .leading) {
                 TitleBox(title: "리뷰", showsSeeAll: true, onSeeAllTap: { showAll = true })
-                
+
                 // 리스트(최신 3개)
                 ForEach(latestThree) { review in
                     ReviewCellServer(review: review)
                 }
-                
+
                 if let myReview {
                     if !isEditingMyReview {
                         TitleBox(title: "내 리뷰", onSeeAllTap: nil)
-                        
+
                         ReviewCellServer(review: myReview)
                     }
-                    
+
                     if isEditingMyReview {
                         Review(
                             initialRating: myReview.rating,
@@ -83,7 +83,7 @@ struct ReviewSection: View {
                             viewModel.gameId = gameId
                             viewModel.rating = rating
                             viewModel.content = content
-                            
+
                             Task {
                                 let event = await viewModel.updateReview(id: myReview.id)
                                 toastManager.show(event)
@@ -96,13 +96,13 @@ struct ReviewSection: View {
                             }
                         }
                         .id("reviewEditor")
-                        
+
                         HStack {
                             Button("취소") {
                                 isEditingMyReview = false
                             }
                             .buttonStyle(.bordered)
-                            
+
                             Spacer()
                         }
                         .padding(.top, 4)
@@ -113,7 +113,7 @@ struct ReviewSection: View {
                             }
                             .buttonStyle(.bordered)
                             .foregroundStyle(.textPrimary)
-                            
+
                             Button("삭제") {
                                 Task {
                                     let event = await viewModel.deleteReview(id: myReview.id)
@@ -135,7 +135,7 @@ struct ReviewSection: View {
                         viewModel.gameId = gameId
                         viewModel.rating = rating
                         viewModel.content = content
-                        
+
                         Task {
                             let event = await viewModel.postReview()
                             toastManager.show(event)
@@ -148,18 +148,18 @@ struct ReviewSection: View {
                     }
                     .id("reviewEditor")
                 }
-                
+
                 // 상태 표시
                 if viewModel.isLoading {
                     Text("Loading...")
                         .foregroundStyle(.secondary)
                 }
-                
+
                 if let error = viewModel.errorMessage {
                     Text("Error: \(error)")
                         .foregroundStyle(.red)
                 }
-                
+
             }
             .padding(.bottom, isEditingOrCreating ? keyboardHeight : 0)
             .onChange(of: isEditingOrCreating) { _, isEditing in
@@ -193,7 +193,7 @@ struct ReviewSection: View {
         .navigationDestination(isPresented: $showAll) {
             ZStack {
                 Color.BG.ignoresSafeArea()
-                
+
                 ScrollView {
                     ForEach(reviewList) { review in
                         ReviewCellServer(review: review)
@@ -201,9 +201,9 @@ struct ReviewSection: View {
                 }
             }
         }
-        
+
     }
-    
+
     /// 리뷰 변경 사항을 앱 전역에 알립니다.
     ///
     /// - Note:
