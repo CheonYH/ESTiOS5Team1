@@ -45,9 +45,9 @@
 			membershipExceptions = (
 				.swiftlint.yml,
 				Model/DTO/IGDB/IGDBGenreDTO.swift,
-				Model/ViewModel/GenreListViewModel.swift,
+				Model/ViewModel/IGDB/GenreListViewModel.swift,
 				Security/DeviceID.swift,
-				Security/TokenStore.swift,
+				Security/Store/TokenStore.swift,
 			);
 			target = 25C032502F0C972500CA196B /* ESTiOS5Team1Tests */;
 		};
@@ -56,9 +56,9 @@
 			membershipExceptions = (
 				.swiftlint.yml,
 				Model/DTO/IGDB/IGDBGenreDTO.swift,
-				Model/ViewModel/GenreListViewModel.swift,
+				Model/ViewModel/IGDB/GenreListViewModel.swift,
 				Security/DeviceID.swift,
-				Security/TokenStore.swift,
+				Security/Store/TokenStore.swift,
 			);
 			target = 25C0325A2F0C972500CA196B /* ESTiOS5Team1UITests */;
 		};
