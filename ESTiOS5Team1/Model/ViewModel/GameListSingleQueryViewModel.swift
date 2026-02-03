@@ -71,6 +71,13 @@ final class GameListSingleQueryViewModel: ObservableObject {
     }
 
     /// 단일 멀티쿼리로 게임 목록을 불러옵니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/multiquery` (`list` 블록)
+    ///   `GET /reviews/game/{gameId}/stats` (아이템별 병렬 조회)
+    ///
+    /// - Returns:
+    ///   없음 (내부 상태 `items` 갱신)
     func load() async {
         isLoading = true
         error = nil
@@ -100,6 +107,13 @@ final class GameListSingleQueryViewModel: ObservableObject {
     }
 
     /// 다음 페이지를 불러옵니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/multiquery` (`list` 블록 with pagination)
+    ///   `GET /reviews/game/{gameId}/stats` (추가 아이템 병렬 조회)
+    ///
+    /// - Returns:
+    ///   없음 (내부 상태 `items` 추가 갱신)
     func loadNextPage() async {
         guard hasMore, !isLoading, !isLoadingMore else { return }
         isLoadingMore = true
@@ -125,6 +139,15 @@ final class GameListSingleQueryViewModel: ObservableObject {
     }
 
     /// 특정 게임의 리뷰 통계만 다시 받아서 카드 점수만 갱신합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /reviews/game/{gameId}/stats`
+    ///
+    /// - Parameters:
+    ///   - gameId: 갱신할 게임 ID
+    ///
+    /// - Returns:
+    ///   없음 (내부 상태 `items` 갱신)
     func refreshReviewStats(for gameId: Int) async {
         guard entities.contains(where: { $0.id == gameId }) else { return }
 
