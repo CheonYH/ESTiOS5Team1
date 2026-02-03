@@ -20,14 +20,14 @@ struct StarRatingView: View {
     var maxStars: Int = 5
     /// 표시할 별점 값입니다.
     let rating: Int
-    
+
     var body: some View {
         VStack(spacing: 5) {
             Text("\(rating)")
                 .font(.largeTitle)
                 .foregroundStyle(.textPrimary)
                 .bold()
-            
+
             HStack {
                 ForEach(1...maxStars, id: \.self) { index in
                     Image(systemName: StarRatingStyle.symbolName(index: index, rating: rating))
@@ -38,7 +38,7 @@ struct StarRatingView: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Rating \(rating) out of \(maxStars)")
-            
+
         }
         .frame(maxWidth: .infinity, maxHeight: 150, alignment: .leading)
         .padding()

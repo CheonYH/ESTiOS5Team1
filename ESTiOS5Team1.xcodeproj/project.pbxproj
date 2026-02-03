@@ -178,6 +178,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				25964E332F3187E500749CD7 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				25C032442F0C972400CA196B /* ESTiOS5Team1 */,
@@ -354,6 +355,10 @@
 		2595DF862F298F590006B179 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 2595DF852F298F590006B179 /* SwiftLintBuildToolPlugin */;
+		};
+		25964E332F3187E500749CD7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 25964E322F3187E500749CD7 /* SwiftLintBuildToolPlugin */;
 		};
 		25C032532F0C972500CA196B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -727,6 +732,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		2595DF852F298F590006B179 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		25964E322F3187E500749CD7 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 25E2319A2F10838600C0B57B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";

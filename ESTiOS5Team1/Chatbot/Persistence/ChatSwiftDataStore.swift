@@ -207,7 +207,7 @@ actor ChatSwiftDataStore {
             let records = try context.fetch(descriptor)
 
             let key = try await loadOrCreateKey()
-    
+
             let snapshots = records.map { rec in
                 let decryptedText = (try? decrypt(rec.encryptedText, using: key)) ?? ""
                 return MessageSnapshot(identifier: rec.identifier, authorRaw: rec.authorRaw,

@@ -16,12 +16,12 @@ import SwiftUI
 struct RatingText: View {
     /// 평점 표시 대상 게임 아이템입니다.
     let item: GameListItem
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: "star.fill")
                 .font(.system(size: 10))
-            
+
             Text(item.ratingText)
                 .font(.caption2)
                 .fontWeight(.bold)

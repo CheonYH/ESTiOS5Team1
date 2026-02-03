@@ -14,7 +14,7 @@ import Combine
 ///
 /// 화면 전환(예: 상세 화면 push) 시 탭바를 숨기거나 다시 나타낼 때 사용합니다.
 final class TabBarState: ObservableObject {
-    
+
     /// 탭바 숨김 여부
     ///
     /// - Note:

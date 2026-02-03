@@ -9,7 +9,6 @@ import Foundation
 
 // MARK: - Notification Names
 
-
 /// 앱 전역에서 사용하는 Notification.Name 상수를 정의합니다.
 ///
 /// 문자열 기반 Notification을 오타 없이 재사용하기 위해 확장으로 모아 관리합니다.

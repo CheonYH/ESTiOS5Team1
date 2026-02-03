@@ -40,7 +40,7 @@ struct ProfileHeaderView: View {
                 )
             }
             .photosPicker(isPresented: $showPhotoPicker, selection: $selectedItem, matching: .images)
-            .onChange(of: selectedItem) { newItem in
+            .onChange(of: selectedItem) { _, newItem in
                 onPhotoPicked(newItem)
             }
 

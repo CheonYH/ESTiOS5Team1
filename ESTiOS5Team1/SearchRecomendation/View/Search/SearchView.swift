@@ -87,7 +87,13 @@ struct SearchView: View {
     ///
     /// - Note:
     ///     홈 화면의 장르 버튼 탭 시 사용됩니다.
-    init(favoriteManager: FavoriteManager, gameGenre: GameGenreModel, openSearchRequested: Binding<Bool> = .constant(false), pendingGenre: Binding<GameGenreModel?> = .constant(nil), shouldResetSearch: Binding<Bool> = .constant(false)) {
+    init(
+        favoriteManager: FavoriteManager,
+        gameGenre: GameGenreModel,
+        openSearchRequested: Binding<Bool> = .constant(false),
+        pendingGenre: Binding<GameGenreModel?> = .constant(nil),
+        shouldResetSearch: Binding<Bool> = .constant(false)
+    ) {
         self._openSearchRequested = openSearchRequested
         self._pendingGenre = pendingGenre
         self._shouldResetSearch = shouldResetSearch
@@ -134,13 +140,13 @@ struct SearchView: View {
                         await viewModel.forceRefresh()
                     }
                     // 필터 변경 시 상단으로 스크롤
-                    .onChange(of: selectedPlatform) { _ in
+                    .onChange(of: selectedPlatform) {
                         proxy.scrollTo("top", anchor: .top)
                     }
-                    .onChange(of: selectedGenre) { _ in
+                    .onChange(of: selectedGenre) {
                         proxy.scrollTo("top", anchor: .top)
                     }
-                    .onChange(of: advancedFilterState) { _ in
+                    .onChange(of: advancedFilterState) {
                         proxy.scrollTo("top", anchor: .top)
                     }
                 }
@@ -155,7 +161,7 @@ struct SearchView: View {
         .sheet(isPresented: $showFilterSheet) {
             FilterSheet(filterState: $advancedFilterState)
         }
-        .onChange(of: openSearchRequested) { value in
+        .onChange(of: openSearchRequested) { _, value in
             guard value else { return }
             // [추가] 홈에서 검색 버튼 클릭 시 필터 초기화 (UX 개선)
             selectedPlatform = .all
@@ -165,27 +171,27 @@ struct SearchView: View {
             }
             openSearchRequested = false
         }
-        .onChange(of: pendingGenre) { gener in
-            guard let gener else { return }
-            selectedGenre = GenreFilterType.from(gameGenre: gener)
+        .onChange(of: pendingGenre) { _, genre in
+            guard let genre else { return }
+            selectedGenre = GenreFilterType.from(gameGenre: genre)
             pendingGenre = nil
         }
         // [추가] 탭 전환 시 검색 상태 초기화 (실무 방식: 부모에서 신호 전달)
-        .onChange(of: shouldResetSearch) { value in
+        .onChange(of: shouldResetSearch) { _, value in
             guard value else { return }
             isSearchActive = false
             searchText = ""
             viewModel.clearSearchResults()
             shouldResetSearch = false
         }
-        .onChange(of: searchText) { newValue in
+        .onChange(of: searchText) { _, newValue in
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 viewModel.clearSearchResults()
             }
         }
         // 필터 변경 시 ViewModel에 적용
-        .onChange(of: selectedPlatform) { _ in applyFilters() }
-        .onChange(of: selectedGenre) { newGenre in
+        .onChange(of: selectedPlatform) { _, _ in applyFilters() }
+        .onChange(of: selectedGenre) { _, newGenre in
             // [추가] 장르 변경 시 서버에서 해당 장르 데이터 로드
             viewModel.prepareGenreLoading(newGenre)
             Task {
@@ -193,8 +199,8 @@ struct SearchView: View {
             }
             applyFilters()
         }
-        .onChange(of: searchText) { _ in applyFilters() }
-        .onChange(of: advancedFilterState) { _ in applyFilters() }
+        .onChange(of: searchText) { _, _ in applyFilters() }
+        .onChange(of: advancedFilterState) { _, _ in applyFilters() }
         // [리팩토링] ViewModel 내부에서 자동 업데이트되므로 개별 데이터 관찰 불필요
     }
 

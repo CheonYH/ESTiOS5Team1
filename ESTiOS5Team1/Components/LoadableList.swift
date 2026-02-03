@@ -25,17 +25,17 @@ struct LoadableList<Items: RandomAccessCollection, Row: View, Destination: View>
     let error: Error?
     /// 표시할 데이터 컬렉션입니다.
     let items: Items
-    
+
     /// 표시 개수를 제한할 때 사용하는 옵션입니다. (nil이면 전체)
     var limit: Int?
     /// 로딩 인디케이터에 함께 표시할 텍스트입니다.
     var loadingText: String = "로딩 중"
-    
+
     /// 아이템을 탭했을 때 이동할 목적지 뷰를 생성합니다.
     let destination: (Items.Element) -> Destination
     /// 아이템 한 줄(row) UI를 생성합니다.
     let row: (Items.Element) -> Row
-    
+
     var body: some View {
         if isLoading && Array(items).isEmpty {
             ProgressView(loadingText)
@@ -51,7 +51,7 @@ struct LoadableList<Items: RandomAccessCollection, Row: View, Destination: View>
             }
         }
     }
-    
+
     /// `limit`이 지정된 경우 배열을 앞에서부터 잘라 반환합니다.
     ///
     /// - Parameter array: 원본 배열

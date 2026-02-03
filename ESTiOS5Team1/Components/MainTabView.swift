@@ -34,36 +34,36 @@ struct MainTabView: View {
     // [추가] 검색 상태 초기화용 (탭 전환 시 검색 비활성화)
     /// Discover 탭을 벗어날 때 검색 상태(텍스트/필터)를 초기화하도록 요청하는 플래그입니다.
     @State private var shouldResetSearch = false
-    
+
     /// 즐겨찾기(라이브러리) 관리 객체입니다.
     ///
     /// 하위 뷰 전반에서 공유되므로 `EnvironmentObject`로 주입합니다.
     @StateObject var favoriteManager = FavoriteManager()
-    
+
     /// 홈 메인 리스트용 ViewModel 입니다.
     @StateObject private var mainVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     /// 트렌딩 섹션용 ViewModel 입니다.
     @StateObject private var trendingVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.trendingNow)
-    
+
     /// 신규 출시 섹션용 ViewModel 입니다.
     @StateObject private var releasesVM = GameListSingleQueryViewModel(service: IGDBServiceManager(), query: IGDBQuery.newReleases)
-    
+
     /// 커스텀 탭바 표시/숨김 상태를 관리하는 EnvironmentObject 입니다.
     @StateObject private var tabBarState = TabBarState()
-    
+
     /// 홈 화면의 주요 데이터가 로딩 중인지 여부입니다.
     ///
     /// - Note: 로딩 중에는 탭 전환/터치를 막아 화면이 어색하게 변하는 것을 방지합니다.
     private var isPageLoading: Bool {
         mainVM.isLoading || trendingVM.isLoading || releasesVM.isLoading
     }
-    
+
     /// 홈에 필요한 데이터가 최소 1회 이상 로드되었는지 여부입니다.
     private var hasLoadedHome: Bool {
         mainVM.hasLoaded && trendingVM.hasLoaded && releasesVM.hasLoaded
     }
-    
+
     var body: some View {
         ZStack {
             Color("BGColor")
@@ -91,7 +91,7 @@ struct MainTabView: View {
                         .opacity((selectedTab == .home && hasLoadedHome && !isPageLoading) ? 1 : 0)
                         .allowsHitTesting(selectedTab == .home)
                     }
-                    
+
                     if loadedTabs.contains(.discover) {
                         tabStack(isActive: selectedTab == .discover) {
                             SearchView(
@@ -104,7 +104,7 @@ struct MainTabView: View {
                             .allowsHitTesting(selectedTab == .discover)
                         }
                     }
-                    
+
                     if loadedTabs.contains(.library) {
                         tabStack(isActive: selectedTab == .library) {
                             LibraryView()
@@ -112,7 +112,7 @@ struct MainTabView: View {
                                 .allowsHitTesting(selectedTab == .library)
                         }
                     }
-                    
+
                     if loadedTabs.contains(.profile) {
                         tabStack(isActive: selectedTab == .profile) {
                             ProfileView(
@@ -136,7 +136,7 @@ struct MainTabView: View {
                 }
             }
             .allowsHitTesting(!isPageLoading)
-            
+
             if !hasLoadedHome || isPageLoading {
                 loadingOverlay
                     .transition(.opacity)
@@ -146,7 +146,7 @@ struct MainTabView: View {
         .environmentObject(favoriteManager)
         .environmentObject(tabBarState)
         .animation(.easeInOut(duration: 0.2), value: isPageLoading)
-        .onChange(of: selectedTab) { newTab in
+        .onChange(of: selectedTab) { _, newTab in
             loadedTabs.insert(newTab)
             // [추가] discover 탭에서 다른 탭으로 이동 시 검색 상태 초기화
             if newTab != .discover {
@@ -155,7 +155,7 @@ struct MainTabView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .reviewDidChange)) { notification in
             guard let gameId = notification.userInfo?["gameId"] as? Int else { return }
-            
+
             Task {
                 await mainVM.refreshReviewStats(for: gameId)
                 await trendingVM.refreshReviewStats(for: gameId)
@@ -164,7 +164,7 @@ struct MainTabView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
     }
-    
+
     /// 각 탭을 `NavigationStack`으로 감싸 상태(네비게이션 경로)를 독립적으로 유지합니다.
     ///
     /// - Parameters:
@@ -180,7 +180,7 @@ struct MainTabView: View {
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)
     }
-    
+
     /// 홈 데이터 로딩 중 화면 전체를 덮는 오버레이입니다.
     ///
     /// - Note: `zIndex`와 `allowsHitTesting`으로 사용자가 로딩 중에 조작하지 못하게 합니다.
@@ -188,19 +188,19 @@ struct MainTabView: View {
         ZStack {
             Color("BGColor")
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 12) {
                 ProgressView()
                     .scaleEffect(2.2)
                     .padding()
-                
+
                 Text("불러오는 중…")
                     .font(.caption)
                     .foregroundStyle(.textPrimary.opacity(0.7))
             }
         }
     }
-    
+
 }
 
 #Preview {
