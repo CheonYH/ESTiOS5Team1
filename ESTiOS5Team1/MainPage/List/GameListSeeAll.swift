@@ -53,7 +53,7 @@ struct GameListSeeAll: View {
 
                 Spacer()
 
-                Text("상세 정보")
+                Text("게임 목록")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
