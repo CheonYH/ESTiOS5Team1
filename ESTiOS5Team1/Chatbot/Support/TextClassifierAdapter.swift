@@ -33,7 +33,7 @@ final class CreateMLTextClassifierAdapter: MessageIntentClassifying {
     /// 실제 로딩에 사용될 모델 이름입니다.
     /// - 시뮬레이터에서는 대형/특정 포맷 모델이 로딩 실패할 수 있어 baseline으로 치환합니다.
     private let resolvedModelName: String
-    
+
     /// 실제 예측을 수행하는 백엔드 종류입니다.
     ///
     /// typedBertNonGame / typedBertSort

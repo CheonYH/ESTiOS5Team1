@@ -58,7 +58,7 @@ struct MainView: View {
             .safeAreaPadding(.bottom, 50)
             .scrollIndicators(.hidden)
             .padding(Spacing.pv10)
-            
+
             .task {
                 if viewModel.items.isEmpty {
                     await viewModel.load()
