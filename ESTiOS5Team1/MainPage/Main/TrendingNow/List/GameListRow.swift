@@ -7,9 +7,15 @@
 import SwiftUI
 import Kingfisher
 
+// MARK: - View
+
+
+/// 세로 리스트에서 사용되는 게임 한 줄(Row) UI를 구성하는 뷰입니다.
+///
+/// 썸네일, 제목, 간단 정보 등을 한 행에 표시합니다.
 struct GameListRow: View {
     let item: GameListItem
-
+    
     var body: some View {
         HStack(spacing: 12) {
             // 썸네일
@@ -29,7 +35,7 @@ struct GameListRow: View {
                     .frame(width: 90, height: 110)
                     .cornerRadius(Radius.cr8)
             }
-
+            
             VStack(alignment: .leading, spacing: 6) {
                 Text(item.title)
                     .font(.headline)
@@ -40,10 +46,10 @@ struct GameListRow: View {
                 Text(item.genre.joined(separator: " · "))
                     .font(.caption)
                     .foregroundColor(.textPrimary.opacity(0.7))
-
+                
                 // 별점
             }
-
+            
             Spacer()
         }
         .padding(12)
