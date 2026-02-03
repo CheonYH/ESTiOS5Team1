@@ -46,7 +46,7 @@ struct ESTiOS5Team1App: App {
                 case .signedIn:
                     // 서버에서 내려준 온보딩 완료 여부 기준으로 분기
                     if appViewModel.onboardingCompleted {
-                        MainTabView()
+                        MainView()
                     } else {
                         OnboardingView(
                             isOnboardingComplete: Binding(
@@ -83,7 +83,7 @@ struct ESTiOS5Team1App: App {
                      .ignoresSafeArea()
                      .ignoresSafeArea(.keyboard)
                  content
-                // MainTabView()
+                // MainView()
 
              }
              .frame(maxWidth: .infinity, maxHeight: .infinity)
