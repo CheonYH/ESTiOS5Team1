@@ -149,10 +149,10 @@ final class ChatRoomsViewModel: ObservableObject {
     }
 
     private func normalizeRoomTitle(_ raw: String) -> String {
-        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = raw.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         let compact = trimmed
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
 
         let base = compact.isEmpty ? "Archived Chat" : compact
         let maxChars = 24
@@ -175,6 +175,24 @@ final class ChatRoomsViewModel: ObservableObject {
         }
     }
 
+    func delete(room: ChatRoom) async {
+        guard room.isDefaultRoom == false else { return }
+
+        var storedRooms = await store.loadRooms()
+        storedRooms.removeAll { $0.identifier == room.identifier }
+        await store.saveRooms(storedRooms)
+
+        await store.saveMessages([], roomIdentifier: room.identifier)
+
+        selectedRoomIds.remove(room.identifier)
+
+        if selectedRoomId == room.identifier {
+            selectedRoomId = defaultRoom.identifier
+        }
+
+        await refreshRooms()
+    }
+
     func deleteSelectedRooms() async {
         guard selectedRoomIds.isEmpty == false else { return }
 
@@ -183,6 +201,11 @@ final class ChatRoomsViewModel: ObservableObject {
             selectedRoomIds.contains(room.identifier) && room.isDefaultRoom == false
         }
         await store.saveRooms(storedRooms)
+
+        for roomId in selectedRoomIds {
+            if roomId == defaultRoom.identifier { continue }
+            await store.saveMessages([], roomIdentifier: roomId)
+        }
 
         if selectedRoomIds.contains(selectedRoomId) {
             selectedRoomId = defaultRoom.identifier
@@ -201,6 +224,6 @@ final class ChatRoomsViewModel: ObservableObject {
         let idle = Date().timeIntervalSince(last.createdAt)
         guard idle >= defaultRoomMaxIdleSeconds else { return }
 
-        _ = await startNewConversation()
+        await startNewConversation()
     }
 }

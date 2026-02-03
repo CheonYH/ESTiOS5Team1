@@ -37,6 +37,15 @@ struct ChatRoomsView: View {
                         ) {
                             handleTap(room: room)
                         }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            if roomsViewModel.isEditing == false {
+                                Button(role: .destructive) {
+                                    Task { await roomsViewModel.delete(room: room) }
+                                } label: {
+                                    Label("삭제", systemImage: "trash")
+                                }
+                            }
+                        }
                     }
                 } header: {
                     Text("저장된 대화")

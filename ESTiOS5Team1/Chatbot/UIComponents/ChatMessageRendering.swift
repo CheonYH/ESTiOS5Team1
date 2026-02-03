@@ -115,7 +115,7 @@ struct MessageBubbleView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     // 이름 라벨과 아바타를 말풍선 위쪽에 배치한다.
                     // 아바타는 overlay로 얹어서 말풍선 위에 살짝 겹치도록 처리한다.
-                    Text("채팅봇")
+                    Text("게임봇")
                         .font(.headline)
                         .foregroundStyle(.primary)
                         .padding(.leading, botAvatarSize + botAvatarTextSpacing)

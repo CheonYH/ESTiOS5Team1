@@ -32,7 +32,6 @@ struct RootTabView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        // 앱 진입 시 저장된 채팅방 로드 및 기본방 처리
         .task { await roomsViewModel.load() }
     }
 }
