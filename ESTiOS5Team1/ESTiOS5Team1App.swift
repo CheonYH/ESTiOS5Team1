@@ -69,8 +69,6 @@ struct ESTiOS5Team1App: App {
                      .ignoresSafeArea()
                      .ignoresSafeArea(.keyboard)
                  content
-                // MainView()
-
              }
              .frame(maxWidth: .infinity, maxHeight: .infinity)
              .environmentObject(toastManager)
@@ -86,9 +84,6 @@ struct ESTiOS5Team1App: App {
                          .padding()
                  }
              }
-
-            // DetailInfoTestView()
         }
-        
     }
 }
