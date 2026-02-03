@@ -8,6 +8,12 @@
 import SwiftUI
 import Kingfisher
 
+// MARK: - View
+
+
+/// 맞춤 추천 섹션에서 사용되는 추천 게임 카드 뷰입니다.
+///
+/// 커버 이미지와 핵심 정보를 카드 형태로 표시합니다.
 struct TopRatedByGenreGameView: View {
     
     let item: GameListItem
