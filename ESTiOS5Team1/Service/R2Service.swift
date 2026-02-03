@@ -44,6 +44,10 @@ final class R2ServiceManager: R2Service {
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
+    /// 의존성을 주입해 서비스 인스턴스를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - tokenStore: 인증 토큰 저장소
     init(tokenStore: TokenStore = .shared) {
         self.tokenStore = tokenStore
         self.encoder = JSONEncoder()
@@ -72,6 +76,17 @@ final class R2ServiceManager: R2Service {
         return try decoder.decode(R2PresignResponse.self, from: data)
     }
 
+    /// Bearer 토큰이 포함된 인증 요청 객체를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - url: 요청 URL
+    ///   - method: HTTP 메서드
+    ///
+    /// - Returns:
+    ///   Authorization 헤더가 포함된 `URLRequest`
+    ///
+    /// - Throws:
+    ///   Access Token이 없을 때 `URLError.userAuthenticationRequired`
     private func authorizedRequest(url: URL, method: String) throws -> URLRequest {
         guard let token = tokenStore.accessToken() else {
             throw URLError(.userAuthenticationRequired)

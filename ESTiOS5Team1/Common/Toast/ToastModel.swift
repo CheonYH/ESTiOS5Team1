@@ -85,7 +85,8 @@ extension ToastType {
 
     /// 상태별 배경 색상 설정
     ///
-    ///
+    /// - Returns:
+    ///   토스트 상태에 맞는 반투명 배경 색상
     var color: Color {
         switch self {
         case .success: .green.opacity(0.85)
@@ -103,6 +104,9 @@ extension ToastType {
     /// - Important:
     ///     `.circle.fill`은 토스트처럼 작은 컴포넌트에서 잘 보이며,
     ///     `.triangle.fill`은 주의/경고의 시각적 표현으로 적합합니다.
+    ///
+    /// - Returns:
+    ///   상태별 SF Symbol 이름 문자열
     var icon: String {
         switch self {
         case .success: "checkmark.circle.fill"

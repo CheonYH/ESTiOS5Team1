@@ -77,6 +77,10 @@ final class ProfileServiceManager: ProfileService {
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
+    /// 의존성을 주입해 서비스 인스턴스를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - tokenstore: 인증 토큰 저장소
     init(tokenstore: TokenStore = .shared) {
         self.tokenstore = tokenstore
         self.encoder = JSONEncoder()
@@ -107,6 +111,17 @@ final class ProfileServiceManager: ProfileService {
         return try await perform(request)
     }
 
+    /// Bearer 토큰이 포함된 인증 요청 객체를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - url: 요청 URL
+    ///   - method: HTTP 메서드
+    ///
+    /// - Returns:
+    ///   Authorization 헤더가 포함된 `URLRequest`
+    ///
+    /// - Throws:
+    ///   Access Token이 없을 때 `URLError.badServerResponse`
     private func authorizedRequest(url: URL, method: String) throws -> URLRequest {
         guard let token = tokenstore.accessToken() else {
             throw URLError(.badServerResponse)
@@ -118,6 +133,16 @@ final class ProfileServiceManager: ProfileService {
         return request
     }
 
+    /// 공통 요청 실행/상태코드 검증/디코딩을 처리합니다.
+    ///
+    /// - Parameters:
+    ///   - request: 실행할 URLRequest
+    ///
+    /// - Returns:
+    ///   `ProfileResponse`
+    ///
+    /// - Throws:
+    ///   네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     private func perform(_ request: URLRequest) async throws -> ProfileResponse {
         // 공통 네트워크 수행/검증 로직
         let (data, response) = try await URLSession.shared.data(for: request)

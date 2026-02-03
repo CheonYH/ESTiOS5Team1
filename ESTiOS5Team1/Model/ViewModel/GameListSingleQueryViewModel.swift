@@ -165,6 +165,19 @@ final class GameListSingleQueryViewModel: ObservableObject {
         }
     }
 
+    /// 현재 쿼리에 페이지네이션(limit/offset)을 적용해 한 페이지를 조회합니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/multiquery` (`list` 블록)
+    ///
+    /// - Parameters:
+    ///   - offset: 조회 시작 위치
+    ///
+    /// - Returns:
+    ///   `GameEntity` 배열
+    ///
+    /// - Throws:
+    ///   네트워크 오류 / 서버 응답 오류 / 디코딩 오류
     private func fetchPage(offset: Int) async throws -> [GameEntity] {
         let pagedQuery = queryWithPagination(offset: offset)
         let batch = [
@@ -179,6 +192,13 @@ final class GameListSingleQueryViewModel: ObservableObject {
         return dto.map(GameEntity.init)
     }
 
+    /// 기존 쿼리의 limit/offset을 제거한 뒤 현재 페이지 정보를 다시 주입합니다.
+    ///
+    /// - Parameters:
+    ///   - offset: 조회 시작 위치
+    ///
+    /// - Returns:
+    ///   페이지네이션이 반영된 최종 IGDB 쿼리 문자열
     private func queryWithPagination(offset: Int) -> String {
         // Strip any existing limit/offset to avoid duplicates.
         let stripped = query
@@ -200,6 +220,16 @@ final class GameListSingleQueryViewModel: ObservableObject {
         """
     }
 
+    /// 게임 목록의 리뷰 통계를 병렬로 조회해 ID 매핑 딕셔너리로 반환합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /reviews/game/{gameId}/stats`
+    ///
+    /// - Parameters:
+    ///   - entities: 통계를 조회할 게임 엔티티 배열
+    ///
+    /// - Returns:
+    ///   `gameId -> GameReviewEntity` 매핑 결과
     private func fetchStatsMap(for entities: [GameEntity]) async -> [Int: GameReviewEntity] {
         let ids = entities.map { $0.id }
         guard !ids.isEmpty else { return [:] }

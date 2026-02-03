@@ -51,6 +51,9 @@ final class TokenStore {
     /// let tokens = try await authService.refresh()
     /// TokenStore.shared.updateTokens(response: tokens)
     /// ```
+    ///
+    /// - Returns:
+    ///   없음
     func updateTokens(pair: LoginResponse) {
         updateAccessToken(pair.accessToken)
 
@@ -62,11 +65,17 @@ final class TokenStore {
     /// Access Token만 갱신할 때 사용합니다.
     ///
     /// 예: Refresh 요청 후 access만 rotation될 경우
+    ///
+    /// - Returns:
+    ///   없음
     func updateAccessToken(_ access: String) {
         KeychainStore.shared.save(key: Key.access, value: access)
     }
 
     /// Refresh Token만 갱신할 때 사용합니다.
+    ///
+    /// - Returns:
+    ///   없음
     func updateRefreshToken(_ refresh: String) {
         KeychainStore.shared.save(key: Key.refresh, value: refresh)
     }
@@ -97,6 +106,9 @@ final class TokenStore {
     /// - Note:
     ///     이 작업은 클라이언트 측 세션만 종료하며,
     ///     서버 측 refresh token revoke 정책은 별도 구현이 필요할 수 있습니다.
+    ///
+    /// - Returns:
+    ///   없음
     func clear() {
         KeychainStore.shared.delete(key: Key.access)
         KeychainStore.shared.delete(key: Key.refresh)

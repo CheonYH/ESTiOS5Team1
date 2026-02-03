@@ -81,6 +81,7 @@ extension ToastView {
         }
     }
 
+    /// 토스트 표시 위치(top/bottom)에 맞는 등장/퇴장 전환 효과를 반환합니다.
     private var toastTransition: AnyTransition {
         let yOffset: CGFloat = event.resolvedPlacement == .top ? -10 : 10
         return .asymmetric(

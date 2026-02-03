@@ -62,7 +62,9 @@ enum AuthEndpoint {
 }
 
 enum SocialLoginResult {
+    /// 기존 가입 사용자로 인증이 완료된 상태입니다.
     case signedIn(TokenPair)
+    /// 소셜 로그인은 성공했지만 추가 회원가입(닉네임 입력)이 필요한 상태입니다.
     case needsRegister(email: String?, providerUid: String)
 }
 
@@ -98,6 +100,9 @@ protocol AuthService: Sendable {
     /// - Returns:
     ///     `TokenPair` (Access/Refresh Token)
     ///
+    /// - Throws:
+    ///     인증 토큰 누락 / 네트워크 오류 / 서버 오류 / 인증 실패
+    ///
     /// - Note:
     ///     Refresh Token이 저장돼 있어야 호출 가능합니다. UI에서 반환값을 사용하지 않을 수 있으므로 discardable로 처리했습니다.
     ///
@@ -123,10 +128,53 @@ protocol AuthService: Sendable {
     ///     네트워크 오류 / 서버 오류 / 검증 실패(`AuthError.validation` 등)
     func register(email: String, password: String, nickname: String) async throws -> RegisterResponse
 
+    /// 닉네임 사용 가능 여부를 확인합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/nickname-check`
+    ///
+    /// - Parameters:
+    ///     - nickname: 중복 확인할 닉네임
+    ///
+    /// - Returns:
+    ///     사용 가능 여부 (`true` / `false`)
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 오류 / 검증 실패
     func checkNickname(_ nickname: String) async throws -> Bool
 
+    /// 소셜 로그인(구글 등)을 처리합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/social`
+    ///
+    /// - Parameters:
+    ///     - idToken: 소셜 제공자에서 발급된 ID 토큰
+    ///     - provider: 소셜 제공자 식별자 (`google` 등)
+    ///
+    /// - Returns:
+    ///     `SocialLoginResult` (`signedIn` 또는 `needsRegister`)
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 오류 / 인증 실패
     func socialLogin(idToken: String, provider: String) async throws -> SocialLoginResult
 
+    /// 소셜 회원가입을 완료합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/social-register`
+    ///
+    /// - Parameters:
+    ///     - provider: 소셜 제공자 식별자
+    ///     - providerUid: 소셜 제공자 사용자 고유 ID
+    ///     - nickname: 사용자 닉네임
+    ///     - email: 사용자 이메일(옵션)
+    ///
+    /// - Returns:
+    ///     `TokenPair`
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 오류 / 검증 실패
     func socialRegister(provider: String, providerUid: String, nickname: String, email: String?) async throws -> TokenPair
 
     /// 회원탈퇴 요청
@@ -147,6 +195,16 @@ protocol AuthService: Sendable {
     ///     `POST /auth/logout`
     func logout() async throws
 
+    /// 닉네임을 변경합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/nickname-update`
+    ///
+    /// - Parameters:
+    ///     - nickname: 변경할 닉네임
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 오류 / 검증 실패
     func updateNickname(_ nickname: String) async throws
 
     /// 온보딩 완료 상태를 서버에 반영합니다.
@@ -229,6 +287,7 @@ final class AuthServiceImpl: AuthService {
 
     }
 
+    /// 닉네임 중복 검사 요청을 전송합니다.
     func checkNickname(_ nickname: String) async throws -> Bool {
         let url = AuthEndpoint.nicknameCheck.url
         let requestBody = NicknameCheckRequest(nickname: nickname)
@@ -278,6 +337,12 @@ final class AuthServiceImpl: AuthService {
     ///
     /// - Token Handling:
     ///     Rotation 정책 적용 시 Refresh Token도 함께 교체됨
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/refresh`
+    ///
+    /// - Throws:
+    ///     refresh token 누락 / 네트워크 오류 / 서버 응답 오류 / 인증 실패
     @discardableResult
     func refresh() async throws -> TokenPair {
 
@@ -369,6 +434,20 @@ final class AuthServiceImpl: AuthService {
         return decoded
     }
 
+    /// 소셜 로그인 요청을 전송합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/social`
+    ///
+    /// - Parameters:
+    ///     - idToken: 소셜 제공자에서 발급된 ID 토큰
+    ///     - provider: 소셜 제공자 식별자 (`google` 등)
+    ///
+    /// - Returns:
+    ///     `SocialLoginResult`
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 응답 오류 / 인증 실패(`accountDeleted` 포함)
     func socialLogin(idToken: String, provider: String) async throws -> SocialLoginResult {
 
         let url = AuthEndpoint.socialLogin.url
@@ -410,6 +489,22 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    /// 소셜 회원가입 요청을 전송합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/social-register`
+    ///
+    /// - Parameters:
+    ///     - provider: 소셜 제공자 식별자
+    ///     - providerUid: 소셜 제공자 사용자 고유 ID
+    ///     - nickname: 가입 시 사용할 닉네임
+    ///     - email: 이메일(옵션)
+    ///
+    /// - Returns:
+    ///     `TokenPair`
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 응답 오류 / 검증 실패
     func socialRegister(provider: String, providerUid: String, nickname: String, email: String?) async throws -> TokenPair {
 
         let url = AuthEndpoint.socialRegister.url
@@ -460,6 +555,16 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    /// 회원탈퇴 요청을 전송합니다.
+    ///
+    /// - Endpoint:
+    ///     `DELETE /auth/me`
+    ///
+    /// - Returns:
+    ///     없음
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 응답 오류 / 인증 실패
     func deleteAccount() async throws {
         let url = AuthEndpoint.deleteAccount.url
         let request = try authorizedRequest(url: url, method: "DELETE")
@@ -479,6 +584,16 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    /// 내 정보 조회 요청을 전송합니다.
+    ///
+    /// - Endpoint:
+    ///     `GET /auth/me`
+    ///
+    /// - Returns:
+    ///     `MeResponse`
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 응답 오류 / 인증 실패
     func fetchMe() async throws -> MeResponse {
         let url = AuthEndpoint.me.url
         let request = try authorizedRequest(url: url, method: "GET")
@@ -501,6 +616,16 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    /// 로그아웃 요청을 전송합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/logout`
+    ///
+    /// - Returns:
+    ///     없음
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 응답 오류 / 인증 실패
     func logout() async throws {
         guard let refreshToken = TokenStore.shared.refreshToken() else {
             throw URLError(.userAuthenticationRequired)
@@ -533,6 +658,17 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    /// Access Token이 포함된 인증 요청을 생성합니다.
+    ///
+    /// - Parameters:
+    ///     - url: 요청 URL
+    ///     - method: HTTP 메서드
+    ///
+    /// - Returns:
+    ///     Authorization 헤더가 포함된 `URLRequest`
+    ///
+    /// - Throws:
+    ///     Access Token이 없을 때 `URLError.userAuthenticationRequired`
     private func authorizedRequest(url: URL, method: String) throws -> URLRequest {
         guard let token = TokenStore.shared.accessToken() else {
             throw URLError(.userAuthenticationRequired)
@@ -544,6 +680,19 @@ final class AuthServiceImpl: AuthService {
         return request
     }
 
+    /// 닉네임 변경 요청을 전송합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/nickname-update`
+    ///
+    /// - Parameters:
+    ///     - nickname: 변경할 닉네임
+    ///
+    /// - Returns:
+    ///     없음
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 응답 오류 / 검증 실패
     func updateNickname(_ nickname: String) async throws {
         let url = APIEnvironment.baseURL.appendingPathComponent("/auth/nickname-update")
         let body = UpdateNicknameRequest(nickName: nickname)
@@ -576,6 +725,19 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    /// 온보딩 완료 요청을 전송합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /auth/onboarding-complete`
+    ///
+    /// - Returns:
+    ///     `OnboardingCompleteResponse`
+    ///
+    /// - Note:
+    ///     응답 바디가 비어도 완료로 간주해 `onboardingCompleted: true`로 보정합니다.
+    ///
+    /// - Throws:
+    ///     네트워크 오류 / 서버 응답 오류 / 인증 실패
     func completeOnboarding() async throws -> OnboardingCompleteResponse {
         let url = AuthEndpoint.onboardingComplete.url
         let request = try authorizedRequest(url: url, method: "POST")
@@ -602,6 +764,13 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+    /// 서버 에러 본문에서 탈퇴 계정 여부를 판별합니다.
+    ///
+    /// - Parameters:
+    ///     - data: 서버 응답 바디 데이터
+    ///
+    /// - Returns:
+    ///     탈퇴 계정 에러 본문이면 `true`
     private func isDeletedAccountError(data: Data) -> Bool {
         let bodyText = String(data: data, encoding: .utf8)?.lowercased() ?? ""
         return bodyText.contains("account deleted")

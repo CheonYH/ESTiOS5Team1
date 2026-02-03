@@ -98,6 +98,10 @@ enum IGDBQuery {
     limit 500;
     """
 
+    /// 게임 상세 화면에서 사용하는 단건 조회 쿼리의 필드 목록입니다.
+    ///
+    /// - Note:
+    ///     실제 요청 시에는 `where id = (...)` 조건과 함께 조합해서 사용합니다.
     static let detail = """
     fields
         id,
@@ -161,6 +165,12 @@ enum IGDBQuery {
     }
 
     /// 검색어 포함 매칭 (대체 경로)
+    ///
+    /// - Parameters:
+    ///   - text: 사용자가 입력한 원본 검색어
+    ///
+    /// - Returns:
+    ///   대체 검색 규칙이 반영된 APICALYPSE 쿼리 문자열
     static func searchFallback(_ text: String) -> String {
         let escaped = text
             .replacingOccurrences(of: "\\", with: "\\\\")

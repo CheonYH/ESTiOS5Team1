@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 리뷰 API 엔드포인트 정의입니다.
 enum ReviewEndpoint {
     case create
     case update(id: Int)
@@ -45,6 +46,7 @@ enum ReviewEndpoint {
     }
 }
 
+/// 리뷰 목록 정렬 옵션입니다.
 enum ReviewSortOption: String, Sendable {
     case latest
     case oldest
@@ -148,6 +150,10 @@ final class ReviewServiceManager: ReviewService {
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
 
+    /// 의존성을 주입해 서비스 인스턴스를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - tokenStore: 인증 토큰 저장소
     init(tokenStore: TokenStore = .shared) {
         self.tokenStore = tokenStore
 
