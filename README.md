@@ -54,7 +54,7 @@
    * 네트워킹: URLSession(비동기 API 통신)
    * 서버: Vapor(Swift), JWT 인증, Google 소셜 로그인
    * UI/UX: iPhone 대응
-2. 서버 저장소
+2. 🖥️ 서버 저장소
    * https://github.com/CheonYH/iOS5Team1
   
 ## 📁 프로젝트 구조
