@@ -140,9 +140,13 @@ struct ChatRoomView: View {
                         let sourceRoomId = roomViewModel.room.identifier
                         let archivedRoom = await roomsViewModel.startNewConversation()
 
-                        if let archivedRoom {
+                        // 전송 중이던 요청이 “sourceRoomId(이전 대화)”에 묶여 있을 때만
+                        // 응답 귀속을 archivedRoom으로 리다이렉트한다.
+                        if let archivedRoom,
+                           alanCoordinator.isBusy,
+                           alanCoordinator.activeRoomId == sourceRoomId {
                             roomViewModel.redirectCompletions(from: sourceRoomId, to: archivedRoom.identifier)
-                            alanCoordinator.redirectActiveRoom(from: sourceRoomId, to: archivedRoom.identifier) // ✅ 추가
+                            alanCoordinator.redirectActiveRoom(from: sourceRoomId, to: archivedRoom.identifier)
                         }
 
                         await roomViewModel.reload(room: roomsViewModel.defaultRoom)
