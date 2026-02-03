@@ -49,6 +49,12 @@ final class PlatformTestViewModel: ObservableObject {
     /// multiquery 요청을 사용하여 효율적으로 데이터를 받아오며,
     /// 응답은 JSON 배열 형태로 전달되므로
     /// JSONSerialization → JSONDecoder → DTO 순으로 변환합니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/multiquery` (`platforms` 블록)
+    ///
+    /// - Returns:
+    ///   없음 (내부 상태 `platforms` 갱신)
     func load() async {
         isLoading = true
         error = nil

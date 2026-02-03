@@ -14,6 +14,18 @@ final class FirebaseBootstrap {
     static let shared = FirebaseBootstrap()
 
     /// 설정 성공/실패를 completion으로 전달합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /firebase/config` (내부 fetch 호출)
+    ///
+    /// - Parameters:
+    ///   - completion: 초기화 성공 여부 콜백
+    ///
+    /// - Returns:
+    ///   없음 (`completion`으로 전달)
+    ///
+    /// - Throws:
+    ///   직접 throw 하지 않고 내부에서 실패를 `completion(false)`로 전달합니다.
     func configure(completion: @escaping (Bool) -> Void) {
         Task {
             do {
@@ -35,6 +47,16 @@ final class FirebaseBootstrap {
         }
     }
 
+    /// 백엔드 Firebase 설정을 조회해 `FirebaseOptions`로 변환합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /firebase/config`
+    ///
+    /// - Returns:
+    ///   `FirebaseOptions`
+    ///
+    /// - Throws:
+    ///   네트워크 오류 / 디코딩 오류
     private func fetchFromBackend() async throws -> FirebaseOptions {
         let (data, _) = try await URLSession.shared.data(
             from: URL(string: "https://port-0-ios5team-mk6rdyqw52cca57c.sel3.cloudtype.app/firebase/config")!

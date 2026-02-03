@@ -15,6 +15,8 @@ import SwiftUI
 ///     `ToastManager`를 overlay로 구독하여 회원가입 결과를 Toast로 표시합니다.
 /// - Navigation:
 ///     `dismiss()`를 통해 로그인 화면으로 복귀합니다.
+/// - Endpoint:
+///     실제 API 호출은 하위 `RegisterForm`에서 수행됩니다.
 struct RegisterView: View {
     // MARK: - Properties
 

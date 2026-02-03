@@ -8,11 +8,20 @@
 import SwiftUI
 
 /// 소셜 로그인 후 닉네임을 추가로 입력받는 화면입니다.
+///
+/// - Endpoint:
+///     `POST /auth/nickname-check`
+///     `POST /auth/social-register`
+///     `GET /auth/me` (가입 완료 후 상태 동기화)
 struct NicknameCreateView: View {
     @EnvironmentObject var appVM: AppViewModel
     @EnvironmentObject var toast: ToastManager
     @StateObject private var vm: SocialRegisterViewModel
 
+    /// 초기 이메일(있는 경우)을 주입해 ViewModel을 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - prefilledEmail: 소셜 로그인에서 전달받은 이메일
     init(prefilledEmail: String?) {
         _vm = StateObject(wrappedValue: SocialRegisterViewModel(email: prefilledEmail))
     }

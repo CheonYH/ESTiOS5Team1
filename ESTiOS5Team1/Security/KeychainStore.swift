@@ -24,6 +24,7 @@ import Security
 ///     여기서는 iOS Keychain의 보안을 그대로 활용하는 기본 패턴을 사용합니다.
 final class KeychainStore {
 
+    /// 싱글턴 인스턴스입니다.
     static let shared = KeychainStore()
 
     private init() {}
@@ -43,6 +44,9 @@ extension KeychainStore {
     /// - Important:
     ///     `kSecAttrAccessibleAfterFirstUnlock` 옵션을 사용하여
     ///     재부팅 이후 첫 언락 이후 접근 가능하도록 설정했습니다.
+    ///
+    /// - Returns:
+    ///   없음
     func save(key: String, value: String) {
         let data = Data(value.utf8)
 
@@ -70,6 +74,9 @@ extension KeychainStore {
     /// - Parameters:
     ///   - key: 저장된 항목의 key
     ///   - value: 새로운 값
+    ///
+    /// - Returns:
+    ///   없음
     func update(key: String, value: String) {
         let data = Data(value.utf8)
 
@@ -92,6 +99,9 @@ extension KeychainStore {
     /// Keychain에서 값을 삭제합니다.
     ///
     /// - Parameter key: 삭제할 항목의 key
+    ///
+    /// - Returns:
+    ///   없음
     func delete(key: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
