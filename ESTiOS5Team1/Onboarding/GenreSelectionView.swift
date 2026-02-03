@@ -10,6 +10,23 @@ import SwiftUI
 
 // MARK: - Genre Selection View
 
+/// 사용자가 관심 장르를 선택하는 화면입니다.
+///
+/// - Responsibilities:
+///     - 2열 그리드 형태의 장르 목록 표시
+///     - 최대 4개까지 장르 선택 가능
+///     - 선택 완료 시 콜백 실행
+///
+/// - Parameters:
+///     - selectedGenres: 선택된 장르 집합 바인딩
+///     - onComplete: 완료 버튼 탭 시 실행할 클로저
+///     - titleText: 화면 상단 제목 (기본값: "관심 장르를 선택하세요")
+///     - subtitleText: 화면 상단 부제목 (기본값: "최대 4개까지 선택할 수 있어요")
+///     - emptyCompleteButtonTitle: 선택 없이 완료 시 버튼 텍스트
+///     - completeButtonTitle: 선택 완료 시 버튼 텍스트
+///
+/// - Note:
+///     온보딩 화면 외에도 마이페이지 등에서 재사용할 수 있도록 설계되었습니다.
 struct GenreSelectionView: View {
     @Binding var selectedGenres: Set<GenreFilterType>
     let onComplete: () -> Void
@@ -149,6 +166,13 @@ struct GenreSelectionView: View {
 
 // MARK: - Genre Button
 
+/// 장르 선택 버튼 컴포넌트입니다.
+///
+/// - Parameters:
+///     - genre: 표시할 장르 타입
+///     - isSelected: 선택 상태 여부
+///     - isDisabled: 비활성화 상태 여부 (최대 선택 개수 초과 시)
+///     - action: 버튼 탭 시 실행할 클로저
 struct GenreButton: View {
     let genre: GenreFilterType
     let isSelected: Bool

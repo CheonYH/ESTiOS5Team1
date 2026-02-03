@@ -11,6 +11,16 @@ import SwiftUI
 
 // MARK: - Onboarding View
 
+/// 앱 최초 실행 시 표시되는 온보딩 화면입니다.
+///
+/// - Responsibilities:
+///     - 앱 소개 페이지 표시 (TabView 기반 페이징)
+///     - 페이지 인디케이터 및 네비게이션 버튼 제공
+///     - 마지막 페이지에서 장르 선택 화면 표시
+///     - 온보딩 완료 시 메인 화면으로 전환
+///
+/// - Parameters:
+///     - isOnboardingComplete: 온보딩 완료 상태 바인딩 (부모 뷰에서 화면 전환에 사용)
 struct OnboardingView: View {
     @State private var currentPage = 0
     @StateObject private var viewModel = OnboardingViewModel()
@@ -137,6 +147,10 @@ struct OnboardingView: View {
 
 // MARK: - Onboarding Page View
 
+/// 온보딩 개별 페이지를 표시하는 뷰입니다.
+///
+/// - Note:
+///     로고 페이지(첫 페이지)와 일반 페이지의 레이아웃이 다릅니다.
 struct OnboardingPageView: View {
     let page: OnboardingPage
 

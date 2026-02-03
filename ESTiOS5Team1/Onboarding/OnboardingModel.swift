@@ -8,9 +8,15 @@
 
 import SwiftUI
 
-// MARK: - Onboarding Model
+// MARK: - Onboarding Page
 
-/// 온보딩 페이지 데이터 모델
+/// 온보딩 페이지의 개별 데이터를 담는 모델입니다.
+///
+/// - Properties:
+///     - imageName: 페이지에 표시할 이미지 이름 (SF Symbol 또는 Asset)
+///     - title: 페이지 제목
+///     - description: 페이지 설명 문구
+///     - isLogoPage: 로고 페이지 여부 (첫 페이지 레이아웃 구분용)
 struct OnboardingPage: Identifiable {
     let id = UUID()
     let imageName: String?
@@ -33,6 +39,10 @@ struct OnboardingPage: Identifiable {
 
 // MARK: - Onboarding Data
 
+/// 온보딩 화면에서 사용할 정적 데이터를 제공하는 열거형입니다.
+///
+/// - Note:
+///     앱 소개 페이지 5개를 포함하며, 마지막 장르 선택 페이지는 별도 View에서 처리합니다.
 enum OnboardingData {
     /// 온보딩 페이지 목록
     static let pages: [OnboardingPage] = [
