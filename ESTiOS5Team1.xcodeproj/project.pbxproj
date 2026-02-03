@@ -48,7 +48,6 @@
 				Model/ViewModel/GenreListViewModel.swift,
 				Security/DeviceID.swift,
 				Security/TokenStore.swift,
-				TestView/GenreListTestView.swift,
 			);
 			target = 25C032502F0C972500CA196B /* ESTiOS5Team1Tests */;
 		};
@@ -60,7 +59,6 @@
 				Model/ViewModel/GenreListViewModel.swift,
 				Security/DeviceID.swift,
 				Security/TokenStore.swift,
-				TestView/GenreListTestView.swift,
 			);
 			target = 25C0325A2F0C972500CA196B /* ESTiOS5Team1UITests */;
 		};

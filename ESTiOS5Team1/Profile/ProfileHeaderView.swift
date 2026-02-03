@@ -8,6 +8,12 @@
 import SwiftUI
 import PhotosUI
 
+/// 프로필 상단(아바타/닉네임) 영역입니다.
+///
+/// - Parameters:
+///   - style: 화면 스케일 토큰
+///   - avatarURLString: 표시할 아바타 URL 문자열
+///   - nicknameText: 표시할 닉네임
 struct ProfileHeaderView: View {
     let style: ProfileStyle
     let avatarURLString: String

@@ -15,6 +15,8 @@ import SwiftUI
 ///     `ToastManager`의 이벤트를 overlay로 구독하여 로그인 결과를 Toast로 표시합니다.
 /// - Behavior:
 ///     `onAppear`에서 `AppViewModel.prefilledEmail`이 있으면 입력 필드에 채워 넣습니다.
+/// - Endpoint:
+///     실제 API 호출은 하위 `LoginForm`에서 수행됩니다.
 struct LoginView: View {
     // MARK: - Properties
 

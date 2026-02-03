@@ -40,6 +40,15 @@ final class ReviewViewModel: ObservableObject {
     }
 
     /// 게임 리뷰 목록을 불러옵니다.
+    ///
+    /// - Endpoint:
+    ///     `GET /reviews/game/{gameId}`
+    ///
+    /// - Parameters:
+    ///     - sort: 리뷰 정렬 옵션
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `reviews` 갱신)
     func loadReviews(sort: ReviewSortOption? = .latest) async {
         guard let gameId else { return }
 
@@ -57,6 +66,12 @@ final class ReviewViewModel: ObservableObject {
     }
 
     /// 리뷰 통계 정보를 불러옵니다.
+    ///
+    /// - Endpoint:
+    ///     `GET /reviews/game/{gameId}/stats`
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `stats` 갱신)
     func loadStats() async {
         guard let gameId else { return }
 
@@ -73,6 +88,13 @@ final class ReviewViewModel: ObservableObject {
         isLoading = false
     }
 
+    /// 내 리뷰 목록을 불러옵니다.
+    ///
+    /// - Endpoint:
+    ///     `GET /reviews/me`
+    ///
+    /// - Returns:
+    ///     없음 (내부 상태 `myReviews` 갱신)
     func loadMine() async {
         isLoading = true; errorMessage = nil
 
@@ -87,6 +109,14 @@ final class ReviewViewModel: ObservableObject {
     }
 
     @discardableResult
+    /// 리뷰를 등록합니다.
+    ///
+    /// - Endpoint:
+    ///     `POST /reviews`
+    ///     (성공 후 재조회: `GET /reviews/game/{gameId}`, `GET /reviews/game/{gameId}/stats`, `GET /reviews/me`)
+    ///
+    /// - Returns:
+    ///     처리 결과 `FeedbackEvent`
     func postReview() async -> FeedbackEvent {
         guard let gameId, let rating, let content else {
             return FeedbackEvent(.review, .warning, "게임/평점/내용을 입력해주세요.")
@@ -111,6 +141,17 @@ final class ReviewViewModel: ObservableObject {
     }
 
     @discardableResult
+    /// 내 리뷰를 수정합니다.
+    ///
+    /// - Endpoint:
+    ///     `PATCH /reviews/{id}`
+    ///     (성공 후 재조회: `GET /reviews/game/{gameId}`, `GET /reviews/game/{gameId}/stats`, `GET /reviews/me`)
+    ///
+    /// - Parameters:
+    ///     - id: 수정할 리뷰 ID
+    ///
+    /// - Returns:
+    ///     처리 결과 `FeedbackEvent`
     func updateReview(id: Int) async -> FeedbackEvent {
         guard let rating, let content else {
             return FeedbackEvent(.review, .warning, "평점과 내용을 입력해주세요.")
@@ -134,6 +175,17 @@ final class ReviewViewModel: ObservableObject {
     }
 
     @discardableResult
+    /// 내 리뷰를 삭제합니다.
+    ///
+    /// - Endpoint:
+    ///     `DELETE /reviews/{id}`
+    ///     (성공 후 재조회: `GET /reviews/game/{gameId}`, `GET /reviews/game/{gameId}/stats`, `GET /reviews/me`)
+    ///
+    /// - Parameters:
+    ///     - id: 삭제할 리뷰 ID
+    ///
+    /// - Returns:
+    ///     처리 결과 `FeedbackEvent`
     func deleteReview(id: Int) async -> FeedbackEvent {
         isLoading = true
         errorMessage = nil

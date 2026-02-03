@@ -29,6 +29,15 @@ final class TopRatedByGenreViewModel: ObservableObject {
     }
 
     /// UserDefaults에 저장된 선호 장르 기준으로 목록을 로드합니다.
+    ///
+    /// - Endpoint:
+    ///   내부적으로 장르별 `POST /v4/multiquery`를 호출합니다.
+    ///
+    /// - Parameters:
+    ///   - showLoading: 기존 목록이 있을 때 로딩 UI 표시 여부
+    ///
+    /// - Returns:
+    ///   없음 (내부 상태 `items` 갱신)
     func loadPreferredGenre(showLoading: Bool = true) async {
         let genreIds = PreferenceStore.preferredGenreIds
         let singleGenreId = PreferenceStore.preferredGenreId
@@ -98,6 +107,12 @@ final class TopRatedByGenreViewModel: ObservableObject {
     }
 
     /// 외부에서 강제 갱신할 때 호출
+    ///
+    /// - Endpoint:
+    ///   `loadPreferredGenre(showLoading: false)` 위임
+    ///
+    /// - Returns:
+    ///   없음
     func refresh() async {
         await loadPreferredGenre(showLoading: false)
     }

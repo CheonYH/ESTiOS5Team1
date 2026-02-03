@@ -20,6 +20,10 @@ enum LoginField: Hashable {
 ///     `AuthViewModel`로 입력을 바인딩하고, `AppViewModel` 및 `ToastManager`와 상호작용합니다.
 /// - Important:
 ///     실제 로그인 로직은 ViewModel에서 수행되며, 이 View는 UI와 이벤트 트리거만 담당합니다.
+/// - Endpoint:
+///     `POST /auth/login`
+///     `POST /auth/social` (Google)
+///     `GET /auth/me` (로그인 성공 후 상태 동기화)
 struct LoginForm: View {
     // MARK: - Properties
 

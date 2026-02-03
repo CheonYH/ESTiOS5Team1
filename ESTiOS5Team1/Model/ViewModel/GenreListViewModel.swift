@@ -43,6 +43,12 @@ final class GenreListViewModel: ObservableObject {
     /// `multiquery`를 사용하여 요청하며,
     /// 응답은 JSON 배열 형태로 반환되므로
     /// JSONSerialization → JSONDecoder → DTO 순으로 변환합니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/multiquery` (`genres` 블록)
+    ///
+    /// - Returns:
+    ///   없음 (내부 상태 `genres` 갱신)
     func loadGenres() async {
         isLoading = true
         error = nil

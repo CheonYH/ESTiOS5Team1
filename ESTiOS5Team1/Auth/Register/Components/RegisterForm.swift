@@ -22,6 +22,10 @@ enum RegisterField: Hashable {
 ///     `RegisterViewModel`로 입력을 바인딩하고, `AppViewModel` 및 `ToastManager`와 상호작용합니다.
 /// - Important:
 ///     실제 회원가입 로직은 ViewModel에서 수행되며, 이 View는 UI와 이벤트 트리거만 담당합니다.
+/// - Endpoint:
+///     `POST /auth/nickname-check`
+///     `POST /auth/register`
+///     `POST /auth/social`
 struct RegisterForm: View {
     // MARK: - Properties
 

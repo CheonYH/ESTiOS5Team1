@@ -56,6 +56,13 @@ final class DiscoverViewModel: ObservableObject {
     ///
     /// - Note:
     /// View에서는 `await viewModel.load()` 형태로 호출합니다.
+    ///
+    /// - Endpoint:
+    ///   `POST /v4/multiquery` (`trending`, `discover`)
+    ///   `GET /reviews/game/{gameId}/stats` (아이템별 병렬 조회)
+    ///
+    /// - Returns:
+    ///   없음 (내부 상태 `trendingItems`/`discoverItems` 갱신)
     func load() async {
         isLoading = true
         error = nil
@@ -110,6 +117,16 @@ final class DiscoverViewModel: ObservableObject {
         }
     }
 
+    /// 게임 목록의 리뷰 통계를 병렬 조회해 ID 맵으로 반환합니다.
+    ///
+    /// - Endpoint:
+    ///   `GET /reviews/game/{gameId}/stats`
+    ///
+    /// - Parameters:
+    ///   - entities: 통계를 조회할 게임 엔티티 배열
+    ///
+    /// - Returns:
+    ///   `gameId -> GameReviewEntity` 매핑 결과
     private func fetchStatsMap(for entities: [GameEntity]) async -> [Int: GameReviewEntity] {
         let ids = entities.map { $0.id }
         guard !ids.isEmpty else { return [:] }

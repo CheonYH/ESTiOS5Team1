@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+/// 프로필 화면의 UI 스케일/간격 토큰입니다.
+///
+/// - Parameters:
+///   - isRegular: iPad 등 regular size class 여부
+///
+/// - Returns:
+///   화면 크기에 맞는 `ProfileStyle`
 struct ProfileStyle {
     // 프로필 화면 전용 크기/여백 묶음
     let avatarSize: CGFloat
@@ -23,6 +30,7 @@ struct ProfileStyle {
         avatarSize + (avatarPadding * 2)
     }
 
+    /// 화면 크기에 맞는 스타일 세트를 생성합니다.
     static func make(isRegular: Bool) -> ProfileStyle {
         ProfileStyle(
             avatarSize: isRegular ? 56 : 28,
