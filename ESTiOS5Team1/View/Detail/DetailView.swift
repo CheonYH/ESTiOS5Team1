@@ -70,7 +70,6 @@ struct DetailView: View {
 
                     Color.clear.frame(width: 44, height: 44)
                 }
-                .padding(.horizontal, 16)
 
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
@@ -104,8 +103,6 @@ struct DetailView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, Spacing.pv10)
-                        .padding(.vertical, 12)
 
                         if let trailer = item.trailers.first {
                             VStack(alignment: .leading, spacing: 12) {
@@ -135,8 +132,8 @@ struct DetailView: View {
                     }
                 }
                 .scrollIndicators(.hidden)
-
             }
+            .padding(Spacing.pv10)
         }
         .task {
             await viewModel.load()
