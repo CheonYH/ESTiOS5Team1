@@ -71,7 +71,7 @@ extension GameEntity {
             self.coverURL = nil
         }
 
-        // 원본 평점 값 유지
+        // 검색/목록 평점은 리뷰 통계 기준으로 사용하므로 원본 평점은 보관하지 않습니다.
         self.rating = nil
 
         // 장르 처리
