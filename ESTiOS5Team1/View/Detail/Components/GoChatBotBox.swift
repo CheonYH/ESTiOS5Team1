@@ -39,7 +39,3 @@ struct GoChatBotBox: View {
         }
     }
 }
-
-// #Preview {
-//    SwiftUIView()
-// }

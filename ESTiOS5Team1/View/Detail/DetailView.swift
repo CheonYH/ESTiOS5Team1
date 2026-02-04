@@ -148,7 +148,9 @@ struct DetailView: View {
             tabBarState.isHidden = true
         }
         .onDisappear {
-            tabBarState.isHidden = false
+            if !showRoot {
+                tabBarState.isHidden = false
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
