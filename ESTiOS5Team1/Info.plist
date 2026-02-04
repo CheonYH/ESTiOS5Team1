@@ -21,5 +21,9 @@
 	<false/>
 	<key>FirebaseCrashlyticsCollectionEnabled</key>
 	<true/>
+	<key>ALAN_ENDPOINT</key>
+	<string>$(ALAN_ENDPOINT)</string>
+	<key>ALAN_CLIENT_KEY</key>
+	<string>$(ALAN_CLIENT_KEY)</string>
 </dict>
 </plist>
