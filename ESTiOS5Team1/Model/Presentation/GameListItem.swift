@@ -20,6 +20,8 @@ struct GameListItem: Identifiable, Hashable {
     let coverURL: URL?
     /// 화면 표시용 평점 문자열입니다.
     let ratingText: String
+    /// 필터/정렬 계산용 평점 값(0~5)입니다.
+    let ratingValue: Double
     /// 장르 목록입니다.
     let genre: [String]
     /// 플랫폼 카테고리 목록입니다.
@@ -36,8 +38,9 @@ struct GameListItem: Identifiable, Hashable {
         self.title = entity.title
         self.coverURL = entity.coverURL
 
-        let avg = review.stats?.averageRating ?? 0
-        self.ratingText = avg == 0 ? "0/5" : String(format: "%.1f/5", avg)
+        let reviewAverage = review.stats?.averageRating ?? 0
+        self.ratingValue = reviewAverage
+        self.ratingText = reviewAverage == 0 ? "0/5" : String(format: "%.1f/5", reviewAverage)
 
         self.genre = entity.genre
 
