@@ -29,16 +29,12 @@ struct LoginHeader: View {
                 .padding(.top, Spacing.pv10)
                 .padding(.bottom, -35)
 
-            Text("게임 리뷰·추천·정보를 한 곳에서")
-                .font(.headline)
-                .bold()
-                .foregroundStyle(.gray)
         }
         .frame(maxWidth: .infinity)
 
         VStack(alignment: .leading, spacing: Spacing.pv10) {
             Text("환영합니다")
-                .font(.largeTitle)
+                .font(.title2)
                 .bold()
                 .foregroundStyle(.white)
 

@@ -104,14 +104,23 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     // MARK: - Initialization
 
+    /// 검색 ViewModel 인스턴스를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - service: 게임 데이터 조회 서비스 (`nil`이면 `SearchGameDataService` 사용)
+    ///   - favoriteManager: 즐겨찾기 상태 관리자
     init(service: GameDataServiceProtocol? = nil, favoriteManager: any FavoriteManagerProtocol) {
-        self.service = service ?? IGDBServiceManager()
+        self.service = service ?? SearchGameDataService()
         self.favoriteManager = favoriteManager
     }
 
     // MARK: - Public Methods (Protocol)
 
     /// 모든 카테고리(Discover, Trending, New Releases)의 게임 데이터를 로드합니다.
+    ///
+    /// - Endpoint:
+    ///   - IGDB: `POST /v4/multiquery`
+    ///   - Review: `GET /reviews/game/{gameId}/stats` (서비스 내부 결합)
     ///
     /// - Effects:
     ///     - 캐시가 존재하면 캐시 데이터 사용
@@ -185,6 +194,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     /// 캐시를 무시하고 강제로 모든 데이터를 새로고침합니다.
     ///
+    /// - Endpoint:
+    ///   `loadAllGames()` 내부 Endpoint 호출과 동일
+    ///
     /// - Effects:
     ///     - 정적 캐시 초기화
     ///     - `loadAllGames()` 재호출
@@ -196,6 +208,10 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
     /// 검색어를 기반으로 게임을 검색합니다.
     ///
     /// - Parameter query: 검색할 게임 제목 또는 키워드
+    ///
+    /// - Endpoint:
+    ///   - 기본 검색: IGDB `search` 쿼리
+    ///   - fallback 검색: IGDB `searchFallback` 쿼리
     ///
     /// - Effects:
     ///     - 빈 검색어는 무시하고 검색 결과 초기화
@@ -246,6 +262,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     /// 무한 스크롤을 위한 다음 페이지 데이터를 로드합니다.
     ///
+    /// - Endpoint:
+    ///   현재 상태(장르/검색/카테고리)에 따라 내부 로더가 개별 Endpoint를 호출합니다.
+    ///
     /// - Effects:
     ///     - 장르 선택 시: 해당 장르의 다음 페이지 로드
     ///     - 검색 중: 검색 결과의 다음 페이지 로드
@@ -270,6 +289,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
     /// 검색 결과 및 검색 상태를 초기화합니다.
     ///
+    /// - Endpoint:
+    ///   없음 (로컬 상태 초기화)
+    ///
     /// - Effects:
     ///     - 검색 아이템 목록 비우기
     ///     - 검색어 및 오프셋 초기화
@@ -290,6 +312,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
     ///   - genre: 장르 필터 타입 (RPG, 액션, 슈팅 등)
     ///   - searchText: 로컬 검색 필터용 텍스트
     ///   - advancedFilter: 정렬, 평점, 출시 기간 등 고급 필터 상태
+    ///
+    /// - Endpoint:
+    ///   없음 (로컬 필터 처리)
     ///
     /// - Effects:
     ///     - 필터 상태 저장
@@ -314,6 +339,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
     /// 특정 장르의 게임 데이터를 서버에서 로드합니다.
     ///
     /// - Parameter genre: 로드할 장르 타입
+    ///
+    /// - Endpoint:
+    ///   IGDB 장르 쿼리 (`IGDBQuery.genre`)
     ///
     /// - Effects:
     ///     - `.all` 장르는 장르 데이터 초기화
@@ -363,6 +391,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
     /// 장르 로딩 시작 전 UI 상태를 미리 준비합니다.
     ///
     /// - Parameter genre: 로딩 예정인 장르 타입
+    ///
+    /// - Endpoint:
+    ///   없음 (로컬 상태 준비)
     ///
     /// - Effects:
     ///     - `isGenreLoading`을 즉시 `true`로 설정
@@ -414,6 +445,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
     // MARK: - Private Methods
 
     /// 검색 결과의 다음 페이지를 로드합니다.
+    ///
+    /// - Endpoint:
+    ///   IGDB 검색 쿼리 (`IGDBQuery.search`)
     private func loadNextSearchPage() async {
         guard !lastSearchQuery.isEmpty else { return }
 
@@ -441,6 +475,9 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
     }
 
     /// 장르 필터링된 결과의 다음 페이지를 로드합니다.
+    ///
+    /// - Endpoint:
+    ///   IGDB 장르 쿼리 (`IGDBQuery.genre`)
     private func loadNextGenrePage() async {
         guard let genreId = currentLoadedGenre.igdbGenreId else { return }
 
@@ -468,6 +505,10 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
     }
 
     /// 현재 선택된 카테고리의 다음 페이지를 로드합니다.
+    ///
+    /// - Endpoint:
+    ///   - `.all`: Discover/Trending/NewReleases 병렬 호출
+    ///   - 단일 카테고리: 해당 카테고리 쿼리 단건 호출
     private func loadNextCategoryPage() async {
         isLoadingMore = true
 
@@ -586,7 +627,7 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
 
             // 평점 필터
             let matchesRating = currentAdvancedFilter.minimumRating <= 0 ||
-                (Double(item.ratingText) ?? 0) >= currentAdvancedFilter.minimumRating
+                item.ratingValue >= currentAdvancedFilter.minimumRating
 
             // 출시 기간 필터
             let matchesPeriod = currentAdvancedFilter.releasePeriod.matches(releaseYear: item.releaseYearText)
@@ -610,7 +651,7 @@ final class SearchViewModel: ObservableObject, SearchViewModelProtocol {
         case .newest:
             return items.sorted { (Int($0.releaseYearText) ?? 0) > (Int($1.releaseYearText) ?? 0) }
         case .rating:
-            return items.sorted { (Double($0.ratingText) ?? 0) > (Double($1.ratingText) ?? 0) }
+            return items.sorted { $0.ratingValue > $1.ratingValue }
         case .nameAsc:
             return items.sorted { $0.title < $1.title }
         }
